@@ -32,42 +32,11 @@ Creators in Zambia lack reliable monetization tools because most global platform
 ---
 
 ## 📁 Project Structure
-
-```
-creator-monetization/
-├── backend/                    ← Django/Node.js API
-│   ├── README.md              ← Backend setup & API docs
-│   ├── requirements.txt        ← Python dependencies
-│   ├── manage.py              ← Django CLI
-│   ├── config/                ← Settings, URLs, WSGI
-│   ├── apps/
-│   │   ├── auth/              ← User auth & JWT
-│   │   ├── creators/          ← Creator profiles
-│   │   ├── wallets/           ← Wallet & ledger
-│   │   ├── payments/          ← Payment processing
-│   │   ├── payouts/           ← Payout management
-│   │   └── admin/             ← Admin endpoints
-│   └── tests/                 ← Unit & integration tests
-├── frontend/                  ← React app
-│   ├── README.md              ← Frontend setup & guide
-│   ├── package.json           ← Dependencies
-│   ├── public/
-│   ├── src/
-│   │   ├── components/        ← React components
-│   │   ├── pages/             ← Page components
-│   │   ├── services/          ← API client
-│   │   ├── store/             ← Redux/Context state
-│   │   ├── styles/            ← CSS/Tailwind
-│   │   └── App.js
-│   └── tests/                 ← Unit & integration tests
-├── ISSUE_TEMPLATE_GUIDE.md    ← Complete issue template docs
-├── ISSUE_TEMPLATES_QUICK_REF.md ← 1-page cheat sheet
-├── EXAMPLE_WEEK1_ISSUES.md    ← Real example issues
-├── QUICK_START.md             ← Getting started
-└── README.md                  ← This file
-```
-
----
+[backend/](backend/README.md) - Backend service (API, database models, payment integration)  
+[frontend/](frontend/README.md) - Frontend app (React components, state management, UI)  
+[.github/ISSUE_TEMPLATE/](.github/ISSUE_TEMPLATE/) - Issue templates for features, bugs, QA, integration  
+[docs/](docs/) - Architecture diagrams, API specs
+[CONTRIBUTION.md](docs/CONTRIBUTION.md) - Contribution guidelines
 
 ## 🚀 Quick Start
 
@@ -102,37 +71,11 @@ npm start
 
 ## 🏗️ System Architecture
 
-```
-┌────────────────────────────────────────────────────┐
-│                    Fans / Creators                 │
-│              (Web Browser + Mobile)                │
-└────────────────────┬────────────────────────────────┘
-                     │
-         ┌───────────┴────────────┐
-         │   Frontend (React)     │
-         │  - Auth screens        │
-         │  - Creator profiles    │
-         │  - Payment UI          │
-         │  - Wallet dashboard    │
-         └───────────┬────────────┘
-                     │ (HTTPS)
-         ┌───────────┴────────────┐
-         │  Backend API (Django)  │
-         │  - Auth & JWT          │
-         │  - Creator profiles    │
-         │  - Wallet & ledger     │
-         │  - Payment logic       │
-         │  - Admin endpoints     │
-         └───────────┬────────────┘
-         ┌───────────┼────────────┐
-         │           │            │
-    ┌────┴────┐  ┌──┴────┐  ┌──┴─────┐
-    │ Postgres │  │ Redis │  │Mobile  │
-    │ Ledger   │  │ Cache │  │Money   │
-    └──────────┘  └───────┘  └────────┘
-```
+![System Architecture Diagram](docs/system-architecture.png)
 
----
+##  Complete Payment Flow
+
+![Payment Flow Diagram](docs/payment-flow.png)
 
 ## 📋 Core Components
 
@@ -226,18 +169,18 @@ POST   /api/v1/admin/payouts/{id}/reject     Reject payout
 ## 📖 Documentation
 
 ### Getting Started
-- **[QUICK_START.md](QUICK_START.md)** - 30-second overview
+- **[QUICK_START.md](docs/QUICK_START.md)** - 30-second overview
 - **[backend/README.md](backend/README.md)** - Backend setup & development
 - **[frontend/README.md](frontend/README.md)** - Frontend setup & development
 
 ### Issue Templates & Workflow
-- **[ISSUE_TEMPLATES_README.md](ISSUE_TEMPLATES_README.md)** - Complete guide
-- **[ISSUE_TEMPLATES_QUICK_REF.md](ISSUE_TEMPLATES_QUICK_REF.md)** - 1-page cheat sheet
-- **[ISSUE_TEMPLATE_GUIDE.md](ISSUE_TEMPLATE_GUIDE.md)** - Detailed reference
-- **[EXAMPLE_WEEK1_ISSUES.md](EXAMPLE_WEEK1_ISSUES.md)** - Real example issues
+- **[ISSUE_TEMPLATES_README.md](docs/ISSUE_TEMPLATES_README.md)** - Complete guide
+- **[ISSUE_TEMPLATES_QUICK_REF.md](docs/ISSUE_TEMPLATES_QUICK_REF.md)** - 1-page cheat sheet
+- **[ISSUE_TEMPLATE_GUIDE.md](docs/ISSUE_TEMPLATE_GUIDE.md)** - Detailed reference
+- **[EXAMPLE_WEEK1_ISSUES.md](docs/EXAMPLE_WEEK1_ISSUES.md)** - Real example issues
 
 ### Checklists
-- **[ISSUE_CREATION_CHECKLIST.md](ISSUE_CREATION_CHECKLIST.md)** - Pre-submit verification
+- **[ISSUE_CREATION_CHECKLIST.md](docs/ISSUE_CREATION_CHECKLIST.md)** - Pre-submit verification
 - **[INDEX.md](INDEX.md)** - File navigation
 
 ---
@@ -330,8 +273,8 @@ Browser & OS info
 ## 📞 Support
 
 **Questions?**
-- Read [ISSUE_TEMPLATES_README.md](ISSUE_TEMPLATES_README.md)
-- Check [EXAMPLE_WEEK1_ISSUES.md](EXAMPLE_WEEK1_ISSUES.md) for examples
+- Read [ISSUE_TEMPLATES_README.md](docs/ISSUE_TEMPLATES_README.md)
+- Check [EXAMPLE_WEEK1_ISSUES.md](docs/EXAMPLE_WEEK1_ISSUES.md) for examples
 - Ask in team chat or standup
 
 **Having trouble?**
@@ -359,7 +302,7 @@ Every decision, every line of code, every feature should move us toward this goa
 
 Want to contribute? Start here:
 
-- **Read [CONTRIBUTION.md](CONTRIBUTION.md)** for:
+- **Read [CONTRIBUTION.md](docs/CONTRIBUTION.md)** for:
   - Branching strategy (`feature/`, `fix/`, `docs/`, etc.)
   - Commit message conventions
   - Pull request guidelines with examples
@@ -370,7 +313,7 @@ Want to contribute? Start here:
 
 - **Create issues** using templates in [.github/ISSUE_TEMPLATE](https://github.com/zyambo/creator-monetization/tree/main/.github/ISSUE_TEMPLATE/)
 
-- **Review examples** in [EXAMPLE_WEEK1_ISSUES.md](EXAMPLE_WEEK1_ISSUES.md)
+- **Review examples** in [EXAMPLE_WEEK1_ISSUES.md](docs/EXAMPLE_WEEK1_ISSUES.md)
 
 **Project Lead:** Peter Zyambo (reviews API/backend changes)  
 **Frontend Lead:** George Mugale (reviews frontend/integration)  

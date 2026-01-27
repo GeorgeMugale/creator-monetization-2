@@ -4,7 +4,7 @@ This directory contains comprehensive issue templates and guides for the **Nthan
 
 ## 📚 Documentation Files
 
-### 1. [ISSUE_TEMPLATE_GUIDE.md](ISSUE_TEMPLATE_GUIDE.md) 📖
+### 1. [ISSUE_TEMPLATE_GUIDE.md](docs/ISSUE_TEMPLATE_GUIDE.md) 📖
 **Complete reference guide with:**
 - Overview of all 9 issue templates
 - When to use each template
@@ -19,7 +19,7 @@ This directory contains comprehensive issue templates and guides for the **Nthan
 
 ---
 
-### 2. [ISSUE_TEMPLATES_QUICK_REF.md](ISSUE_TEMPLATES_QUICK_REF.md) ⚡
+### 2. [ISSUE_TEMPLATES_QUICK_REF.md](docs/ISSUE_TEMPLATES_QUICK_REF.md) ⚡
 **Quick one-page reference card:**
 - Template comparison table
 - Sprint structure overview
@@ -34,7 +34,7 @@ This directory contains comprehensive issue templates and guides for the **Nthan
 
 ---
 
-### 3. [EXAMPLE_WEEK1_ISSUES.md](EXAMPLE_WEEK1_ISSUES.md) 📝
+### 3. [EXAMPLE_WEEK1_ISSUES.md](docs/EXAMPLE_WEEK1_ISSUES.md) 📝
 **Real example issues for Week 1:**
 - 19 detailed example issues (Days 1-10)
 - Auth, profiles, wallet, payments, payouts, admin flows
@@ -64,20 +64,20 @@ This directory contains comprehensive issue templates and guides for the **Nthan
 ## 🚀 Quick Start
 
 ### For Project Leads
-1. Read [ISSUE_TEMPLATE_GUIDE.md](ISSUE_TEMPLATE_GUIDE.md)
-2. Review [EXAMPLE_WEEK1_ISSUES.md](EXAMPLE_WEEK1_ISSUES.md)
+1. Read [ISSUE_TEMPLATE_GUIDE.md](docs/ISSUE_TEMPLATE_GUIDE.md)
+2. Review [EXAMPLE_WEEK1_ISSUES.md](docs/EXAMPLE_WEEK1_ISSUES.md)
 3. Create first batch of issues using those examples
 4. Assign to team members
 
 ### For Developers
-1. Read [ISSUE_TEMPLATES_QUICK_REF.md](ISSUE_TEMPLATES_QUICK_REF.md)
+1. Read [ISSUE_TEMPLATES_QUICK_REF.md](docs/ISSUE_TEMPLATES_QUICK_REF.md)
 2. When you get an issue, check the template type
 3. Ensure you understand acceptance criteria
 4. Link to related issues
 5. Daily sync with other team members
 
 ### For Integration Owner
-1. Review [ISSUE_TEMPLATE_GUIDE.md](ISSUE_TEMPLATE_GUIDE.md) section on "Daily Backend–Frontend Handshake"
+1. Review [ISSUE_TEMPLATE_GUIDE.md](docs/ISSUE_TEMPLATE_GUIDE.md) section on "Daily Backend–Frontend Handshake"
 2. Use `[API-SPEC]` template to define contracts before implementation
 3. Verify integrations using `[INT]` template checklist
 4. Sign-off on merged PRs matching API contracts
@@ -277,7 +277,7 @@ POST   /api/v1/admin/payouts/{id}/reject     Reject payout
 ## ❓ FAQ
 
 **Q: Which template should I use?**
-A: See [ISSUE_TEMPLATES_QUICK_REF.md](ISSUE_TEMPLATES_QUICK_REF.md) table.
+A: See [ISSUE_TEMPLATES_QUICK_REF.md](docs/ISSUE_TEMPLATES_QUICK_REF.md) table.
 
 **Q: How do I define an API endpoint?**
 A: Use `[API-SPEC]` template with full request/response examples.
@@ -299,15 +299,15 @@ A: 80% for backend services, manual + automated for frontend.
 ## 🎓 Training & Onboarding
 
 1. **New team member joins?**
-   - Have them read [ISSUE_TEMPLATE_GUIDE.md](ISSUE_TEMPLATE_GUIDE.md)
-   - Show them [EXAMPLE_WEEK1_ISSUES.md](EXAMPLE_WEEK1_ISSUES.md)
+   - Have them read [ISSUE_TEMPLATE_GUIDE.md](docs/ISSUE_TEMPLATE_GUIDE.md)
+   - Show them [EXAMPLE_WEEK1_ISSUES.md](docs/EXAMPLE_WEEK1_ISSUES.md)
    - Pair with senior dev for first issue
 
 2. **Need quick refresher?**
-   - Check [ISSUE_TEMPLATES_QUICK_REF.md](ISSUE_TEMPLATES_QUICK_REF.md)
+   - Check [ISSUE_TEMPLATES_QUICK_REF.md](docs/ISSUE_TEMPLATES_QUICK_REF.md)
 
 3. **Want to see real examples?**
-   - Look at [EXAMPLE_WEEK1_ISSUES.md](EXAMPLE_WEEK1_ISSUES.md)
+   - Look at [EXAMPLE_WEEK1_ISSUES.md](docs/EXAMPLE_WEEK1_ISSUES.md)
 
 ---
 

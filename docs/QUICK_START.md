@@ -13,18 +13,18 @@
 ## 📖 Start Here (Pick Your Role)
 
 ### 👨‍💼 Project Lead (Peter Zyambo)
-→ Read: [ISSUE_TEMPLATES_README.md](ISSUE_TEMPLATES_README.md)
+→ Read: [ISSUE_TEMPLATES_README.md](docs/ISSUE_TEMPLATES_README.md)
 
 ### 🔧 Backend Dev (George Mugale)  
-→ Read: [ISSUE_TEMPLATES_QUICK_REF.md](ISSUE_TEMPLATES_QUICK_REF.md)
-→ Copy: Examples from [EXAMPLE_WEEK1_ISSUES.md](EXAMPLE_WEEK1_ISSUES.md)
+→ Read: [ISSUE_TEMPLATES_QUICK_REF.md](docs/ISSUE_TEMPLATES_QUICK_REF.md)
+→ Copy: Examples from [EXAMPLE_WEEK1_ISSUES.md](docs/EXAMPLE_WEEK1_ISSUES.md)
 
 ### 🎨 Frontend Dev (George/Barnabas)
-→ Read: [ISSUE_TEMPLATES_QUICK_REF.md](ISSUE_TEMPLATES_QUICK_REF.md)
-→ Copy: Examples from [EXAMPLE_WEEK1_ISSUES.md](EXAMPLE_WEEK1_ISSUES.md)
+→ Read: [ISSUE_TEMPLATES_QUICK_REF.md](docs/ISSUE_TEMPLATES_QUICK_REF.md)
+→ Copy: Examples from [EXAMPLE_WEEK1_ISSUES.md](docs/EXAMPLE_WEEK1_ISSUES.md)
 
 ### 🧪 QA Team
-→ Read: [ISSUE_TEMPLATES_QUICK_REF.md](ISSUE_TEMPLATES_QUICK_REF.md)
+→ Read: [ISSUE_TEMPLATES_QUICK_REF.md](docs/ISSUE_TEMPLATES_QUICK_REF.md)
 → Use: [QA] template from `.github/ISSUE_TEMPLATE/qa-go-live.md`
 
 ---
@@ -75,8 +75,8 @@
 ## ✅ Before Creating an Issue
 
 1. Read the template in `.github/ISSUE_TEMPLATE/`
-2. Check [EXAMPLE_WEEK1_ISSUES.md](EXAMPLE_WEEK1_ISSUES.md) for examples
-3. Use [ISSUE_CREATION_CHECKLIST.md](ISSUE_CREATION_CHECKLIST.md) to verify
+2. Check [EXAMPLE_WEEK1_ISSUES.md](docs/EXAMPLE_WEEK1_ISSUES.md) for examples
+3. Use [ISSUE_CREATION_CHECKLIST.md](docs/ISSUE_CREATION_CHECKLIST.md) to verify
 4. Add labels: Type + Priority (if high) + `2-week-mvp`
 5. Assign owner
 6. Link dependencies
@@ -144,18 +144,18 @@ Feature is **Done** when:
 
 | Need | File |
 |------|------|
-| Complete guide | [ISSUE_TEMPLATE_GUIDE.md](ISSUE_TEMPLATE_GUIDE.md) |
-| Quick reference | [ISSUE_TEMPLATES_QUICK_REF.md](ISSUE_TEMPLATES_QUICK_REF.md) |
-| Examples | [EXAMPLE_WEEK1_ISSUES.md](EXAMPLE_WEEK1_ISSUES.md) |
-| Checklist | [ISSUE_CREATION_CHECKLIST.md](ISSUE_CREATION_CHECKLIST.md) |
+| Complete guide | [ISSUE_TEMPLATE_GUIDE.md](docs/ISSUE_TEMPLATE_GUIDE.md) |
+| Quick reference | [ISSUE_TEMPLATES_QUICK_REF.md](docs/ISSUE_TEMPLATES_QUICK_REF.md) |
+| Examples | [EXAMPLE_WEEK1_ISSUES.md](docs/EXAMPLE_WEEK1_ISSUES.md) |
+| Checklist | [ISSUE_CREATION_CHECKLIST.md](docs/ISSUE_CREATION_CHECKLIST.md) |
 
 ---
 
 ## 🎓 Onboarding (30 mins)
 
 1. Read this file (2 mins)
-2. Skim [ISSUE_TEMPLATES_QUICK_REF.md](ISSUE_TEMPLATES_QUICK_REF.md) (5 mins)
-3. Look at examples in [EXAMPLE_WEEK1_ISSUES.md](EXAMPLE_WEEK1_ISSUES.md) (10 mins)
+2. Skim [ISSUE_TEMPLATES_QUICK_REF.md](docs/ISSUE_TEMPLATES_QUICK_REF.md) (5 mins)
+3. Look at examples in [EXAMPLE_WEEK1_ISSUES.md](docs/EXAMPLE_WEEK1_ISSUES.md) (10 mins)
 4. Create first issue (10 mins)
 5. Ask for review before submitting
 
@@ -185,6 +185,6 @@ Every issue, every decision, every line of code should move you toward this goal
 
 All templates are in place. Start creating issues for Day 1 tasks.
 
-Share [ISSUE_TEMPLATES_QUICK_REF.md](ISSUE_TEMPLATES_QUICK_REF.md) with your team and you're good to go.
+Share [ISSUE_TEMPLATES_QUICK_REF.md](docs/ISSUE_TEMPLATES_QUICK_REF.md) with your team and you're good to go.
 
 **Let's build something meaningful for Zambian creators! 🇿🇲**

@@ -348,7 +348,7 @@ Before submitting your issue, verify:
 
 ## 💡 Pro Tips
 
-1. **Copy examples from [EXAMPLE_WEEK1_ISSUES.md](EXAMPLE_WEEK1_ISSUES.md)**
+1. **Copy examples from [EXAMPLE_WEEK1_ISSUES.md](docs/EXAMPLE_WEEK1_ISSUES.md)**
    - Real working examples of all issue types
    - Shows proper structure & detail level
 
@@ -381,8 +381,8 @@ Before submitting your issue, verify:
 ## 📞 Questions?
 
 Review:
-- [ISSUE_TEMPLATE_GUIDE.md](ISSUE_TEMPLATE_GUIDE.md) — Full guide
-- [ISSUE_TEMPLATES_QUICK_REF.md](ISSUE_TEMPLATES_QUICK_REF.md) — Quick reference
-- [EXAMPLE_WEEK1_ISSUES.md](EXAMPLE_WEEK1_ISSUES.md) — Real examples
+- [ISSUE_TEMPLATE_GUIDE.md](docs/ISSUE_TEMPLATE_GUIDE.md) — Full guide
+- [ISSUE_TEMPLATES_QUICK_REF.md](docs/ISSUE_TEMPLATES_QUICK_REF.md) — Quick reference
+- [EXAMPLE_WEEK1_ISSUES.md](docs/EXAMPLE_WEEK1_ISSUES.md) — Real examples
 
 Still stuck? Ask the project lead (Peter Zyambo).

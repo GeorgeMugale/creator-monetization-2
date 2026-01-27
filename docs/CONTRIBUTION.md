@@ -648,7 +648,7 @@ echo $PYTHONPATH
 - Check [README.md](README.md) for project overview
 - See [backend/README.md](backend/README.md) for API docs
 - See [frontend/README.md](frontend/README.md) for UI setup
-- Review [EXAMPLE_WEEK1_ISSUES.md](EXAMPLE_WEEK1_ISSUES.md) for real examples
+- Review [EXAMPLE_WEEK1_ISSUES.md](docs/EXAMPLE_WEEK1_ISSUES.md) for real examples
 
 **During integration windows (Days 3-10):**
 - Daily 15-min standup at [time TBD]
