@@ -1,0 +1,19 @@
+name: Lighthouse CI
+
+on:
+  pull_request:
+    paths:
+      - "frontend/**"
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: treosh/lighthouse-ci-action@v10
+        with:
+          urls: "http://localhost:3000"
+          budgetPath: ./frontend/lighthouse-budget.json
+          uploadArtifacts: true
+          temporaryPublicStorage: true
