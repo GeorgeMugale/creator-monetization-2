@@ -75,7 +75,7 @@ Error Cases:
 ### Issue 3: `[BE] Authentication & User Models with JWT`
 ```
 Labels: backend, high-priority, 2-week-mvp
-Assignee: George Mugale (Backend)
+Assignee: Peter zyambo (backend)
 
 📌 Summary:
 Implement user model, JWT authentication, role-based access control.
@@ -232,7 +232,7 @@ Success Response (200):
 ### Issue 7: `[BE] Creator Profile Model & Endpoints`
 ```
 Labels: backend, 2-week-mvp
-Assignee: George Mugale (Backend)
+Assignee: Peter zyambo (backend)
 
 📌 Summary:
 Implement creator profile model, public profile retrieval, 
@@ -351,7 +351,7 @@ Response:
 ### Issue 10: `[BE] Wallet Model & Payment Initiation`
 ```
 Labels: backend, high-priority, 2-week-mvp
-Assignee: George Mugale (Backend)
+Assignee: Peter zyambo (backend)
 
 📌 Summary:
 Implement immutable wallet & ledger system. 
@@ -495,7 +495,7 @@ Response (200 OK - any response code triggers retry):
 ### Issue 14: `[BE] Payment Webhook Handler & Idempotency`
 ```
 Labels: backend, high-priority, 2-week-mvp
-Assignee: George Mugale (Backend)
+Assignee: Peter zyambo (backend)
 
 📌 Summary:
 Implement webhook handler for mobile money payment callbacks.
@@ -630,7 +630,7 @@ Response:
 ### Issue 17: `[BE] Payout Request & Admin Approval`
 ```
 Labels: backend, high-priority, 2-week-mvp
-Assignee: George Mugale (Backend)
+Assignee: Peter zyambo (backend)
 
 📌 Summary:
 Implement payout request creation and admin approval workflow.
