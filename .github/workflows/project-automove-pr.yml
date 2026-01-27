@@ -4,7 +4,6 @@ on:
   pull_request:
     types:
       - opened
-      - ready_for_review
       - closed
 
 jobs:
@@ -14,47 +13,34 @@ jobs:
       - name: Move linked issue in project
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GH_API_TOKEN }}
           script: |
             const projectId = "PVT_kwDOCYmIm84BNk3g";
             const STATUS_FIELD_ID = "PVTSSF_lADOCYmIm84BNk3gzg8h8SE";
-
+            const BACKLOG_OPTION_ID = "f75ad846";
             const IN_PROGRESS_OPTION_ID = "47fc9ee4";
             const QA_OPTION_ID = "51c4a8ed";
             const READY_OPTION_ID = "43cb5d2b";
+            const DONE_OPTION_ID = "98236657";
 
-            const REVIEWER = "sangwani-coder";
+            const statusOptions = {
+                backlog: "BACKLOG_OPTION_ID",
+                in_progress: "IN_PROGRESS_OPTION_ID",
+                qa: "QA_OPTION_ID",
+                ready: "READY_OPTION_ID",
+                done: "DONE_OPTION_ID"
+            };
 
             const pr = context.payload.pull_request;
-            const action = context.payload.action;
             const isMerged = pr.merged;
+            const action = context.payload.action;
 
-            const linkedIssues =
-              pr.body?.match(/(close|closes|fix|fixes|resolve|resolves)\s*:?\s*#\d+/gi);
+            // Get linked issues (closes #, fixes #)
+            const linkedIssues = pr.body?.match(/(close|closes|fix|fixes|resolve|resolves)\s+#\d+/gi);
 
             if (!linkedIssues) {
               console.log("No linked issues found.");
               return;
-            }
-
-            let status;
-
-            if (action === "opened") status = IN_PROGRESS_OPTION_ID;
-            if (action === "ready_for_review") status = QA_OPTION_ID;
-            if (action === "closed" && isMerged) status = READY_OPTION_ID;
-
-            if (!status) return;
-
-            // Assign reviewer when PR is ready for review
-            if (action === "ready_for_review") {
-              await github.rest.pulls.requestReviewers({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: pr.number,
-                reviewers: [REVIEWER]
-              });
-
-              console.log(`👀 Reviewer ${REVIEWER} assigned`);
             }
 
             for (const ref of linkedIssues) {
@@ -67,25 +53,27 @@ jobs:
               });
 
               const contentId = issue.node_id;
-              let itemId;
 
-              try {
-                const addItem = await github.graphql(`
-                  mutation ($projectId: ID!, $contentId: ID!) {
-                    addProjectV2ItemById(
-                      input: { projectId: $projectId, contentId: $contentId }
-                    ) {
-                      item { id }
-                    }
+              let status;
+              if (action === "opened") status = statusOptions.qa;
+              if (action === "closed" && isMerged) status = statusOptions.ready;
+
+              if (!status) continue;
+
+              // Add issue to project
+              const addItem = await github.graphql(`
+                mutation ($projectId: ID!, $contentId: ID!) {
+                  addProjectV2ItemById(
+                    input: { projectId: $projectId, contentId: $contentId }
+                  ) {
+                    item { id }
                   }
-                `, { projectId, contentId });
+                }
+              `, { projectId, contentId });
 
-                itemId = addItem.addProjectV2ItemById.item.id;
-              } catch {
-                console.log("Issue already in project, continuing...");
-                continue;
-              }
+              const itemId = addItem.addProjectV2ItemById.item.id;
 
+              // Update status
               await github.graphql(`
                 mutation (
                   $projectId: ID!
@@ -107,7 +95,7 @@ jobs:
               `, {
                 projectId,
                 itemId,
-                fieldId: STATUS_FIELD_ID,
+                fieldId: statusFieldId,
                 optionId: status
               });
 
