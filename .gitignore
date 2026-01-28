@@ -28,7 +28,7 @@ env/
 coverage/
 htmlcov/
 *.log
-
+.coverage
 # Django / Flask / FastAPI extras
 db.sqlite3
 instance/
