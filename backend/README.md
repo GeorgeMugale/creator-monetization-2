@@ -37,6 +37,7 @@ backend/
 │   └── celery.py            ← Celery configuration
 ├── apps/
 │   ├── auth/
+│   │   ├── migrations/      ← Database migrations
 │   │   ├── models.py        ← User model with roles
 │   │   ├── views.py         ← Auth endpoints (register, login, refresh)
 │   │   ├── serializers.py   ← Request/response validation
@@ -44,12 +45,14 @@ backend/
 │   │   ├── tests.py         ← Auth tests
 │   │   └── urls.py          ← Auth routes
 │   ├── creators/
+│   │   ├── migrations/      ← Database migrations
 │   │   ├── models.py        ← Creator profile model
 │   │   ├── views.py         ← Profile endpoints
 │   │   ├── serializers.py   ← Profile serialization
 │   │   ├── tests.py
 │   │   └── urls.py
 │   ├── wallets/
+│   │   ├── migrations/      ← Database migrations
 │   │   ├── models.py        ← Wallet & transaction ledger
 │   │   ├── views.py         ← Wallet endpoints
 │   │   ├── serializers.py
@@ -57,6 +60,7 @@ backend/
 │   │   ├── tests.py
 │   │   └── urls.py
 │   ├── payments/
+│   │   ├── migrations/      ← Database migrations
 │   │   ├── models.py        ← Payment model
 │   │   ├── views.py         ← Payment endpoints
 │   │   ├── webhooks.py      ← Mobile money webhooks
@@ -64,6 +68,7 @@ backend/
 │   │   ├── tests.py
 │   │   └── urls.py
 │   ├── payouts/
+│   │   ├── migrations/      ← Database migrations
 │   │   ├── models.py        ← Payout request model
 │   │   ├── views.py         ← Payout endpoints
 │   │   ├── services.py      ← Payout processing
@@ -75,7 +80,6 @@ backend/
 │       ├── permissions.py   ← Admin-only access
 │       ├── tests.py
 │       └── urls.py
-├── migrations/              ← Database migrations
 ├── tests/
 │   ├── test_integration.py  ← Integration tests
 │   ├── test_api.py          ← API endpoint tests
