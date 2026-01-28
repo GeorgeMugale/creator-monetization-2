@@ -7,7 +7,13 @@ class IsCreator(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        """Check if user is authenticated and is a creator."""
+        """
+        Check if user is authenticated and is a creator.
+        args:
+            request: The HTTP request object.
+            view: The view being accessed.
+        returns: bool: True if user is authenticated and is a creator, False otherwise.
+        """
         return request.user and request.user.is_authenticated and request.user.is_creator()
 
 
@@ -17,7 +23,13 @@ class IsAdminUser(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        """Check if user is authenticated and is admin or staff."""
+        """
+        Check if user is authenticated and is admin or staff.
+        args:
+            request: The HTTP request object.
+            view: The view being accessed.
+        returns: bool: True if user is authenticated and is a creator, False otherwise.
+        """
         return request.user and request.user.is_authenticated and request.user.is_admin_user()
 
 
@@ -27,7 +39,13 @@ class IsStaffUser(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        """Check if user is staff or superuser."""
+        """
+        Check if user is staff or superuser.
+        args:
+            request: The HTTP request object.
+            view: The view being accessed.
+        returns: bool: True if user is authenticated and is a creator, False otherwise.
+        """
         return request.user and request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser)
 
 

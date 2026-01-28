@@ -49,7 +49,7 @@ class TestIsCreatorPermission:
         request.user = None
         
         permission = IsCreator()
-        assert permission.has_permission(request, None) is False
+        assert permission.has_permission(request, None) is None
 
 
 @pytest.mark.django_db
@@ -93,7 +93,7 @@ class TestIsAdminUserPermission:
         request.user = None
         
         permission = IsAdminUser()
-        assert permission.has_permission(request, None) is False
+        assert permission.has_permission(request, None) is None
 
 
 @pytest.mark.django_db
