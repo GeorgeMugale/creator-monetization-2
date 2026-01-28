@@ -127,7 +127,9 @@ class TestCreateAPIClientCommand:
 
     def test_create_api_client_missing_required_args(self):
         """Test command fails without required arguments."""
-        with pytest.raises(SystemExit):
+        # Missing name
+        from django.core.management import CommandError
+        with pytest.raises(CommandError):
             call_command('create_api_client')
 
     def test_create_api_client_generates_unique_keys(self):
