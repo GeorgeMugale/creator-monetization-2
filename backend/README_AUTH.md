@@ -1,6 +1,6 @@
 # Multi-Frontend JWT Authentication System
 
-### 👥 Three User Types
+### User Types
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  CREATORS                  STAFF            ADMIN/SUPERUSER  │
@@ -62,7 +62,7 @@ python manage.py runserver
 
 # Now visit:
 # - http://localhost:8000/admin/ (manage users/clients)
-# - http://localhost:8000/api/auth/register/ (create creator)
+# - http://localhost:8000/api/v1/auth/register/ (create creator)
 # - http://localhost:8000/api/schema/swagger/ (API docs)
 ```
 
@@ -73,22 +73,22 @@ python manage.py runserver
 ### Authentication
 | Endpoint | Method | Auth | Purpose |
 |----------|--------|------|---------|
-| `/api/auth/register/` | POST | ❌ | Self-register as creator |
-| `/api/auth/token/` | POST | ❌ | Login, get JWT tokens |
-| `/api/auth/token/refresh/` | POST | ❌ | Refresh access token |
-| `/api/auth/logout/` | POST | ✅ | Logout, blacklist token |
+| `/api/v1/auth/register/` | POST | ❌ | Self-register as creator |
+| `/api/v1/auth/token/` | POST | ❌ | Login, get JWT tokens |
+| `/api/v1/auth/token/refresh/` | POST | ❌ | Refresh access token |
+| `/api/v1/auth/logout/` | POST | ✅ | Logout, blacklist token |
 
 ### User Profile
 | Endpoint | Method | Auth | Purpose |
 |----------|--------|------|---------|
-| `/api/auth/profile/` | GET | ✅ | Get current user |
-| `/api/auth/profile/` | PATCH | ✅ | Update profile |
-| `/api/auth/profile/` | PUT | ✅ | Full update |
+| `/api/v1/auth/profile/` | GET | ✅ | Get current user |
+| `/api/v1/auth/profile/` | PATCH | ✅ | Update profile |
+| `/api/v1/auth/profile/` | PUT | ✅ | Full update |
 
 ### Password
 | Endpoint | Method | Auth | Purpose |
 |----------|--------|------|---------|
-| `/api/auth/change-password/` | POST | ✅ | Change password |
+| `/api/v1/auth/change-password/` | POST | ✅ | Change password |
 
 ---
 
@@ -177,7 +177,7 @@ The documentation includes working code for:
 
 ### Registration (NEW CREATORS)
 ```
-POST /api/auth/register/
+POST /api/v1/auth/register/
 {
   "email": "creator@example.com",
   "username": "mycreator",
@@ -201,7 +201,7 @@ Response:
 
 ### Login (EXISTING USERS)
 ```
-POST /api/auth/token/
+POST /api/v1/auth/token/
 {
   "email": "creator@example.com",
   "password": "SecurePassword123!"
@@ -229,7 +229,7 @@ Response:
    ↓
 3. Make API requests with access_token
    ↓
-4. If access expires → POST /api/auth/token/refresh/ with refresh_token
+4. If access expires → POST /api/v1/auth/token/refresh/ with refresh_token
    ↓
 5. Get new access_token (refresh_token also rotates)
    ↓

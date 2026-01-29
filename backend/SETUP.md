@@ -67,7 +67,7 @@ CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001,https://app.exa
 ### Register a New Creator
 
 ```bash
-curl -X POST http://localhost:8000/api/auth/register/ \
+curl -X POST http://localhost:8000/api/v1/auth/register/ \
   -H "Content-Type: application/json" \
   -d '{
     "email": "creator@example.com",
@@ -100,7 +100,7 @@ curl -X POST http://localhost:8000/api/auth/register/ \
 ### Login (Obtain Tokens)
 
 ```bash
-curl -X POST http://localhost:8000/api/auth/token/ \
+curl -X POST http://localhost:8000/api/v1/auth/token/ \
   -H "Content-Type: application/json" \
   -d '{
     "email": "creator@example.com",
@@ -111,7 +111,7 @@ curl -X POST http://localhost:8000/api/auth/token/ \
 ### Get User Profile
 
 ```bash
-curl -X GET http://localhost:8000/api/auth/profile/ \
+curl -X GET http://localhost:8000/api/v1/auth/profile/ \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
   -H "X-API-Key: sk_your_api_key_here"
 ```
@@ -119,7 +119,7 @@ curl -X GET http://localhost:8000/api/auth/profile/ \
 ### Update Profile
 
 ```bash
-curl -X PATCH http://localhost:8000/api/auth/profile/ \
+curl -X PATCH http://localhost:8000/api/v1/auth/profile/ \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -131,7 +131,7 @@ curl -X PATCH http://localhost:8000/api/auth/profile/ \
 ### Change Password
 
 ```bash
-curl -X POST http://localhost:8000/api/auth/change-password/ \
+curl -X POST http://localhost:8000/api/v1/auth/change-password/ \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -144,7 +144,7 @@ curl -X POST http://localhost:8000/api/auth/change-password/ \
 ### Refresh Token
 
 ```bash
-curl -X POST http://localhost:8000/api/auth/token/refresh/ \
+curl -X POST http://localhost:8000/api/v1/auth/token/refresh/ \
   -H "Content-Type: application/json" \
   -d '{
     "refresh": "YOUR_REFRESH_TOKEN"
@@ -154,7 +154,7 @@ curl -X POST http://localhost:8000/api/auth/token/refresh/ \
 ### Logout
 
 ```bash
-curl -X POST http://localhost:8000/api/auth/logout/ \
+curl -X POST http://localhost:8000/api/v1/auth/logout/ \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -170,7 +170,7 @@ curl -X POST http://localhost:8000/api/auth/logout/ \
 
 ```javascript
 // After registration/login
-const response = await fetch('http://api.example.com/api/auth/token/', {
+const response = await fetch('http://api.example.com/api/v1/auth/token/', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ email, password })
@@ -191,14 +191,14 @@ const headers = {
   'X-Client-ID': process.env.REACT_APP_CLIENT_ID  // From environment
 };
 
-fetch('http://api.example.com/api/auth/profile/', { headers });
+fetch('http://api.example.com/api/v1/auth/profile/', { headers });
 ```
 
 #### 3. Handle token expiration
 
 ```javascript
 async function refreshAccessToken() {
-  const response = await fetch('http://api.example.com/api/auth/token/refresh/', {
+  const response = await fetch('http://api.example.com/api/v1/auth/token/refresh/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ refresh: localStorage.getItem('refresh_token') })
@@ -238,7 +238,7 @@ Use the `createsuperuser` command (already set `is_staff` and `is_superuser`)
 
 ### Self-Registered Users (Creators)
 
-- Use `/api/auth/register/` endpoint
+- Use `/api/v1/auth/register/` endpoint
 - Automatically set as `user_type='creator'`
 - Cannot become staff/admin via API
 

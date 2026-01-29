@@ -1,5 +1,6 @@
-from rest_framework.authentication import TokenAuthentication, BaseAuthentication
+from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.permissions import BasePermission
 from django.contrib.auth import get_user_model
 from apps.customauth.models import APIClient
 
@@ -35,6 +36,17 @@ class APIKeyAuthentication(BaseAuthentication):
     def authenticate_header(self, request):
         """Return the authentication header."""
         return 'X-API-Key'
+
+
+class RequireAPIKey(BasePermission):
+    """
+    Permission class to require API key authentication for frontend clients.
+    """
+    message = 'API key is required. Please provide X-API-Key header.'
+
+    def has_permission(self, request, view):
+        """Check if request has valid API key."""
+        return hasattr(request, 'client') and request.client is not None
 
 
 class ClientIdentificationMiddleware:

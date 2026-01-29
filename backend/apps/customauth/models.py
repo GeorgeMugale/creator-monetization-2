@@ -46,6 +46,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=150, blank=True)
     last_name = models.CharField(max_length=150, blank=True)
     user_type = models.CharField(max_length=20, choices=USER_TYPE_CHOICES, default='creator')
+    slug = models.SlugField(unique=True, max_length=255)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
@@ -64,7 +65,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         ordering = ['-date_joined']
 
     def __str__(self):
-        return self.email
+        return f'{self.email} ({self.username})'
 
     def get_full_name(self):
         """Return the user's full name."""
@@ -81,6 +82,17 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def is_admin_user(self):
         """Check if user is admin or staff."""
         return self.user_type in ['admin', 'staff']
+
+    def save(self, *args, **kwargs):
+        """
+        Override save to auto-generate slug if not present from username. and
+        replace spaces with hyphens in username.
+        """
+        if not self.slug:
+            self.slug = self.username.replace(' ', '-').lower()
+        # Ensure username has no spaces
+        self.username = self.username.replace(' ', '-').lower()
+        super().save(*args, **kwargs)
 
 
 class APIClient(models.Model):

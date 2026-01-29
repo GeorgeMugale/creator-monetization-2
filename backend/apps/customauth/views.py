@@ -1,11 +1,12 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
 
+from utils.authentication import RequireAPIKey
 from .serializers import (
     UserSerializer,
     UserRegistrationSerializer,
@@ -18,19 +19,46 @@ User = get_user_model()
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     """Custom JWT token obtain view."""
-
+    permission_classes = [RequireAPIKey]
     serializer_class = CustomTokenObtainPairSerializer
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST request to obtain JWT tokens.
+        return json {access_token, refresh_token}
+        """
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == 200:
+            data = response.data
+            return Response({
+                'access_token': data['access'],
+                'refresh_token': data['refresh'],
+            })
+        return response
 
 
 class TokenRefreshView(TokenRefreshView):
     """JWT token refresh view."""
+    permission_classes = [RequireAPIKey]
+    serializer_class = TokenRefreshView.serializer_class
 
-    pass
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST request to refresh JWT tokens.
+        return json {access_token}
+        """
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == 200:
+            data = response.data
+            return Response({
+                'access_token': data['access'],
+            })
+        return response
 
 
 class UserRegistrationView(APIView):
     """User registration endpoint."""
-    permission_classes = [AllowAny]
+    permission_classes = [RequireAPIKey]
     serializer_class = UserRegistrationSerializer
 
     def post(self, request):
@@ -41,8 +69,8 @@ class UserRegistrationView(APIView):
             refresh = RefreshToken.for_user(user)
             return Response({
                 'user': UserSerializer(user).data,
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
+                'refresh_token': str(refresh),
+                'access_token': str(refresh.access_token),
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -50,7 +78,7 @@ class UserRegistrationView(APIView):
 class UserProfileView(APIView):
     """Get current user profile."""
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [RequireAPIKey, IsAuthenticated]
 
     def get(self, request):
         """Get user profile."""
@@ -77,7 +105,7 @@ class UserProfileView(APIView):
 class ChangePasswordView(APIView):
     """Change user password."""
     serializer_class = ChangePasswordSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [RequireAPIKey, IsAuthenticated]
 
     def post(self, request):
         """Change password."""
@@ -97,7 +125,7 @@ class ChangePasswordView(APIView):
 class LogoutView(APIView):
     """User logout endpoint."""
     serializer_class = None
-    permission_classes = [IsAuthenticated]
+    permission_classes = [RequireAPIKey, IsAuthenticated]
 
     def post(self, request):
         """Logout user."""

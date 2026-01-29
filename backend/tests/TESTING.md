@@ -83,7 +83,7 @@ class TestSomething:
 ```python
 def test_endpoint(api_client):
     """Test API endpoint."""
-    response = api_client.get('/api/auth/profile/')
+    response = api_client.get('/api/v1/auth/profile/')
     assert response.status_code == 401
 ```
 
@@ -94,7 +94,7 @@ def test_authenticated_endpoint(api_client):
     user = UserFactory()
     api_client.force_authenticate(user=user)
     
-    response = api_client.get('/api/auth/profile/')
+    response = api_client.get('/api/v1/auth/profile/')
     assert response.status_code == 200
 ```
 
@@ -108,7 +108,7 @@ def test_registration(api_client):
         'password': 'SecurePass123!',
         'password2': 'SecurePass123!',
     }
-    response = api_client.post('/api/auth/register/', data, format='json')
+    response = api_client.post('/api/v1/auth/register/', data, format='json')
     assert response.status_code == 201
 ```
 

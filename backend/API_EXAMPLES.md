@@ -35,7 +35,7 @@ export const environment = {
 ### 1. Register Creator
 
 ```bash
-curl -X POST http://localhost:8000/api/auth/register/ \
+curl -X POST http://localhost:8000/api/v1/auth/register/ \
   -H "Content-Type: application/json" \
   -d '{
     "email": "john@example.com",
@@ -68,7 +68,7 @@ curl -X POST http://localhost:8000/api/auth/register/ \
 ### 2. Login
 
 ```bash
-curl -X POST http://localhost:8000/api/auth/token/ \
+curl -X POST http://localhost:8000/api/v1/auth/token/ \
   -H "Content-Type: application/json" \
   -d '{
     "email": "john@example.com",
@@ -79,7 +79,7 @@ curl -X POST http://localhost:8000/api/auth/token/ \
 ### 3. Get Profile
 
 ```bash
-curl -X GET http://localhost:8000/api/auth/profile/ \
+curl -X GET http://localhost:8000/api/v1/auth/profile/ \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
   -H "X-API-Key: sk_your_api_key"
 ```
@@ -87,7 +87,7 @@ curl -X GET http://localhost:8000/api/auth/profile/ \
 ### 4. Update Profile
 
 ```bash
-curl -X PATCH http://localhost:8000/api/auth/profile/ \
+curl -X PATCH http://localhost:8000/api/v1/auth/profile/ \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -99,7 +99,7 @@ curl -X PATCH http://localhost:8000/api/auth/profile/ \
 ### 5. Refresh Token
 
 ```bash
-curl -X POST http://localhost:8000/api/auth/token/refresh/ \
+curl -X POST http://localhost:8000/api/v1/auth/token/refresh/ \
   -H "Content-Type: application/json" \
   -d '{
     "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
@@ -109,7 +109,7 @@ curl -X POST http://localhost:8000/api/auth/token/refresh/ \
 ### 6. Change Password
 
 ```bash
-curl -X POST http://localhost:8000/api/auth/change-password/ \
+curl -X POST http://localhost:8000/api/v1/auth/change-password/ \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -122,7 +122,7 @@ curl -X POST http://localhost:8000/api/auth/change-password/ \
 ### 7. Logout
 
 ```bash
-curl -X POST http://localhost:8000/api/auth/logout/ \
+curl -X POST http://localhost:8000/api/v1/auth/logout/ \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -172,7 +172,7 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       try {
         const refreshToken = localStorage.getItem('refresh_token');
-        const response = await axios.post(`${API_URL}/api/auth/token/refresh/`, {
+        const response = await axios.post(`${API_URL}/api/v1/auth/token/refresh/`, {
           refresh: refreshToken
         });
         localStorage.setItem('access_token', response.data.access);
@@ -450,7 +450,7 @@ export default ProtectedRoute;
 
 2. **Register Request**:
    - Method: POST
-   - URL: `{{api_url}}/api/auth/register/`
+   - URL: `{{api_url}}/api/v1/auth/register/`
    - Body:
      ```json
      {
@@ -471,7 +471,7 @@ export default ProtectedRoute;
 
 3. **Login Request**:
    - Method: POST
-   - URL: `{{api_url}}/api/auth/token/`
+   - URL: `{{api_url}}/api/v1/auth/token/`
    - Body:
      ```json
      {
@@ -482,7 +482,7 @@ export default ProtectedRoute;
 
 4. **Get Profile Request**:
    - Method: GET
-   - URL: `{{api_url}}/api/auth/profile/`
+   - URL: `{{api_url}}/api/v1/auth/profile/`
    - Headers:
      - Authorization: `Bearer {{access_token}}`
      - X-API-Key: `sk_your_api_key`
