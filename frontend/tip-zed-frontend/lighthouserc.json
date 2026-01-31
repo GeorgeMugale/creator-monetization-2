@@ -1,7 +1,7 @@
 {
   "ci": {
     "collect": {
-      "staticDistDir": "./dist",
+      "staticDistDir": "./frontend/tip-zed-frontend/dist",
       "numberOfRuns": 3
     },
     "upload": {
