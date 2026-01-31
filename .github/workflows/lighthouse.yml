@@ -33,5 +33,5 @@ jobs:
         with:
           configPath: ./frontend/tip-zed-frontend/lighthouserc.json
           budgetPath: ./frontend/tip-zed-frontend/lighthouse-budget.json
-          uploadArtifacts: true
+          uploadArtifacts: false
           temporaryPublicStorage: true
