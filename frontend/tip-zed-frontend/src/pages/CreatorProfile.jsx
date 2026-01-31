@@ -30,6 +30,7 @@ const CreatorProfile = () => {
           setCreator(response.data);
         }
       } catch (err) {
+        console.error(err);
         setError("Creator not found or unavailable.");
       } finally {
         setLoading(false);

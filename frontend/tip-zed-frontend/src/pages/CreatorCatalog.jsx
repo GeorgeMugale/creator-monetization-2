@@ -24,6 +24,7 @@ const CreatorCatalog = () => {
           setCreators(response.data);
         }
       } catch (err) {
+        console.error(err);
         setError("Failed to load creators. Please try again.");
       } finally {
         setLoading(false);
