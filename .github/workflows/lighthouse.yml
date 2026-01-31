@@ -3,7 +3,7 @@ name: Lighthouse CI
 on:
   pull_request:
     paths:
-      - "frontend/**"
+      - "frontend/tip-zed-frontend/**"
 
 jobs:
   lighthouse:
@@ -11,9 +11,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: treosh/lighthouse-ci-action@v10
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          urls: "http://localhost:3000"
-          budgetPath: ./frontend/lighthouse-budget.json
-          uploadArtifacts: true
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: frontend/tip-zed-frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./frontend/tip-zed-frontend
+        run: npm ci
+
+      - name: Build app
+        working-directory: ./frontend/tip-zed-frontend
+        run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+
+      - name: Run Lighthouse
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          configPath: ./frontend/tip-zed-frontend/lighthouserc.json
+          budgetPath: ./frontend/tip-zed-frontend/lighthouse-budget.json
+          uploadArtifacts: false
           temporaryPublicStorage: true
