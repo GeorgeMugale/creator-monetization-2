@@ -1,0 +1,9 @@
+from django.urls import path
+from apps.wallets.views.wallet import WalletListView, WalletTransactionsView
+
+app_name = 'wallets'
+
+urlpatterns = [
+    path('me/', WalletListView.as_view(), name='user_wallet'),
+    path('transactions/', WalletTransactionsView.as_view(), name='wallet_transactions'),
+]
