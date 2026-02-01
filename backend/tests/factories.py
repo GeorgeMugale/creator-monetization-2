@@ -6,6 +6,10 @@ from decimal import Decimal
 from django.contrib.auth import get_user_model
 from apps.customauth.models import APIClient
 from apps.creators.models import CreatorProfile
+from apps.wallets.models.payment import Payment
+from apps.wallets.models.payment_related import (
+    Wallet, WalletKYC, WalletPayoutAccount, WalletTransaction,
+    PaymentAttempt, Refund, Dispute, PaymentWebhookLog,)
 
 User = get_user_model()
 
@@ -87,7 +91,7 @@ class WalletFactory(factory.django.DjangoModelFactory):
     """Factory for creating test wallets."""
 
     class Meta:
-        model = "wallets.Wallet"
+        model = Wallet
 
     creator = factory.SubFactory(CreatorProfileFactory)
     balance = factory.LazyFunction(lambda: Decimal("0.00"))
@@ -101,7 +105,7 @@ class WalletPayoutAccountFactory(factory.django.DjangoModelFactory):
     """Factory for creating test wallet payout accounts."""
 
     class Meta:
-        model = "wallets.WalletPayoutAccount"
+        model = WalletPayoutAccount
 
     wallet = factory.SubFactory(WalletFactory)
     provider = "MTN_MOMO_ZMB"
@@ -113,7 +117,7 @@ class WalletTransactionFactory(factory.django.DjangoModelFactory):
     """Factory for creating test wallet transactions."""
 
     class Meta:
-        model = "wallets.WalletTransaction"
+        model = WalletTransaction
 
     wallet = factory.SubFactory(WalletFactory)
     amount = factory.Faker("pydecimal", left_digits=5, right_digits=2, min_value=1)
@@ -129,12 +133,12 @@ class WalletKYCFactory(factory.django.DjangoModelFactory):
     """Factory for creating test wallet KYC data."""
 
     class Meta:
-        model = "wallets.WalletKYC"
+        model = WalletKYC
 
     wallet = factory.SubFactory(WalletFactory)
     id_document_type = "NRC"
     id_document_number = factory.Sequence(lambda n: f"NRC{n:08d}")
-    full_name = factory.Faker("name")
+    account_type = factory.Faker("name")
     verified = False
     bank_name = factory.Faker("word")
     bank_account_name = factory.Faker("name")
@@ -146,7 +150,7 @@ class PaymentFactory(factory.django.DjangoModelFactory):
     """Factory for creating test payments."""
 
     class Meta:
-        model = "wallets.Payment"
+        model = Payment
 
     wallet = factory.SubFactory(WalletFactory)
     reference = factory.Sequence(lambda n: f"PAY-{n:06d}")
@@ -181,7 +185,7 @@ class PaymentAttemptFactory(factory.django.DjangoModelFactory):
     """Factory for creating test payment attempts."""
 
     class Meta:
-        model = "wallets.PaymentAttempt"
+        model = PaymentAttempt
 
     payment = factory.SubFactory(PaymentFactory)
     attempt_number = 1
@@ -201,7 +205,7 @@ class RefundFactory(factory.django.DjangoModelFactory):
     """Factory for creating test refunds."""
 
     class Meta:
-        model = "wallets.Refund"
+        model = Refund
 
     payment = factory.SubFactory(PaymentFactory)
     amount = factory.LazyAttribute(lambda obj: obj.payment.amount)
@@ -218,7 +222,7 @@ class DisputeFactory(factory.django.DjangoModelFactory):
     """Factory for creating test disputes."""
 
     class Meta:
-        model = "wallets.Dispute"
+        model = Dispute
 
     payment = factory.SubFactory(PaymentFactory)
     external_id = factory.Sequence(lambda n: f"DISP-{n}")
@@ -239,7 +243,7 @@ class PaymentWebhookLogFactory(factory.django.DjangoModelFactory):
     """Factory for creating test payment webhook logs."""
 
     class Meta:
-        model = "wallets.PaymentWebhookLog"
+        model = PaymentWebhookLog
 
     provider = "pawapay"
     event_type = "deposit.accepted"

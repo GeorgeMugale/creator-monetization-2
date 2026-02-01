@@ -127,14 +127,15 @@ class WalletKYC(models.Model):
         ("DRIVERS_LICENSE", "Drivers License"),
         ("VOTERS_CARD", "Voters Card"),
     )
+    BANK_ACCOUNT_TYPE = (
+        ("BANK", "BANK"),
+        ("MOBILE_MONEY", "MOBILE_MONEY"),
+    )
     wallet = models.OneToOneField(
         Wallet, on_delete=models.CASCADE, related_name="kyc")
     id_document_type = models.CharField(
         max_length=20, choices=ID_DOCUMENT_TYPE)
     id_document_number = models.CharField(max_length=50)
-    full_name = models.CharField(
-        max_length=200, help_text="Name you want displayed on Invoices"
-    )
     verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     id_document_copy = models.FileField(
@@ -144,6 +145,9 @@ class WalletKYC(models.Model):
     )
     tax_certificate_copy = models.FileField(
         upload_to="kyc_certificates/", blank=True, null=True
+    )
+    account_type = models.CharField(
+        max_length=20, choices=BANK_ACCOUNT_TYPE, default="MOBILE_MONEY"
     )
     bank_name = models.CharField(
         max_length=200, help_text="Prefered bank/mobile money to receive funds"
