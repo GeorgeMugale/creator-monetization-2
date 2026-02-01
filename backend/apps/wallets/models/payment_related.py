@@ -32,7 +32,7 @@ class Wallet(UUIDModel):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Wallet({self.user}) - {self.currency}"
+        return f"Wallet({self.creator.user}) - {self.currency}"
 
     class Meta:
         constraints = [
@@ -158,11 +158,6 @@ class WalletKYC(models.Model):
     bank_account_number = models.CharField(
         max_length=200, help_text="Bank ot Mobile money account number"
     )
-
-    def get_readonly_fields(self, request, obj=None):
-        if not request.user.is_superuser:
-            return self.readonly_fields + ("verified",)
-        return self.readonly_fields
 
 
 class PaymentAttempt(UUIDModel, TimeStampedModel):

@@ -4,11 +4,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
-from apps.wallets.models.payment_related import WalletTransaction
+from apps.wallets.models.payment_related import WalletTransaction, WalletKYC
 from apps.wallets.models.payment import Payment
 from apps.wallets.serializers.payments_related import (
     WalletDetailSerializer,
     WalletTransactionListSerializer,
+    WalletKYCSerializer
 )
 from utils.external_requests import pawapay_request
 from apps.wallets.services.transaction_service import WalletTransactionService
@@ -162,4 +163,54 @@ class WalletTransactionsView(APIView):
                 "data": serializer.data,
             },
             status=status.HTTP_200_OK
+        )
+
+
+class WalletKYCView(APIView):
+    """
+    API view for retrieving and updating wallet KYC information.
+    """
+
+    permission_classes = [RequireAPIKey, IsAuthenticated]
+    serializer_class = WalletKYCSerializer
+    def get(self, request):
+        """Get current user's wallet KYC information."""
+        try:
+            wallet = WalletService.get_wallet_for_user(request.user)
+            wallet_kyc = WalletKYC.objects.get(wallet=wallet)
+        except (WalletNotFound, WalletKYC.DoesNotExist):
+            return Response(
+                {"error": "User does not have wallet KYC information"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = WalletKYCSerializer(wallet_kyc)
+        return Response(
+            {"status": "success", "data": serializer.data},
+            status=status.HTTP_200_OK
+        )
+
+    def put(self, request):
+        """Update current user's wallet KYC information."""
+        try:
+            wallet = WalletService.get_wallet_for_user(request.user)
+            wallet_kyc = WalletKYC.objects.get(wallet=wallet)
+        except (WalletNotFound, WalletKYC.DoesNotExist):
+            return Response(
+                {"error": "User does not have wallet KYC information"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = WalletKYCSerializer(
+            wallet_kyc, data=request.data, partial=True
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"status": "success", "data": serializer.data},
+                status=status.HTTP_200_OK
+            )
+        return Response(
+            {"error": "Invalid data", "details": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST
         )

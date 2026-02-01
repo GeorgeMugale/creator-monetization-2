@@ -126,9 +126,11 @@ class TestWalletViews:
         api_client.force_authenticate(user=wallet_kyc_factory.wallet.creator.user)
         response = api_client.get("/api/v1/wallets/kyc/")
         assert response.status_code == 200
-        assert "id_document_type" in response.data
-        assert "id_document_number" in response.data
-        assert "bank_name" in response.data
+        data = response.data
+        assert "id_document_type" in data['data']
+        assert "id_document_number" in data['data']
+        assert "bank_name" in data['data']
+        assert isinstance(data['data']['wallet_id'], str)
 
 
     def test_update_wallet_kyc(self, api_client, wallet_kyc_factory):
@@ -146,8 +148,10 @@ class TestWalletViews:
         }
         response = api_client.put("/api/v1/wallets/kyc/", data=payload)
         assert response.status_code == 200
-        assert response.data["id_document_type"] == payload["id_document_type"]
-        assert response.data["id_document_number"] == payload["id_document_number"]
-        assert response.data["account_type"] == payload["account_type"]
-        assert response.data["bank_name"] == payload["bank_name"]
+        data = response.data.get("data")
+        assert data is not None
+        assert data["id_document_type"] == payload["id_document_type"]
+        assert data["id_document_number"] == payload["id_document_number"]
+        assert data["account_type"] == payload["account_type"]
+        assert data["bank_name"] == payload["bank_name"]
        

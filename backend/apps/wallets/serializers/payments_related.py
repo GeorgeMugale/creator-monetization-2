@@ -21,7 +21,7 @@ class WalletListSerializer(serializers.ModelSerializer):
     """Lightweight serializer for listing wallets"""
 
     creator_name = serializers.CharField(
-        source="creator.user.get_full_name", read_only=True
+        source="creator.user.get_account_type", read_only=True
     )
     kyc_verified_status = serializers.CharField(
         source="get_kyc_level_display", read_only=True
@@ -55,7 +55,7 @@ class WalletDetailSerializer(serializers.ModelSerializer):
         source="creator", read_only=True
     )
     creator_name = serializers.CharField(
-        source="creator.user.get_full_name", read_only=True
+        source="creator.user.get_account_type", read_only=True
     )
     transaction_count = serializers.SerializerMethodField()
     total_incoming = serializers.SerializerMethodField()
@@ -249,7 +249,7 @@ class WalletTransactionDetailSerializer(serializers.ModelSerializer):
         source="approved_by", read_only=True, allow_null=True
     )
     approved_by_name = serializers.CharField(
-        source="approved_by.get_full_name", read_only=True, allow_null=True
+        source="approved_by.get_account_type", read_only=True, allow_null=True
     )
 
     class Meta:
@@ -307,8 +307,9 @@ class WalletTransactionCreateSerializer(serializers.ModelSerializer):
 class WalletKYCSerializer(serializers.ModelSerializer):
     """Serializer for wallet KYC"""
 
-    wallet_id = serializers.PrimaryKeyRelatedField(
-        source="wallet", read_only=True
+    # convert UUID to string for JSON serialization
+    wallet_id = serializers.CharField(
+        source="wallet.id", read_only=True
     )
     document_type_display = serializers.CharField(
         source="get_id_document_type_display", read_only=True
@@ -322,7 +323,7 @@ class WalletKYCSerializer(serializers.ModelSerializer):
             "id_document_type",
             "document_type_display",
             "id_document_number",
-            "full_name",
+            "account_type",
             "verified",
             "bank_name",
             "bank_account_name",
@@ -348,7 +349,7 @@ class WalletKYCSerializer(serializers.ModelSerializer):
             )
         return value
 
-    def validate_full_name(self, value):
+    def validate_account_type(self, value):
         """Validate full name"""
         if not value or len(value.strip()) < 2:
             raise serializers.ValidationError(
