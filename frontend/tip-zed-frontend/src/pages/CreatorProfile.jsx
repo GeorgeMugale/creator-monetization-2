@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { AlertCircle, Loader } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { creatorService } from "../services/creatorService";
+import SupportModal from "../components/Payment/SupportModal";
 
 const getName = (creator) =>
   `${creator.user?.first_name || ""} ${creator.user?.last_name || ""}`.trim() ||
@@ -15,6 +16,7 @@ const formatDate = (date) =>
   });
 
 const CreatorProfile = () => {
+  const [isSupportOpen, setIsSupportOpen] = useState(false);
   const { slug } = useParams();
   const navigate = useNavigate();
 
@@ -40,10 +42,6 @@ const CreatorProfile = () => {
     if (slug) fetchCreator();
   }, [slug]);
 
-  const handleSupport = async () => {
-    console.log("Initiating support for", creator.user.id);
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
@@ -54,11 +52,11 @@ const CreatorProfile = () => {
 
   if (error || !creator) {
     return (
-      <div className="h-screen flex flex-col items-center justify-center text-center px-4">
+      <div className="h-screen bg-white flex flex-col items-center justify-center text-center px-4">
         <AlertCircle size={48} className="text-gray-400 mb-4" />
         <h2 className="text-2xl font-bold text-gray-900">Creator Not Found</h2>
         <button
-          onClick={() => navigate("/creators")}
+          onClick={() => navigate("/creator-catalog")}
           className="mt-4 text-zed-green font-semibold"
         >
           Back to Creators
@@ -70,35 +68,54 @@ const CreatorProfile = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Cover Image (Top of page) */}
-      <div className="h-48 w-full bg-gray-200 relative">
-        <img
-          src={creator.profile_image || "/default-cover.jpg"}
-          alt="Cover"
-          className="w-full h-full object-cover"
-        />
+      <div className="h-48 w-full bg-gray-200 relative overflow-hidden">
+        {creator.cover_image ? (
+          <img
+            src={creator.cover_image}
+            alt="Cover"
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-r from-zed-green via-yellow-500 to-zed-orange flex items-center justify-center opacity-90">
+            <span className="text-9xl font-black text-white opacity-10 select-none transform rotate-12 scale-150">
+              {creator.user.full_name || creator.user.username || "?"}
+            </span>
+          </div>
+        )}
       </div>
 
       <main className="max-w-5xl mx-auto px-6 py-8 relative z-10 -mt-20">
-        
         {/* Creator Info Card (Profile Pic, Name, Stats) */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-6">
           <div className="flex flex-col md:flex-row gap-6 items-start">
             {/* Profile Image */}
             <div className="flex-shrink-0">
-              <img
-                src={creator.profile_image || "/default-avatar.png"}
-                alt={creator.user.full_name}
-                className="w-32 h-32 rounded-2xl object-cover shadow-md border-4 border-white bg-white"
-              />
+              {creator.profile_image ? (
+                <img
+                  src={creator.profile_image}
+                  alt={creator.user.full_name}
+                  className="w-32 h-32 rounded-2xl object-cover shadow-md border-4 border-white bg-white"
+                />
+              ) : (
+                <div className="w-32 h-32 rounded-2xl shadow-md border-4 border-white bg-zed-green flex items-center justify-center">
+                  <span className="text-4xl font-bold text-white">
+                    {getName(creator).charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Name & Details */}
             <div className="flex-1 w-full">
               <div className="flex justify-between items-start">
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900">{getName(creator)}</h1>
-                  <p className="text-gray-500 font-medium mb-3">@{creator.user.username}</p>
-                  
+                  <h1 className="text-3xl font-bold text-gray-900">
+                    {getName(creator)}
+                  </h1>
+                  <p className="text-gray-500 font-medium mb-3">
+                    @{creator.user.username}
+                  </p>
+
                   {/* Badges */}
                   <div className="flex flex-wrap items-center gap-2 mb-4">
                     {creator.verified && (
@@ -116,11 +133,15 @@ const CreatorProfile = () => {
               {/* Stats Grid (Moved inside the card) */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4 border-t border-gray-100 pt-4">
                 <div className="text-center sm:text-left">
-                  <p className="text-lg font-bold text-gray-900">{creator.followers_count || 0}</p>
+                  <p className="text-lg font-bold text-gray-900">
+                    {creator.followers_count || 0}
+                  </p>
                   <p className="text-xs text-gray-500">Followers</p>
                 </div>
                 <div className="text-center sm:text-left">
-                  <p className="text-lg font-bold text-gray-900">{creator.rating || "N/A"}</p>
+                  <p className="text-lg font-bold text-gray-900">
+                    {creator.rating || "N/A"}
+                  </p>
                   <p className="text-xs text-gray-500">Rating</p>
                 </div>
                 <div className="text-center sm:text-left">
@@ -130,13 +151,17 @@ const CreatorProfile = () => {
                   <p className="text-xs text-gray-500">Joined</p>
                 </div>
                 <div className="text-center sm:text-left">
-                   {/* Status Badge Logic */}
-                   <span className={`inline-block px-2 py-1 rounded text-xs font-bold capitalize ${
-                      creator.status === "active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"
-                   }`}>
-                      {creator.status}
-                   </span>
-                   <p className="text-xs text-gray-500 mt-1">Status</p>
+                  {/* Status Badge Logic */}
+                  <span
+                    className={`inline-block px-2 py-1 rounded text-xs font-bold capitalize ${
+                      creator.status === "active"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-600"
+                    }`}
+                  >
+                    {creator.status}
+                  </span>
+                  <p className="text-xs text-gray-500 mt-1">Status</p>
                 </div>
               </div>
             </div>
@@ -155,10 +180,14 @@ const CreatorProfile = () => {
             </div>
 
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Posts</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">
+                Recent Posts
+              </h2>
               <div className="text-center py-10 text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">
                 <p>Content API integration pending...</p>
-                <p className="text-sm">Posts will appear here (Public vs Locked)</p>
+                <p className="text-sm">
+                  Posts will appear here (Public vs Locked)
+                </p>
               </div>
             </div>
           </div>
@@ -174,7 +203,7 @@ const CreatorProfile = () => {
                   Become a supporter to unlock exclusive content.
                 </p>
                 <button
-                  onClick={handleSupport}
+                  onClick={() => setIsSupportOpen(true)}
                   className="w-full bg-white text-zed-green px-8 py-3 rounded-lg hover:bg-gray-50 transition-all font-bold shadow-md"
                 >
                   Send a Tip
@@ -197,6 +226,11 @@ const CreatorProfile = () => {
           </div>
         </div>
       </main>
+      <SupportModal
+        isOpen={isSupportOpen}
+        onClose={() => setIsSupportOpen(false)}
+        creator={creator}
+      />
     </div>
   );
 };

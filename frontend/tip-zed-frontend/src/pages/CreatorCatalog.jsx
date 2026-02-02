@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Search, Music, Video, Palette, Mic, Loader, UserX } from "lucide-react"; 
+import {
+  Search,
+  Music,
+  Video,
+  Palette,
+  Mic,
+  Loader,
+  UserX,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { creatorService } from "../services/creatorService";
 
@@ -36,7 +44,7 @@ const CreatorCatalog = () => {
 
   // Filter Logic
   const filteredCreators = creators.filter((c) =>
-    getName(c).toLowerCase().includes(searchTerm.toLowerCase())
+    getName(c).toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   if (loading) {
@@ -70,17 +78,17 @@ const CreatorCatalog = () => {
         {/* Category Buttons (Visual Only for now) */}
         <div className="flex flex-wrap gap-3 mb-8">
           {["Music", "Video", "Art", "Podcast"].map((cat) => (
-             <button 
-               key={cat}
-               onClick={() => console.log("Category filter not implemented yet")}
-               className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:border-zed-green hover:bg-zed-green/5 transition-colors text-gray-700 font-medium text-sm"
-             >
-               {cat === "Music" && <Music size={18} />}
-               {cat === "Video" && <Video size={18} />}
-               {cat === "Art" && <Palette size={18} />}
-               {cat === "Podcast" && <Mic size={18} />}
-               {cat}
-             </button>
+            <button
+              key={cat}
+              onClick={() => console.log("Category filter not implemented yet")}
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:border-zed-green hover:bg-zed-green/5 transition-colors text-gray-700 font-medium text-sm"
+            >
+              {cat === "Music" && <Music size={18} />}
+              {cat === "Video" && <Video size={18} />}
+              {cat === "Art" && <Palette size={18} />}
+              {cat === "Podcast" && <Mic size={18} />}
+              {cat}
+            </button>
           ))}
         </div>
 
@@ -92,47 +100,57 @@ const CreatorCatalog = () => {
 
         {/* Grid or Empty State */}
         {filteredCreators.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {filteredCreators.map((creator) => (
-                <Link
-                to={`/creator-profile/${creator.user.slug}`} 
+              <Link
+                to={`/creator-profile/${creator.user.slug}`}
                 key={creator.user.id}
-                className="block" 
-                >
+                className="block"
+              >
                 <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all cursor-pointer group border border-gray-100 h-full">
-                    <div className="aspect-square overflow-hidden bg-gray-100">
-                    <img
-                        src={creator.profile_image || "/default-avatar.png"}
+                  <div className="aspect-square overflow-hidden bg-gray-100 relative">
+                    {creator.profile_image ? (
+                      <img
+                        src={creator.profile_image}
                         alt={getName(creator)}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    </div>
-                    <div className="p-5">
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                        <span className="text-5xl font-bold text-gray-400">
+                          {getName(creator)?.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-5">
                     <h3 className="font-bold text-lg text-gray-900 mb-2">
-                        {getName(creator)}
+                      {getName(creator)}
                     </h3>
                     <span className="inline-block bg-zed-green text-white text-xs font-semibold px-3 py-1 rounded-full mb-3">
-                        {creator.user.user_type}
+                      {creator.user.user_type}
                     </span>
                     <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                        {creator.bio || "No bio available."}
+                      {creator.bio || "No bio available."}
                     </p>
                     <p className="text-gray-500 text-sm">
-                        {creator.followers_count} supporters
+                      {creator.followers_count} supporters
                     </p>
-                    </div>
+                  </div>
                 </div>
-                </Link>
+              </Link>
             ))}
-            </div>
+          </div>
         ) : (
-            <div className="text-center py-20">
-                <div className="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <UserX className="text-gray-400" size={32} />
-                </div>
-                <h3 className="text-lg font-medium text-gray-900">No creators found</h3>
-                <p className="text-gray-500">Try searching for a different name.</p>
+          <div className="text-center py-20">
+            <div className="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <UserX className="text-gray-400" size={32} />
             </div>
+            <h3 className="text-lg font-medium text-gray-900">
+              No creators found
+            </h3>
+            <p className="text-gray-500">Try searching for a different name.</p>
+          </div>
         )}
       </main>
     </div>
