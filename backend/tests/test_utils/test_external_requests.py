@@ -1,5 +1,4 @@
 from utils.external_requests import pawapay_request, requests
-import pytest
 
 class TestPawapayRequest:
     # ---------------------------------------------------------
