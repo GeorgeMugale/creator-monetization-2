@@ -9,7 +9,6 @@ import { paymentService } from '../../services/paymentService';
 const SupportModal = ({ isOpen, onClose, creator }) => {
   const [step, setStep] = useState('AMOUNT'); // AMOUNT | PHONE | PROCESSING | SUCCESS | ERROR
   const [amount, setAmount] = useState(null);
-  const [phoneNumber, setPhoneNumber] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
   if (!isOpen) return null;
@@ -20,7 +19,6 @@ const SupportModal = ({ isOpen, onClose, creator }) => {
   };
 
   const handlePaymentSubmit = async (phone, providerId) => {
-    setPhoneNumber(phone);
     setStep('PROCESSING');
     
     try {

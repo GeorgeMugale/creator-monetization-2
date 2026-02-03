@@ -38,6 +38,36 @@ const authService = {
       };
     }
   },
+
+  logoutUser: async () => {
+    try {
+      const response = await api.post("/auth/logout/");
+
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error("Logout API Error:", error.response);
+      return {
+        success: false,
+        error:
+          error.response?.data?.message || "Logout failed. Please try again.",
+      };
+    }
+  },
+
+  getProfile: async () => {
+    try {
+      const response = await api.get("/auth/profile/");
+
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error("Logout API Error:", error.response);
+      return {
+        success: false,
+        error:
+          error.response?.data?.message || "Logout failed. Please try again.",
+      };
+    }
+  },
 };
 
 export default authService;

@@ -8,7 +8,7 @@ const Header = () => {
   // We can hide the login buttons if we are actually ON the login/signup pages
   const isAuthPage =
     location.pathname === "/login" || location.pathname === "/register";
-  const isCreatorPage = location.pathname === "creator-dashboard";
+  const isCreatorPage = location.pathname === "/creator-dashboard";
   const isLoggedIn = user && token;
 
   return (
@@ -42,7 +42,7 @@ const Header = () => {
           {!isCreatorPage && isLoggedIn && (
             <Link
               to="/creator-dashboard"
-              className="text-white hover:bg-orange-600 transition-colors font-medium text-sm"
+              className="bg-zed-black text-white hover:bg-orange-600 font-medium px-4 py-2 rounded-lg transition-colors shadow-sm"
             >
               My Dashboard
             </Link>

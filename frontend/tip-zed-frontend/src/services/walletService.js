@@ -1,6 +1,6 @@
 // import api from './api';
 
-export const getWalletData = async (page = 1) => {
+export const getWalletData = async (page = {page: 1, limit: 10}) => {
   // Simulate Network Delay (1 second) to test your Skeleton Loader
   await new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -55,12 +55,12 @@ export const getWalletData = async (page = 1) => {
       }
     ],
 
+
     // Dynamic pagination to test your "Next/Prev" buttons
     pagination: {
       total: 56,
-      limit: 5,
-      page: parseInt(page), // Returns whatever page you asked for
-      pages: 12
+      pages: 12,
+      ...page
     }
   };
 

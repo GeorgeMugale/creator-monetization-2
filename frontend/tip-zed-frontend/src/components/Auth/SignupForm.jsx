@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const SignupForm = () => {
   const { register } = useAuth();
@@ -15,6 +16,7 @@ const SignupForm = () => {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -45,12 +47,8 @@ const SignupForm = () => {
 
     const result = await register(formData);
 
-    if (result.success) {
-      alert("Account created!");
-      // TODO: Add redirect logic here later
-    } else {
-      setError(result.error);
-    }
+    if (result.success) navigate("/login");
+    else setError(result.error);
 
     setIsSubmitting(false);
   };

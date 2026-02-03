@@ -1,35 +1,54 @@
-import { LayoutDashboard, Wallet, LogOut, ArrowRightLeft } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import { LayoutDashboard, ArrowRightLeft, X } from 'lucide-react';
 
-const Sidebar = () => {
+const Sidebar = ({ onClose, isMobile = false, showCloseButton = false, title='' }) => {
   const location = useLocation();
-  const { logout } = useAuth();
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Overview', path: '/dashboard' },
     { icon: ArrowRightLeft, label: 'Transactions', path: '/dashboard/transactions' },
   ];
 
+  const handleLinkClick = () => {
+    // Close mobile menu when a link is clicked
+    if (isMobile && onClose) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="w-64 bg-white h-screen border-r border-gray-200 flex flex-col hidden md:flex fixed left-0 top-0">
-      
-      {/* Brand Logo Area */}
-      <div className="p-6">
-        <h2 className="text-2xl font-bold text-zed-green">TipZed</h2>
+    <div className="h-full flex flex-col bg-white">
+      {/* Mobile Header with Close Button (only visible on mobile when sidebar is open) */}
+      {showCloseButton && (
+        <div className="md:hidden p-4 border-b border-gray-200 flex justify-between items-center">
+          <span className="text-xl font-bold text-green-600">{title}</span>
+          <button 
+            onClick={onClose} 
+            className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            aria-label="Close menu"
+          >
+            <X size={24} />
+          </button>
+        </div>
+      )}
+
+      {/* Desktop Header (only visible on desktop) */}
+      <div className="hidden md:block p-6 border-b border-gray-200">
+        <span className="text-xl font-bold text-green-600">{title}</span>
       </div>
 
       {/* Navigation Links */}
-      <nav className="flex-1 px-4 space-y-2">
+      <nav className="flex-1 px-4 py-4 space-y-2">
         {menuItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
             <Link
               key={item.path}
               to={item.path}
+              onClick={handleLinkClick}
               className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                 isActive 
-                  ? 'bg-green-50 text-zed-green' 
+                  ? 'bg-green-50 text-green-600' 
                   : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
@@ -40,16 +59,7 @@ const Sidebar = () => {
         })}
       </nav>
 
-      {/* Logout Button */}
-      <div className="p-4 border-t border-gray-100">
-        <button 
-          onClick={logout}
-          className="flex items-center gap-3 px-4 py-3 w-full text-left text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-        >
-          <LogOut size={20} />
-          Sign Out
-        </button>
-      </div>
+  
     </div>
   );
 };

@@ -15,28 +15,29 @@ const CreatorDashboard = () => {
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
 
-  // Fetch data when component mounts or page changes
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await getWalletData(page);
+        setError(null);
+        // Pass page parameter to the API call
+        const response = await getWalletData({ page, limit: 10 });
         setData(response);
       } catch (err) {
-        console.error(err);
-        setError("Failed to load wallet data.");
+        console.error("Error fetching wallet data:", err);
+        setError("Failed to load wallet data. Please try again.");
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [page]);
+  }, [page]); // Re-fetch when page changes
 
   // Loading Skeleton
   if (loading && !data) {
     return (
-      <DashboardLayout>
+      <DashboardLayout title={user.username  ?? ""}>
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 w-1/3 rounded"></div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -51,14 +52,25 @@ const CreatorDashboard = () => {
 
   if (error) {
     return (
-      <DashboardLayout>
-        <div className="p-4 bg-red-50 text-red-600 rounded-lg">{error}</div>
+      <DashboardLayout title={user.username ?? ""}>
+        <div className="p-4 bg-red-50 text-red-600 rounded-lg flex items-center justify-between">
+          <span>{error}</span>
+          <button 
+            onClick={() => {
+              setError(null);
+              setPage(1);
+            }}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
       </DashboardLayout>
     );
   }
 
   return (
-    <DashboardLayout>
+    <DashboardLayout title={user.username ?? ""}>
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">
@@ -73,7 +85,7 @@ const CreatorDashboard = () => {
         </p>
       </div>
 
-      {/* VIEW 1: OVERVIEW (Cards) */}
+      {/* OVERVIEW (Cards) */}
       {!isTransactionsView && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {/* Wallet Balance */}
@@ -84,10 +96,10 @@ const CreatorDashboard = () => {
                   Current Balance
                 </p>
                 <h3 className="text-2xl font-bold text-gray-900 mt-2">
-                  {data.currency} {data.balance?.toLocaleString()}
+                  {data?.currency || 'ZMW'} {data?.balance?.toLocaleString() || '0'}
                 </h3>
               </div>
-              <div className="p-2 bg-green-50 rounded-lg text-zed-green">
+              <div className="p-2 bg-green-50 rounded-lg text-green-600">
                 <DollarSign size={20} />
               </div>
             </div>
@@ -101,7 +113,7 @@ const CreatorDashboard = () => {
                   Total Earnings
                 </p>
                 <h3 className="text-2xl font-bold text-gray-900 mt-2">
-                  {data.currency} {data.total_earnings?.toLocaleString()}
+                  {data?.currency || 'ZMW'} {data?.total_earnings?.toLocaleString() || '0'}
                 </h3>
               </div>
               <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
@@ -118,7 +130,7 @@ const CreatorDashboard = () => {
                   Total Transactions
                 </p>
                 <h3 className="text-2xl font-bold text-gray-900 mt-2">
-                  {data.total_transactions}
+                  {data?.total_transactions || 0}
                 </h3>
               </div>
               <div className="p-2 bg-purple-50 rounded-lg text-purple-600">
@@ -129,18 +141,22 @@ const CreatorDashboard = () => {
         </div>
       )}
 
-      {/* VIEW 2: TRANSACTIONS TABLE */}
+      {/* TRANSACTIONS TABLE */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-6 border-b border-gray-100 flex justify-between items-center">
           <h2 className="text-lg font-semibold text-gray-900">
             Recent Transactions
           </h2>
+          {loading && (
+            <div className="flex items-center text-sm text-gray-500">
+              <div className="animate-spin mr-2 h-4 w-4 border-2 border-gray-300 border-t-gray-600 rounded-full"></div>
+              Loading...
+            </div>
+          )}
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full min-w-[600px]">
-            {" "}
-            {/* min-w forces scroll on small screens */}
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -158,9 +174,9 @@ const CreatorDashboard = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {data.transactions?.length > 0 ? (
+              {data?.transactions?.length > 0 ? (
                 data.transactions.map((txn) => (
-                  <tr key={txn.id} className="hover:bg-gray-50">
+                  <tr key={txn.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <div className="flex items-center">
                         <Calendar size={16} className="mr-2 text-gray-400" />
@@ -174,7 +190,7 @@ const CreatorDashboard = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">
-                      {data.currency} {txn.amount?.toFixed(2)}
+                      {data.currency || 'ZMW'} {txn.amount?.toFixed(2)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <span
@@ -206,12 +222,12 @@ const CreatorDashboard = () => {
         </div>
 
         {/* Pagination Controls */}
-        {data.pagination && (
-          <div className="p-4 border-t border-gray-100 flex justify-between items-center">
+        {data?.pagination && data.pagination.pages > 1 && (
+          <div className="p-4 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
             <button
-              disabled={page === 1}
+              disabled={page === 1 || loading}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="px-4 py-2 border rounded-lg text-sm disabled:opacity-50 hover:bg-gray-50"
+              className="w-full sm:w-auto px-4 py-2 border rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
             >
               Previous
             </button>
@@ -219,9 +235,9 @@ const CreatorDashboard = () => {
               Page {data.pagination.page} of {data.pagination.pages}
             </span>
             <button
-              disabled={page >= data.pagination.pages}
+              disabled={page >= data.pagination.pages || loading}
               onClick={() => setPage((p) => p + 1)}
-              className="px-4 py-2 border rounded-lg text-sm disabled:opacity-50 hover:bg-gray-50"
+              className="w-full sm:w-auto px-4 py-2 border rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
             >
               Next
             </button>

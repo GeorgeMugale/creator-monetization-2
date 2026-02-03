@@ -6,14 +6,32 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   // Lazy Initialization: Reads storage ONCE when app starts so there is no need for useEffect.
 
+  const getUser = () => {
+    return JSON.parse(localStorage.getItem("user"));
+  };
+
+  const getToken = () => {
+    return JSON.parse(localStorage.getItem("token"));
+  };
+
+  const saveUser = (user) => {
+    setUser(user);
+    localStorage.setItem("user", JSON.stringify(user));
+  };
+
+  const saveToken = (token) => {
+    setToken(token);
+    localStorage.setItem("token", token);
+  };
+
   const [token, setToken] = useState(() => {
     return localStorage.getItem("token") || null;
   });
 
   const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem("user");
+    const storedUser = getUser();
     try {
-      return storedUser ? JSON.parse(storedUser) : null;
+      return storedUser ?? null;
     } catch (error) {
       console.error("Failed to parse user data", error);
       return null;
@@ -26,13 +44,14 @@ export const AuthProvider = ({ children }) => {
 
       const { access_token, user: userData } = response.data;
 
-      // Save to State
-      setToken(access_token);
-      if (userData) setUser(userData); // if user is returned on login
+      saveToken(access_token);
 
-      // Save to LocalStorage
-      localStorage.setItem("token", access_token);
-      if (userData) localStorage.setItem("user", JSON.stringify(userData));
+      // if user is not in local storage
+      if (!getUser()) {
+        const responseUser = await authService.getProfile();
+
+        if (responseUser.data) saveUser(responseUser.data);
+      }
 
       return { success: true };
     } catch (error) {
@@ -48,11 +67,8 @@ export const AuthProvider = ({ children }) => {
       const response = await authService.registerUser(formData);
       const { access_token, ...userData } = response.data;
 
-      setToken(access_token);
-      setUser(userData);
-
-      localStorage.setItem("token", access_token);
-      localStorage.setItem("user", JSON.stringify(userData));
+      saveToken(access_token);
+      saveUser(userData)
 
       return { success: true };
     } catch (error) {
@@ -63,7 +79,8 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await authService.logoutUser(formData);
     setUser(null);
     setToken(null);
     localStorage.removeItem("token");

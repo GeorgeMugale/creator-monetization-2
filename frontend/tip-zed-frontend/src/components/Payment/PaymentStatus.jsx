@@ -2,7 +2,7 @@ import { Loader2, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
 
 const PaymentStatus = ({ status, amount, error, onRetry, onClose }) => {
   
-  // 1. PROCESSING STATE (Waiting for STK Push)
+  // PROCESSING STATE (Waiting for STK Push)
   if (status === 'PROCESSING') {
     return (
       <div className="text-center py-8">
@@ -26,7 +26,7 @@ const PaymentStatus = ({ status, amount, error, onRetry, onClose }) => {
     );
   }
 
-  // 2. SUCCESS STATE
+  // SUCCESS STATE
   if (status === 'SUCCESS') {
     return (
       <div className="text-center py-8 animate-in zoom-in duration-300">
@@ -49,7 +49,7 @@ const PaymentStatus = ({ status, amount, error, onRetry, onClose }) => {
     );
   }
 
-  // 3. ERROR STATE
+  // ERROR STATE
   if (status === 'ERROR') {
     return (
       <div className="text-center py-8">

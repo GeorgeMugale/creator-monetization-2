@@ -2,7 +2,7 @@ import Sidebar from '../components/Common/Sidebar';
 import { Menu } from 'lucide-react';
 import { useState } from 'react';
 
-const DashboardLayout = ({ children }) => {
+const DashboardLayout = ({ children, title = '' }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
@@ -10,10 +10,11 @@ const DashboardLayout = ({ children }) => {
       
       {/* Mobile Header (Only visible on small screens) */}
       <div className="md:hidden bg-white border-b border-gray-200 p-4 flex justify-between items-center sticky top-0 z-20">
-        {/* <span className="text-xl font-bold text-zed-green">TipZed</span> */}
+        <span className="text-xl font-bold text-green-600">{title}</span>
         <button 
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
-          className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+          onClick={() => setIsMobileMenuOpen(true)} 
+          className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+          aria-label="Open menu"
         >
           <Menu size={24} />
         </button>
@@ -25,7 +26,12 @@ const DashboardLayout = ({ children }) => {
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
         md:relative md:translate-x-0 md:shadow-none md:border-r border-gray-200
       `}>
-        <Sidebar onClose={() => setIsMobileMenuOpen(false)} />
+        <Sidebar 
+          onClose={() => setIsMobileMenuOpen(false)} 
+          isMobile={isMobileMenuOpen}
+          showCloseButton={true}
+          title={title}
+        />
       </div>
 
       {/* Overlay for mobile when menu is open */}
