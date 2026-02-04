@@ -25,12 +25,13 @@ DEBUG = False
 ALLOWED_HOSTS = env('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
 # CORS Configuration for multi-frontend support
-CORS_ALLOWED_ORIGINS = env('CORS_ALLOWED_ORIGINS', default='http://localhost:5173,http://127.0.0.1:5173').split(',')
+CORS_ALLOWED_ORIGINS = env(
+    'CORS_ALLOWED_ORIGINS', default='http://localhost:5173,http://127.0.0.1:5173').split(',')
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOW_HEADERS = (
     *default_headers,
-    "x-api-key", # Allow the custom header
+    "x-api-key",  # Allow the custom header
 )
 
 # Application definition
@@ -173,7 +174,10 @@ REST_FRAMEWORK = {
         'user': '1000/hour',
     },
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    'DEFAULT_PARSER_CLASSES':(
+    'DEFAULT_RENDERER_CLASSES': (
+        'djangorestframework_camel_case.render.CamelCaseJSONRenderer',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
         'djangorestframework_camel_case.parser.CamelCaseJSONParser',
     ),
 }

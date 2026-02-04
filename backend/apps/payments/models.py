@@ -299,8 +299,6 @@ class Payment(UUIDModel, TimeStampedModel, SoftDeleteModel):
     isp_provider = models.CharField(
         max_length=30,
         choices=ISPPaymentProvider.choices,
-        null=True,
-        blank=True,
         db_index=True,
     )
     patron_phone = models.CharField(max_length=50)

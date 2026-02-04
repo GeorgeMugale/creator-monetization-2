@@ -7,8 +7,8 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from apps.payments.serializers import PaymentSerializer
 from apps.wallets.models import Wallet
-from utils.external_requests import pawapay_request
 from utils.authentication import RequireAPIKey
+from utils.external_requests import pawapay_request
 
 
 User = get_user_model()
@@ -23,18 +23,18 @@ class DepositAPIView(APIView):
 
         serializer = PaymentSerializer(data=request.data)
         if serializer.is_valid():
-            wallet = get_object_or_404(Wallet, id=id)
-            if not wallet:
+            from utils.validators import PhoneValidator as PV
+            phone = serializer.validated_data.get("patron_phone")
+            is_valid, msg = PV.validate_phone_number(phone)
+            if not is_valid:
                 return Response(
-                    {
-                        "status": "rejected",
-                        "message": "User has no wallet to collect payment.",
-                    },
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
+                {"status": "INVALID_DATA"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            wallet = get_object_or_404(Wallet, id=id)
+            
             with transaction.atomic():
-                payment = serializer.save()
+                payment = serializer.save(wallet=wallet)
 
             payload = {
                 "amount": str(int(payment.amount)),
@@ -56,7 +56,6 @@ class DepositAPIView(APIView):
                     }
                 ],
             }
-
             data, code = pawapay_request(
                 "POST", "/v2/deposits/", payload=payload)
 
@@ -67,7 +66,7 @@ class DepositAPIView(APIView):
                 payment.save()
             serializer = PaymentSerializer(payment)
             return Response(
-                {"status": "success",
+                {"status": "ACCEPTED",
                  "data": serializer.data
                  },
                 status=status.HTTP_201_CREATED

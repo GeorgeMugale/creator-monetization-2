@@ -158,7 +158,6 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ],
-    # 'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.NamespaceVersioning',
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle',
@@ -168,6 +167,9 @@ REST_FRAMEWORK = {
         'user': '1000/hour',
     },
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_RENDERER_CLASSES':(
+        'djangorestframework_camel_case.render.CamelCaseJSONRenderer',
+    ),
     'DEFAULT_PARSER_CLASSES':(
         'djangorestframework_camel_case.parser.CamelCaseJSONParser',
     ),

@@ -92,6 +92,12 @@ def payment_factory(user_factory):
         amount=Decimal("100.00"),
     )
 
+@pytest.fixture
+def wallet_factory(user_factory):
+    wallet = user_factory.creator_profile.wallet
+    wallet.kyc.verified = True
+    wallet.kyc.save()
+    return wallet
 
 @pytest.fixture
 def payout_account_factory(user_factory):
