@@ -4,7 +4,7 @@ from django.urls import reverse
 from decimal import Decimal
 import pytest
 from apps.payments.models import Payment
-from apps.payments.views.cashin import deposit_callback
+from apps.payments.views import deposit_callback
 from apps.wallets.models import WalletTransaction
 from apps.payments.services.fee_service import FeeService
 from apps.wallets.models import PaymentWebhookLog

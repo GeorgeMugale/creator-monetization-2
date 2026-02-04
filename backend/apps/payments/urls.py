@@ -1,5 +1,5 @@
 from django.urls import path
-from apps.payments.views.cashin import (
+from apps.payments.views import (
     AvailabilityAPIView,
     ActiveConfigAPIView,
     ResendCallbackAPIView,
