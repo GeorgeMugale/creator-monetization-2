@@ -17,7 +17,7 @@ class TestCreatorPublicSerializer:
         expected_fields = {
             'user', 'bio', 'profile_image', 'cover_image', 'website',
             'followers_count', 'rating', 'verified', 'status',
-            'created_at', 'updated_at', "wallet",
+            'created_at', 'updated_at', "wallet_id",
         }
 
         assert set(data.keys()) == expected_fields
@@ -33,7 +33,7 @@ class TestCreatorPublicSerializer:
         
         serializer = CreatorPublicSerializer(profile)
         data = serializer.data
-        assert data['wallet']['id'] == profile.wallet.id
+        assert data['wallet_id'] == profile.wallet.id
         assert data['user']["id"] == profile.user.id
         assert data['user']["username"] == profile.user.username
         assert data['user']["first_name"] == profile.user.first_name
@@ -82,7 +82,7 @@ class TestCreatorPublicSerializer:
         serializer = CreatorPublicSerializer(profile)
         data = serializer.data
 
-        assert data['wallet']['id'] == profile.user.id
+        assert data['wallet_id'] == profile.wallet.id
         assert data['user']["id"] == profile.user.id
         assert data['verified'] is True
 
