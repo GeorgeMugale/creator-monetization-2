@@ -25,12 +25,13 @@ DEBUG = False
 ALLOWED_HOSTS = env('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
 # CORS Configuration for multi-frontend support
-CORS_ALLOWED_ORIGINS = env('CORS_ALLOWED_ORIGINS', default='http://localhost:5173,http://127.0.0.1:5173').split(',')
+CORS_ALLOWED_ORIGINS = env(
+    'CORS_ALLOWED_ORIGINS', default='http://localhost:5173,http://127.0.0.1:5173').split(',')
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOW_HEADERS = (
     *default_headers,
-    "x-api-key", # Allow the custom header
+    "x-api-key",  # Allow the custom header
 )
 
 # Application definition
@@ -173,6 +174,12 @@ REST_FRAMEWORK = {
         'user': '1000/hour',
     },
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_RENDERER_CLASSES': (
+        'djangorestframework_camel_case.render.CamelCaseJSONRenderer',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'djangorestframework_camel_case.parser.CamelCaseJSONParser',
+    ),
 }
 
 # Simple JWT Configuration
@@ -189,14 +196,49 @@ SIMPLE_JWT = {
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
 }
 
+description = """
+
+API Overview
+
+These endpoints power a Zambian creator monetization platform where fans (patrons)
+can discover creators, view public creator profiles, and send tips via Mobile Money (ZMW).
+Creators can authenticate, manage their profile, and view their wallet balance and
+transaction history.
+
+Conventions
+- All money values are in ZMW (Kwacha). Use integers for amounts in ngwee where applicable,
+  or decimal ZMW consistently across the API (choose one and document it).
+- Authenticated endpoints require:
+  Authorization: Bearer <access_token>
+- Common response envelope (recommended):
+  {
+    "success": true,
+    "data": {...},
+    "message": "Optional human-readable message"
+  }
+
+Error Handling
+- 400: Validation errors (missing fields, invalid amounts, invalid phone number)
+- 401: Not authenticated or invalid token
+- 403: Not authorized for resource
+- 404: Not found
+- 409: Conflict (duplicate transaction, idempotency collision)
+- 429: Rate limited
+- 500: Server error
+"""
+
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Tip Zambia API',
-    'DESCRIPTION': 'API documentation for the Tip Zambia platform',
+    'TITLE': 'TipZed API',
+    'DESCRIPTION': description,
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     'SWAGGER_UI_DIST': 'SIDECAR',  # shorthand to use the sidecar instead
     'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
     'REDOC_DIST': 'SIDECAR',
+    'POSTPROCESSING_HOOKS': [
+        'drf_spectacular.contrib.djangorestframework_camel_case.camelize_serializer_fields',
+        'utils.hooks.capitalize_operation_hook',
+    ],
 }
 
 PAWAPAY_BASE_URL = env("PAWAPAY_BASE_URL")
