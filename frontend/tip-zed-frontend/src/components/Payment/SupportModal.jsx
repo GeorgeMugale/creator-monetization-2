@@ -5,7 +5,6 @@ import PaymentForm from './PaymentForm';
 import PaymentStatus from './PaymentStatus';
 import { paymentService } from '../../services/paymentService';
 
-
 const SupportModal = ({ isOpen, onClose, creator }) => {
   const [step, setStep] = useState('AMOUNT'); // AMOUNT | PHONE | PROCESSING | SUCCESS | ERROR
   const [amount, setAmount] = useState(null);
@@ -13,6 +12,7 @@ const SupportModal = ({ isOpen, onClose, creator }) => {
 
   if (!isOpen) return null;
 
+  // select the price
   const handleAmountSelect = (selectedAmount) => {
     setAmount(selectedAmount);
     setStep('PHONE');
@@ -22,13 +22,18 @@ const SupportModal = ({ isOpen, onClose, creator }) => {
     setStep('PROCESSING');
     
     try {
-      // Call the service we defined earlier
+      // Initiate the request
       await paymentService.sendTip(creator.id, amount, 'ZMW', phone, providerId);
-      setStep('SUCCESS');
+      
+      // wait for the user to confirm manually in the UI
     } catch (err) {
       setErrorMsg(err.message || 'Payment failed. Please try again.');
       setStep('ERROR');
     }
+  };
+
+  const handleManualConfirm = () => {
+    setStep('SUCCESS');
   };
 
   const handleRetry = () => {
@@ -73,6 +78,7 @@ const SupportModal = ({ isOpen, onClose, creator }) => {
               amount={amount} 
               error={errorMsg}
               onRetry={handleRetry}
+              onManualConfirm={handleManualConfirm}
               onClose={onClose}
             />
           )}

@@ -1,27 +1,34 @@
-import { Loader2, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
+import React from 'react';
+import { Loader2, CheckCircle, AlertCircle, RefreshCw, Smartphone } from 'lucide-react';
 
-const PaymentStatus = ({ status, amount, error, onRetry, onClose }) => {
+export default function PaymentStatus({ status, amount, error, onRetry, onManualConfirm, onClose }) {
   
-  // PROCESSING STATE (Waiting for STK Push)
+  // PROCESSING STATE (Waiting for User Confirmation)
   if (status === 'PROCESSING') {
     return (
-      <div className="text-center py-8">
-        <div className="relative inline-block">
+      <div className="text-center py-6">
+        <div className="relative inline-block mb-6">
           <div className="absolute inset-0 bg-yellow-100 rounded-full animate-ping opacity-75"></div>
-          <div className="relative bg-yellow-50 p-4 rounded-full mb-6 inline-flex">
-            <Loader2 size={48} className="text-yellow-500 animate-spin" />
+          <div className="relative bg-yellow-50 p-4 rounded-full">
+            <Smartphone size={48} className="text-yellow-600" />
           </div>
         </div>
         
-        <h3 className="text-xl font-bold text-gray-900 mb-2">Check your phone!</h3>
-        <p className="text-gray-500 max-w-xs mx-auto mb-8">
-          We've sent a prompt to your mobile number. Please enter your PIN to authorize the payment of <span className="font-bold text-gray-900">K{amount}</span>.
+        <h3 className="text-xl font-bold text-gray-900 mb-2">Check your phone</h3>
+        <p className="text-gray-500 text-sm max-w-xs mx-auto mb-8">
+          We've sent a prompt to your mobile number. Please enter your PIN to authorize <span className="font-bold text-gray-900">K{amount}</span>.
         </p>
 
-        <div className="bg-blue-50 text-blue-700 text-sm px-4 py-3 rounded-lg flex items-start gap-3 text-left">
-          <span className="text-xl">💡</span>
-          <p>Did the prompt not appear? Dial *115# to check pending transactions manually.</p>
-        </div>
+        <button 
+          onClick={onManualConfirm}
+          className="w-full bg-zed-black text-white py-3.5 rounded-xl font-bold hover:bg-gray-800 transition-colors shadow-lg"
+        >
+          I have approved payment
+        </button>
+
+        <p className="mt-4 text-xs text-gray-400">
+          Prompt didn't appear? Dial *115# to check pending transactions.
+        </p>
       </div>
     );
   }
@@ -36,7 +43,7 @@ const PaymentStatus = ({ status, amount, error, onRetry, onClose }) => {
         
         <h3 className="text-2xl font-bold text-gray-900 mb-2">Thank You!</h3>
         <p className="text-gray-500 mb-8">
-          Your tip of <span className="font-bold text-gray-900">K{amount}</span> has been received successfully.
+          Your tip of <span className="font-bold text-gray-900">K{amount}</span> has been confirmed.
         </p>
 
         <button 
@@ -82,5 +89,3 @@ const PaymentStatus = ({ status, amount, error, onRetry, onClose }) => {
 
   return null;
 }
-
-export default PaymentStatus;
