@@ -8,6 +8,8 @@ class CreatorPublicSerializer(serializers.ModelSerializer):
     wallet_id = serializers.PrimaryKeyRelatedField(
         source="wallet", read_only=True
     )
+    profile_image = serializers.ImageField(max_length=None, use_url=True)
+    cover_image = serializers.ImageField(max_length=None, use_url=True)
 
     class Meta:
         model = CreatorProfile
@@ -31,6 +33,7 @@ class CreatorListSerializer(serializers.ModelSerializer):
     """Serializer for listing creator profiles."""
     user = UserSerializer(read_only=True)
     
+    profile_image = serializers.ImageField(max_length=None, use_url=True)
     class Meta:
         model = CreatorProfile
         fields = [

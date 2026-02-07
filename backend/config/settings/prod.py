@@ -149,6 +149,8 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Custom User Model
 AUTH_USER_MODEL = 'customauth.CustomUser'
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media') 
 # Django REST Framework Configuration
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
