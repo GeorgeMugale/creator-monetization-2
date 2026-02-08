@@ -12,9 +12,6 @@ const SignupForm = () => {
     userType: "creator",
     firstName: "",
     lastName: "",
-    userType: "creator",
-    firstName: "",
-    lastName: "",
   });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);

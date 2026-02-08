@@ -29,7 +29,6 @@ export const AuthProvider = ({ children }) => {
     const storedUser = getUser();
     try {
       return storedUser ?? null;
-      return storedUser ?? null;
     } catch (error) {
       console.error("Failed to parse user data", error);
       return null;

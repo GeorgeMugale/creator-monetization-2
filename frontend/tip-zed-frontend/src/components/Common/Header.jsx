@@ -1,6 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import logo from '@/assets/images/logo.png';
 
 const Header = () => {
   const { pathname } = useLocation();

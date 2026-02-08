@@ -50,6 +50,7 @@ const SupportModal = ({ isOpen, onClose, creator }) => {
         setStep("PENDING");
       }
     } catch (err) {
+      console.log(err);
       setErrorMsg(
         "We couldn't verify the payment status. It might still be processing.",
       );
