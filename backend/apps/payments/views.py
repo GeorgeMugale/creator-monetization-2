@@ -60,7 +60,7 @@ class DepositAPIView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
             wallet = get_object_or_404(Wallet, id=wallet_id)
-
+            
             with transaction.atomic():
                 payment = serializer.save(wallet=wallet)
 
@@ -84,6 +84,7 @@ class DepositAPIView(APIView):
                     }
                 ],
             }
+
             data, code = pawapay_request(
                 "POST", "/v2/deposits/", payload=payload)
 
@@ -99,7 +100,7 @@ class DepositAPIView(APIView):
                      },
                     status=status.HTTP_201_CREATED
                 )
-            return Response({"status": "failed"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return Response({"status": data['status']}, status=code)
 
         return Response(
             {

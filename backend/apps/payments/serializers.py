@@ -17,4 +17,8 @@ class PaymentSerializer(serializers.ModelSerializer):
             "patron_message",
             "metadata",
         ]
+
+    def create(self, validated_data):
+        # Call the custom manager method instead of Model.objects.create()
+        return Payment.objects.create_payment(**validated_data)
       

@@ -34,6 +34,7 @@ CORS_ALLOW_HEADERS = (
     "x-api-key",  # Allow the custom header
 )
 
+CSRF_TRUSTED_ORIGIN = ['https://123f-41-216-82-30.ngrok-free.app', 'http://172.17.0.1']
 # Application definition
 
 INSTALLED_APPS = [
@@ -76,7 +77,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -98,14 +99,15 @@ DATABASES = {
     # ImproperlyConfigured exception if not found
     #
     # The db() method is an alias for db_url().
-    # 'default': env.db(),
+    'default': env.db(),
 
     # read os.environ['SQLITE_URL']
-    'default': env.db_url(
+    'extra': env.db_url(
         'SQLITE_URL',
         default='sqlite:///db.sqlite3'
     )
 }
+
 
 
 # Password validation
@@ -225,7 +227,31 @@ SPECTACULAR_SETTINGS = {
         'drf_spectacular.contrib.djangorestframework_camel_case.camelize_serializer_fields',
         'utils.hooks.capitalize_operation_hook',
     ],
+    'SERVE_PERMISSIONS': ['rest_framework.permissions.AllowAny'],
+    'SERVERS': [{'url': 'https://123f-41-216-82-30.ngrok-free.app/api'}],
 }
 
 PAWAPAY_BASE_URL = env("PAWAPAY_BASE_URL")
 PAWAPAY_API_KEY = env("PAWAPAY_API_KEY")
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'INFO', # Use 'DEBUG' for more verbosity, 'INFO' is standard for production
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO', # Ensure this is low enough to catch errors
+            'propagate': True,
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+}
