@@ -1,10 +1,25 @@
 import { createContext, useContext, useState } from "react";
-import authService from "../services/authService";
+import authService from "@/services/authService";
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   // Lazy Initialization: Reads storage ONCE when app starts so there is no need for useEffect.
+
+  const getUser = () => {
+    return JSON.parse(localStorage.getItem("user"));
+  };
+
+  const saveUser = (user) => {
+    setUser(user);
+    localStorage.setItem("user", JSON.stringify(user));
+  };
+
+  const saveTokens = (access, refresh) => {
+    setToken(token);
+    localStorage.setItem("accessToken", access);
+    localStorage.setItem("refreshToken", refresh);
+  };
 
   const getUser = () => {
     return JSON.parse(localStorage.getItem("user"));
@@ -27,7 +42,9 @@ export const AuthProvider = ({ children }) => {
 
   const [user, setUser] = useState(() => {
     const storedUser = getUser();
+    const storedUser = getUser();
     try {
+      return storedUser ?? null;
       return storedUser ?? null;
     } catch (error) {
       console.error("Failed to parse user data", error);
@@ -63,6 +80,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (formData) => {
     try {
       const response = await authService.registerUser(formData);
+      const { accessToken, refreshToken, ...userData } = response.data;
       const { accessToken, refreshToken, ...userData } = response.data;
 
       saveTokens(accessToken, refreshToken);

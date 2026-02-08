@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import DashboardLayout from "../layouts/DashboardLayout";
-import { useAuth } from "../hooks/useAuth";
-import { walletService } from "../services/walletService";
+import DashboardLayout from "@/layouts/DashboardLayout";
+import { useAuth } from "@/hooks/useAuth";
+import { walletService, getWalletTxnData } from "@/services/walletService";
 import {
   TrendingUp,
   DollarSign,
@@ -17,6 +17,7 @@ const CreatorDashboard = () => {
   const isTransactionsView = pathname === "/dashboard/transactions";
 
   const [data, setData] = useState(null);
+  const [txnData, setTxnData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
@@ -41,7 +42,7 @@ const CreatorDashboard = () => {
     };
 
     fetchData();
-  }, [page]);
+  }, [page]); // Re-fetch when page changes
 
   // Refined Loading Skeleton
   if (loading && !data) {
@@ -259,6 +260,7 @@ const CreatorDashboard = () => {
               Page {page} of {data.pagination.pages}
             </span>
             <button
+              disabled={page >= data.pagination.pages || loading}
               disabled={page >= data.pagination.pages || loading}
               onClick={() => setPage((p) => p + 1)}
               className="text-xs font-black uppercase tracking-widest disabled:opacity-30"

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
 const SignupForm = () => {
@@ -9,6 +9,9 @@ const SignupForm = () => {
     password: "",
     password2: "",
     username: "",
+    userType: "creator",
+    firstName: "",
+    lastName: "",
     userType: "creator",
     firstName: "",
     lastName: "",

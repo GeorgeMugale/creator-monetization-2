@@ -24,6 +24,8 @@ api.interceptors.request.use(
       "/creators/all/",
       "/creator-catalog/",
       "/creator-profile/",
+      "/creator-catalog/",
+      "/creator-profile/",
     ];
 
     const isPublic = publicRoutes.some((route) => config.url.includes(route));

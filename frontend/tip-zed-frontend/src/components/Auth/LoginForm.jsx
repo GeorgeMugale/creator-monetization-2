@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const LoginForm = () => {
@@ -21,7 +21,7 @@ const LoginForm = () => {
     e.preventDefault();
     setError("");
 
-    // Validation
+    // VALIDATE PASSWORD
     if (formData.password.length < 8) {
       setError("Password must be at least 8 characters long.");
       return;

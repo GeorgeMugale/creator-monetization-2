@@ -4,7 +4,26 @@ function as expected.
 """
 import pytest
 from django.urls import reverse
-from tests.factories import CreatorProfileFactory, UserFactory
+from rest_framework.test import APIRequestFactory
+from apps.creators.serializers import CreatorPublicSerializer
+from tests.factories import UserFactory
+
+
+@pytest.mark.django_db
+def test_creator_profile_image_url(client, user_factory):
+    """Test that the ImageField in CreatorProfile geenerates a valid URL string"""
+    creator_profile = user_factory.creator_profile
+    creator_profile.profile_image='test_images/test_image.png'
+    creator_profile.save()
+    
+    url = reverse('creators:creator_public_view', args=[creator_profile.user.slug])
+    factory = APIRequestFactory()
+    request = factory.get(url)
+    serializer = CreatorPublicSerializer(creator_profile, context={'request':request})
+    data = serializer.data
+    expected_url = 'http://testserver/test_images/test_image.png'
+
+    assert data['profile_image'] == expected_url
 
 @pytest.mark.django_db
 def test_list_creator_profiles_view(client):
@@ -38,6 +57,7 @@ def test_creator_public_view(client, user_factory):
     assert creator_profile.user.first_name in response.content.decode()
     assert creator_profile.user.last_name in response.content.decode()
     assert "bio" in response.content.decode()
+    assert "walletId" in response.content.decode()
     assert creator_profile.user.slug in response.content.decode()
     assert creator_profile.user.username in response.content.decode()
     assert creator_profile.website in response.content.decode()

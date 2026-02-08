@@ -9,6 +9,8 @@ import {
   Share2,
 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
+import { creatorService } from "@/services/creatorService";
+import SupportModal from "@/components/Payment/SupportModal";
 import { creatorService } from "../services/creatorService";
 import SupportModal from "../components/Payment/SupportModal";
 
@@ -18,6 +20,7 @@ const getName = (creator) =>
   "Creator";
 
 const CreatorProfile = () => {
+  const [isSupportOpen, setIsSupportOpen] = useState(false);
   const [isSupportOpen, setIsSupportOpen] = useState(false);
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -366,3 +369,4 @@ const CreatorProfile = () => {
 };
 
 export default CreatorProfile;
+

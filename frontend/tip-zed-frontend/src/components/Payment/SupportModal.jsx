@@ -5,10 +5,6 @@ import PaymentForm from "./PaymentForm";
 import PaymentStatus from "./PaymentStatus";
 import { paymentService } from "../../services/paymentService";
 
-const delay = (ms) => {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-};
-
 const SupportModal = ({ isOpen, onClose, creator }) => {
   const [step, setStep] = useState("AMOUNT"); // AMOUNT | PHONE | PROCESSING | PROCESSING_COMPLETE | PENDING | SUCCESS | ERROR
   const [amount, setAmount] = useState(null);
