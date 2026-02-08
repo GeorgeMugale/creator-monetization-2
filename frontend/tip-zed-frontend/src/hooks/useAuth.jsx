@@ -21,27 +21,11 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("refreshToken", refresh);
   };
 
-  const getUser = () => {
-    return JSON.parse(localStorage.getItem("user"));
-  };
-
-  const saveUser = (user) => {
-    setUser(user);
-    localStorage.setItem("user", JSON.stringify(user));
-  };
-
-  const saveTokens = (access, refresh) => {
-    setToken(token);
-    localStorage.setItem("accessToken", access);
-    localStorage.setItem("refreshToken", refresh);
-  };
-
   const [token, setToken] = useState(() => {
     return localStorage.getItem("accessToken") || null;
   });
 
   const [user, setUser] = useState(() => {
-    const storedUser = getUser();
     const storedUser = getUser();
     try {
       return storedUser ?? null;
@@ -80,7 +64,6 @@ export const AuthProvider = ({ children }) => {
   const register = async (formData) => {
     try {
       const response = await authService.registerUser(formData);
-      const { accessToken, refreshToken, ...userData } = response.data;
       const { accessToken, refreshToken, ...userData } = response.data;
 
       saveTokens(accessToken, refreshToken);

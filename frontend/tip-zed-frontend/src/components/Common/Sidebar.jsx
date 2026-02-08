@@ -13,11 +13,11 @@ const Sidebar = ({
   const { logout } = useAuth();
 
   const menuItems = [
-    { icon: LayoutDashboard, label: "Overview", path: "/dashboard" },
+    { icon: LayoutDashboard, label: "Overview", path: "/creator-dashboard" },
     {
       icon: ArrowRightLeft,
       label: "Transactions",
-      path: "/dashboard/transactions",
+      path: "/creator-dashboard/transactions",
     },
   ];
 
