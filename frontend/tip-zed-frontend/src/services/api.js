@@ -22,8 +22,8 @@ api.interceptors.request.use(
       "/auth/login/",
       "/auth/register/",
       "/creators/all/",
-      "/creator-catalog/",
       "/creator-profile/",
+      "/creator-catalog/",
     ];
 
     const isPublic = publicRoutes.some((route) => config.url.includes(route));
@@ -56,7 +56,7 @@ api.interceptors.response.use(
         }
 
         // Call backend to get a new access token
-        const response = await axios.post(`${BASE_URL}/auth/token/refresh/`, {
+        const response = await api.post(`${BASE_URL}/auth/token/refresh/`, {
           refresh: refreshToken,
         });
 
@@ -73,7 +73,7 @@ api.interceptors.response.use(
       } catch (refreshError) {
         // If refresh fails (token expired), force logout
         localStorage.removeItem("accessToken");
-        window.location.href = "/login"; // Redirect to login
+        window.location.href = "/login";
 
         return Promise.reject(refreshError);
       }

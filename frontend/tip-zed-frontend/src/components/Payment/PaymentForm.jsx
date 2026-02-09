@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChevronLeft, Lock, Edit2 } from "lucide-react";
-import { detectProvider, PROVIDERS } from "@/utils/mobileMoney";
+import { detectProvider, PROVIDERS } from "../../utils/mobileMoney";
 
 const PROVIDERS_ARRAY = Object.values(PROVIDERS);
 
@@ -98,7 +98,6 @@ const PaymentForm = ({ amount, onSubmit, onBack }) => {
           {isManual ? (
             <div className="grid grid-cols-3 gap-2">
               {PROVIDERS_ARRAY.map((p) => {
-                console.log(p);
                 return <>{p.id}</>;
               })}
             </div>
