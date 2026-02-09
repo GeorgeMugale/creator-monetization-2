@@ -41,6 +41,7 @@ def test_list_creator_profiles_view(client):
     for profile in profiles:
         assert profile.user.first_name in content
         assert profile.user.last_name in content
+        assert profile.user.category in content
         assert "bio" in content
 
 
@@ -60,6 +61,7 @@ def test_creator_public_view(client, user_factory):
     assert "walletId" in response.content.decode()
     assert creator_profile.user.slug in response.content.decode()
     assert creator_profile.user.username in response.content.decode()
+    assert creator_profile.user.category in response.content.decode()
     assert creator_profile.website in response.content.decode()
     assert str(creator_profile.followers_count) in response.content.decode()
     assert str(creator_profile.rating) in response.content.decode()
@@ -123,6 +125,7 @@ def test_creator_public_view_multiple_profiles(client):
         assert response.status_code == 200
         assert profile.user.first_name in response.content.decode()
         assert profile.user.last_name in response.content.decode()
+        assert profile.user.category in response.content.decode()
         assert "bio" in response.content.decode()
 
     

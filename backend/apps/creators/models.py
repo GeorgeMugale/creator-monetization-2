@@ -31,6 +31,7 @@ class CreatorProfile(models.Model):
     verified = models.BooleanField(default=False, help_text='Verified creator badge')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    category = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
         db_table = 'creators_profile'

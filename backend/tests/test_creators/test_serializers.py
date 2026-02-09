@@ -17,7 +17,7 @@ class TestCreatorPublicSerializer:
         expected_fields = {
             'user', 'bio', 'profile_image', 'cover_image', 'website',
             'followers_count', 'rating', 'verified', 'status',
-            'created_at', 'updated_at', "wallet_id",
+            'created_at', 'updated_at', "wallet_id", 'category'
         }
 
         assert set(data.keys()) == expected_fields
@@ -45,6 +45,7 @@ class TestCreatorPublicSerializer:
         assert 'created_at' in data
         assert 'updated_at' in data
         assert data['website'] == profile.website
+        assert data['category'] == profile.user.category
         # Remove asset keyword. The utility function itself handles assertions.
         data['profile_image'] == profile.profile_image.url if profile.profile_image else None
         data['cover_image'] == profile.cover_image.url if profile.cover_image else None
@@ -68,6 +69,7 @@ class TestCreatorPublicSerializer:
             assert data[i]['bio'] == profiles[i].bio
             assert data[i]['followers_count'] == profiles[i].followers_count
             assert data[i]['rating'] == profiles[i].rating
+            assert data[i]['category'] == profiles[i].category
             assert 'created_at' in data[i]
             assert 'updated_at' in data[i]
             assert data[i]['website'] == profiles[i].website

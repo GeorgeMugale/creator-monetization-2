@@ -26,6 +26,7 @@ class CreatorPublicSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
             'status',
+            'category'
         ]
 
     # def get_profile_image(self, obj):
@@ -54,4 +55,5 @@ class CreatorListSerializer(serializers.ModelSerializer):
             'verified',
             'created_at',
             'updated_at',
+            'category'
         ]
