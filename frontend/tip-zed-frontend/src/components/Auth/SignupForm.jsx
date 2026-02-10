@@ -47,10 +47,16 @@ const SignupForm = () => {
     setIsLoading(true);
 
     try {
-      const result = await register(formData);
+      const { user, success, error } = await register(formData);
 
-      if (result.success) navigate("/login");
-      else setError(result.error);
+      if (success) {
+        if (user.userType === "creator")
+          // if creator navigate to dashboard
+          navigate("/creator-dashboard");
+        else
+          // normal users go to home
+          navigate("/");
+      } else setError(error);
     } catch (err) {
       console.error(err);
       setError("An unexpected error occurred. Please check your connection.");

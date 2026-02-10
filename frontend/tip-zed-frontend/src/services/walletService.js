@@ -15,7 +15,7 @@ export const walletService = {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     try {
       const response = await api.get(`/wallets/transactions?page=${page}`);
-      return response.data.data;
+      return response.data;
     } catch (error) {
       throw (
         error.response?.data || {

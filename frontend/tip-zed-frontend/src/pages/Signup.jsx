@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import SignupForm from "@/components/Auth/SignupForm";
 
-export default function Signup() {
+const Signup = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-green-50 p-4">
       <div className="w-full max-w-md backdrop-blur-xl bg-white/80 shadow-2xl rounded-2xl p-8 border border-white/40">
@@ -33,3 +33,5 @@ export default function Signup() {
     </div>
   );
 }
+
+export default Signup;

@@ -33,7 +33,15 @@ const LoginForm = () => {
       const result = await login(formData.email.trim(), formData.password);
 
       if (result.success) {
-        const from = location.state?.from?.pathname || "/";
+        const from =
+          // if there is a page tp return to
+          location.state?.from?.pathname ||
+          (result.user.userType === "creator"
+            ? // if they are a creator redirect to dashboard
+              "/creator-dashboard"
+            : // else navigate to home page
+              "/");
+
         navigate(from, { replace: true });
       } else {
         setError(result.error || "Invalid credentials. Please try again.");
