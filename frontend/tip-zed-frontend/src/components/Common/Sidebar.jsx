@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { useCreatorOnboarding } from "../../hooks/useCreatorOnboarding";
-import { useState } from "react";
 
 const Sidebar = ({ onClose, showCloseButton = false, title = "TipZed" }) => {
   const location = useLocation();

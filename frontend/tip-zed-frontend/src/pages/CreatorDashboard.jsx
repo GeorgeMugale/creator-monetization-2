@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom"; // Added useNavigate
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { useAuth } from "@/hooks/useAuth";
@@ -97,7 +97,7 @@ const CreatorDashboard = () => {
 
     // Dependencies:
     // We re-run if the view mode changes or the page changes.
-  }, [page, isOverview, isTransactionsView, isDataView]);
+  }, [page, isOverview, isTransactionsView, isDataView, walletData]);
 
   const { missingSteps, showOnboarding, completionPercentage } =
     useCreatorOnboarding(user, walletData);
@@ -216,6 +216,8 @@ const CreatorDashboard = () => {
           txnData={txnData}
           setPage={setPage}
           loading={loading}
+          walletData={walletData}
+          page={page}
         />
       )}
 

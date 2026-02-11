@@ -2,7 +2,7 @@ import {
   Inbox,
 } from "lucide-react";
 
-const Transactions = ({ txnData, isTransactionsView, error, setPage, loading }) => {
+const Transactions = ({ txnData, isTransactionsView, error, setPage, loading, walletData, page }) => {
   return (
     <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden">
       <div className="p-8 border-b border-gray-50 flex justify-between items-center">
