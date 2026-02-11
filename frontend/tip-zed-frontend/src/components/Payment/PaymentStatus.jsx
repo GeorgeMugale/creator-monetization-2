@@ -7,7 +7,7 @@ import {
   Loader2,
 } from "lucide-react";
 
-export default function PaymentStatus({
+const PaymentStatus =({
   status,
   amount,
   error,
@@ -15,7 +15,7 @@ export default function PaymentStatus({
   onRetry,
   onVerify,
   onClose,
-}) {
+}) => {
   // PROCESSING STATE (Action Required)
   if (status === "PROCESSING") {
     return (
@@ -127,3 +127,5 @@ export default function PaymentStatus({
 
   return null;
 }
+
+export default PaymentStatus;

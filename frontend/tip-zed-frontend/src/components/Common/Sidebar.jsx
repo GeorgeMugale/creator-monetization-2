@@ -1,16 +1,20 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LayoutDashboard, ArrowRightLeft, X, LogOut } from "lucide-react";
+import {
+  LayoutDashboard,
+  ArrowRightLeft,
+  X,
+  LogOut,
+  UserPen,
+  UserCog,
+} from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
+import { useCreatorOnboarding } from "../../hooks/useCreatorOnboarding";
 
-const Sidebar = ({
-  onClose,
-  isMobile = false,
-  showCloseButton = false,
-  title = "TipZed",
-}) => {
+const Sidebar = ({ onClose, showCloseButton = false, title = "TipZed" }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+  const { missingSteps } = useCreatorOnboarding(user);
 
   const menuItems = [
     { icon: LayoutDashboard, label: "Overview", path: "/creator-dashboard" },
@@ -18,6 +22,16 @@ const Sidebar = ({
       icon: ArrowRightLeft,
       label: "Transactions",
       path: "/creator-dashboard/transactions",
+    },
+    {
+      icon: UserPen,
+      label: "Edit Profile",
+      path: "/creator-dashboard/edit-profile",
+    },
+    {
+      icon: UserCog,
+      label: "Guide",
+      path: "/creator-dashboard/guide",
     },
   ];
 
@@ -48,28 +62,42 @@ const Sidebar = ({
       </div>
 
       {/* Navigation Section (expands to fill space) */}
-      <nav className="flex-1 px-4 py-6 space-y-1">
-        {menuItems.map((item) => {
-          const isActive = location.pathname === item.path;
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={() => isMobile && onClose?.()}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
-                isActive
-                  ? "bg-zed-green text-white shadow-md shadow-green-100"
-                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
-              }`}
-            >
-              <item.icon size={18} strokeWidth={isActive ? 2.5 : 2} />
-              {item.label}
-            </Link>
-          );
-        })}
-      </nav>
+      {menuItems.map((item) => {
+        const isActive = location.pathname === item.path;
+        // condition for focus (if path is edit profile and onboarding for profile is incomplete)
+        const requiresAttention =
+          (item.path === "/creator-dashboard/edit-profile" &&
+            missingSteps.find((step) => step.link === item.path)) ||
+          (item.path === "/creator-dashboard/guide" && missingSteps.length > 0);
 
-      {/* Footer Section (Fixed the stretched button here) */}
+        return (
+          <Link
+            key={item.path}
+            to={item.path}
+            className={`relative flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
+              isActive
+                ? "bg-zed-green text-white shadow-md shadow-green-100"
+                : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+            }`}
+          >
+            <div className="relative">
+              <item.icon size={18} strokeWidth={isActive ? 2.5 : 2} />
+
+              {/* pulsing dot to direct attention*/}
+              {requiresAttention && (
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 border-2 border-white"></span>
+                </span>
+              )}
+            </div>
+
+            {item.label}
+          </Link>
+        );
+      })}
+
+      {/* Footer Section */}
       <div className="p-4 border-t border-gray-50">
         <button
           onClick={handleLogout}

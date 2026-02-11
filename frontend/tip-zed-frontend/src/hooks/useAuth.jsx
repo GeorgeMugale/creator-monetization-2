@@ -47,11 +47,15 @@ export const AuthProvider = ({ children }) => {
       if (!getUser()) {
         const { data: responseData } = await authService.getProfile();
 
-        if (responseData.status === "success")
+        if (responseData.status === "success") {
           saveUser(responseData.data);
+          return { success: true, user: responseData.data };
+        }
+      } else {
+        return { success: true, user: getUser() };
       }
 
-      return { success: true };
+      throw new Error("No user found");
     } catch (error) {
       return {
         success: false,
@@ -68,7 +72,7 @@ export const AuthProvider = ({ children }) => {
       saveTokens(accessToken, refreshToken);
       saveUser(userData);
 
-      return { success: true };
+      return { success: true, user: userData };
     } catch (error) {
       return {
         success: false,
@@ -86,8 +90,26 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("user");
   };
 
+  const update = async (formData) => {
+    try {
+      const response = await authService.updateProfile(formData);
+      const { ...userData } = response.data;
+
+      saveUser({ ...user, ...userData });
+
+      return { success: true, user };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.message || "Registration failed",
+      };
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout }}>
+    <AuthContext.Provider
+      value={{ user, token, login, register, logout, update }}
+    >
       {children}
     </AuthContext.Provider>
   );

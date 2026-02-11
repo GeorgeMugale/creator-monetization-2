@@ -68,6 +68,22 @@ const authService = {
       };
     }
   },
+
+  updateProfile: async (userData) => {
+    try {
+      const response = await api.patch("/auth/profile/", userData);
+
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error("Register API Error:", error.response);
+      return {
+        success: false,
+        error:
+          error.response?.data?.message ||
+          "Registration failed. Please try again.",
+      };
+    }
+  },
 };
 
 export default authService;
