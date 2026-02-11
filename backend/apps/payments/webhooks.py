@@ -24,7 +24,7 @@ class WebhookAPIView(APIView):
             return JsonResponse({"error": "Invalid JSON"}, status=400)
 
         deposit_id = payload.get("depositId")
-        status = payload.get("status")
+        status = payload.get("status").lower()
         external_id = payload.get("providerTransactionId")
 
         if not all([deposit_id, status]):
@@ -63,7 +63,7 @@ class WebhookAPIView(APIView):
                 if status == "completed" and payment.wallet is not None:
                     try:
                         WalletTransactionService.cash_in(
-                            wallet=payment.user.wallet,
+                            wallet=payment.wallet,
                             amount=payment.amount,
                             payment=payment,
                             reference=external_id,
