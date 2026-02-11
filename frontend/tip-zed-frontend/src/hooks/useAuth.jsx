@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from "react";
-import authService from "../services/authService";
+import authService from "@/services/authService";
 
 const AuthContext = createContext(null);
 
@@ -45,12 +45,17 @@ export const AuthProvider = ({ children }) => {
 
       // if user is not in local storage
       if (!getUser()) {
-        const responseUser = await authService.getProfile();
+        const { data: responseData } = await authService.getProfile();
 
-        if (responseUser.data) saveUser(responseUser.data);
+        if (responseData.status === "success") {
+          saveUser(responseData.data);
+          return { success: true, user: responseData.data };
+        }
+      } else {
+        return { success: true, user: getUser() };
       }
 
-      return { success: true };
+      throw new Error("No user found");
     } catch (error) {
       return {
         success: false,
@@ -65,9 +70,9 @@ export const AuthProvider = ({ children }) => {
       const { accessToken, refreshToken, ...userData } = response.data;
 
       saveTokens(accessToken, refreshToken);
-      saveUser(userData)
+      saveUser(userData);
 
-      return { success: true };
+      return { success: true, user: userData };
     } catch (error) {
       return {
         success: false,
@@ -85,8 +90,26 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("user");
   };
 
+  const update = async (formData) => {
+    try {
+      const response = await authService.updateProfile(formData);
+      const { ...userData } = response.data;
+
+      saveUser({ ...user, ...userData });
+
+      return { success: true, user };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.message || "Registration failed",
+      };
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout }}>
+    <AuthContext.Provider
+      value={{ user, token, login, register, logout, update }}
+    >
       {children}
     </AuthContext.Provider>
   );

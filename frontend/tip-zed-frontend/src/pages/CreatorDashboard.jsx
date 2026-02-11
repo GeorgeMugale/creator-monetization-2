@@ -1,369 +1,268 @@
-import { useEffect, useState, useMemo } from "react";
-import { useLocation } from "react-router-dom";
-import DashboardLayout from "../layouts/DashboardLayout";
-import { useAuth } from "../hooks/useAuth";
-import { getWalletData } from "../services/walletService";
-import { Eye, TrendingUp, DollarSign, RefreshCw, Info   } from "lucide-react";
-import TransactionDetailModal from "../components/Creator/TransactionDetailModal";
+import { useEffect, useState } from "react";
+import { useLocation, Link, useNavigate } from "react-router-dom"; // Added useNavigate
+import DashboardLayout from "@/layouts/DashboardLayout";
+import { useAuth } from "@/hooks/useAuth";
+import { walletService } from "@/services/walletService";
+import {
+  ArrowUpRight,
+  ShieldCheck,
+  AlertCircle,
+  HelpCircle,
+  BookOpen,
+  X,
+  UserPen,
+} from "lucide-react";
+import { useCreatorOnboarding } from "@/hooks/useCreatorOnboarding";
+import OnboardingChecklist from "@/components/Creator/OnboardingChecklist";
+import Overview from "@/components/Creator/Overview";
+import Transactions from "@/components/Creator/Transactions";
+import EditProfile from "@/components/Creator/EditProfile";
+import Guide from "@/components/Creator/Guide";
 
 const CreatorDashboard = () => {
   const { user } = useAuth();
-  const location = useLocation();
-  const isTransactionsView = location.pathname === "/dashboard/transactions";
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
 
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  //VIEW LOGIC
+  const isOverview = pathname === "/creator-dashboard";
+  const isTransactionsView = pathname === "/creator-dashboard/transactions";
+  const isEditProfileView = pathname === "/creator-dashboard/edit-profile";
+  const isGuideView = pathname === "/creator-dashboard/guide";
+
+  // Identify if the current view requires data fetching
+  const isDataView = isOverview || isTransactionsView;
+
+  const [walletData, setWalletData] = useState(null);
+  const [txnData, setTxnData] = useState(null);
+  const [loading, setLoading] = useState(isDataView); // Only start as loading if we need data
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
-  const [selectedTxn, setSelectedTxn] = useState(null);
-  const [filters, setFilters] = useState({
-    type: "all",
-    status: "all",
-    dateRange: "all", // options: 'all', 'today', '7days', '30days'
-  });
+  const [showHelp, setShowHelp] = useState(false);
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await getWalletData({ page, limit: 10, ...filters });
-      setData(response);
-    } catch (err) {
-      setError("Failed to load wallet data. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
   useEffect(() => {
-    fetchData();
-  }, [page]);
+    // GUARD-- If we are on Edit Profile or Guide, do not fetch anything.
+    if (!isDataView) {
+      setLoading(false);
+      return;
+    }
 
-  const filteredTransactions = useMemo(() => {
-    if (!data?.transactions) return [];
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-    return data.transactions.filter((txn) => {
-      // Filter by Type
-      const matchType = filters.type === "all" || txn.type === filters.type;
+        // Determine correct page for the API
+        // If Overview, force page 1. If Transactions, use current state page.
+        const apiPage = isTransactionsView ? page : 1;
 
-      // Filter by Status
-      const matchStatus =
-        filters.status === "all" || txn.status === filters.status;
+        const promises = [];
 
-      // Filter by Date Range
-      let matchDate = true;
-      const txnDate = new Date(txn.date);
-      const now = new Date();
+        // OPTIMIZATION: Logic for Wallet Data (Overview Data)
+        // We always need it for Overview.
+        // For Transactions, we only need it for the Header. If we already have it, don't re-fetch.
+        const shouldFetchWalletData = isOverview || (isTransactionsView && !walletData);
 
-      if (filters.dateRange === "today") {
-        matchDate = txnDate.toDateString() === now.toDateString();
-      } else if (filters.dateRange === "7days") {
-        const sevenDaysAgo = new Date(now.setDate(now.getDate() - 7));
-        matchDate = txnDate >= sevenDaysAgo;
-      } else if (filters.dateRange === "30days") {
-        const thirtyDaysAgo = new Date(now.setDate(now.getDate() - 30));
-        matchDate = txnDate >= thirtyDaysAgo;
+        if (shouldFetchWalletData) {
+           promises.push(walletService.getWalletData()); // Assuming stats don't need pagination
+        } else {
+           promises.push(Promise.resolve(null)); // Placeholder to keep array index consistent
+        }
+
+        // Logic for Transaction Data
+        // Always fetch this for both views (Overview gets p1, Transactions gets pN)
+        promises.push(walletService.getWalletTxnData(apiPage));
+
+        const [walletRes, txnRes] = await Promise.all(promises);
+
+        // Only update walletData if we actually fetched a new one
+        if (walletRes) {
+          setWalletData(walletRes);
+        }
+        setTxnData(txnRes);
+
+      } catch (err) {
+        console.error(err);
+        setError(
+          err?.responseWallet?.data?.message ||
+            err?.responseTxn?.data?.message ||
+            "Failed to load data."
+        );
+      } finally {
+        setLoading(false);
       }
+    };
 
-      return matchType && matchStatus && matchDate;
-    });
-  }, [data, filters]);
+    fetchData();
 
-  // Loading Skeleton
-  if (loading && !data) {
+    // Dependencies:
+    // We re-run if the view mode changes or the page changes.
+  }, [page, isOverview, isTransactionsView, isDataView, walletData]);
+
+  const { missingSteps, showOnboarding, completionPercentage } =
+    useCreatorOnboarding(user, walletData);
+
+
+  // --- RENDER HELPERS ---
+
+  // Helper to prevent content jumping: Skeleton Loader
+  if (loading && !walletData && isDataView) {
     return (
-      <DashboardLayout title={user.username ?? ""}>
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 w-1/3 rounded"></div>
+      <DashboardLayout title={user?.username}>
+        <div className="animate-pulse space-y-8">
+          <div className="h-8 bg-gray-200 w-1/4 rounded-lg"></div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="h-32 bg-gray-200 rounded-xl"></div>
-            <div className="h-32 bg-gray-200 rounded-xl"></div>
-            <div className="h-32 bg-gray-200 rounded-xl"></div>
+            <div className="h-32 bg-gray-100 rounded-2xl"></div>
+            <div className="h-32 bg-gray-100 rounded-2xl"></div>
+            <div className="h-32 bg-gray-100 rounded-2xl"></div>
           </div>
         </div>
       </DashboardLayout>
     );
   }
 
-  if (error) {
+  // Error State (Only for Data Views)
+  if (error && isDataView) {
     return (
-      <DashboardLayout title={user.username ?? ""}>
-        <div className="p-4 bg-red-50 text-red-600 rounded-lg flex items-center justify-between">
-          <span>{error}</span>
-          <button
-            onClick={() => {
-              setError(null);
-              setPage(1);
-            }}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-          >
-            Retry
-          </button>
+      <DashboardLayout title={user?.username ?? "Dashboard"}>
+        <div className="flex flex-col items-center justify-center py-24 text-center">
+          <div className="bg-red-50 border border-red-100 text-red-600 rounded-2xl p-8 max-w-md">
+            <AlertCircle size={40} className="mx-auto mb-4" />
+            <h2 className="font-black text-lg mb-2">Something went wrong</h2>
+            <p className="text-sm font-medium mb-6">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="bg-red-600 text-white px-5 py-2 rounded-xl text-sm font-bold hover:opacity-90"
+            >
+              Retry
+            </button>
+          </div>
         </div>
       </DashboardLayout>
     );
   }
 
   return (
-    <DashboardLayout title={user.username ?? ""}>
-      {/* Header */}
-      <div className="mb-8 flex justify-between items-end">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            {isTransactionsView
-              ? "Transaction History"
-              : `Welcome back, ${user?.username}!`}
-          </h1>
-          <p className="text-gray-500">
-            {isTransactionsView
-              ? "Track your earnings and payouts."
-              : "Real-time overview of your wallet."}
-          </p>
-        </div>
-        <button
-          onClick={fetchData}
-          className="p-2 text-gray-500 hover:text-green-600 transition-colors"
-          title="Refresh Data"
-        >
-          <RefreshCw size={20} className={loading ? "animate-spin" : ""} />
-        </button>
-      </div>
-
-      {/* OVERVIEW (Cards) */}
-      {!isTransactionsView && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <p className="text-sm font-medium text-gray-500">
-              Available Balance
-            </p>
-            <h3 className="text-2xl font-bold text-green-600 mt-2">
-              ZMW {data?.balance?.available?.toLocaleString() || "0.00"}
-            </h3>
-            {data?.balance?.pending > 0 && (
-              <p className="text-xs text-yellow-600 mt-1 font-medium">
-                + ZMW {data.balance.pending.toLocaleString()} pending
-              </p>
+    <DashboardLayout title={user?.username ?? "Dashboard"}>
+      
+      {/* HEADER SECTION (Shared by Overview & Transactions) */}
+      {isDataView && (
+        <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-black text-gray-900 tracking-tight">
+              {isTransactionsView ? "Transaction History" : "Overview"}
+            </h1>
+            {/* Guard against null walletData if API partially failed */}
+            {walletData && (
+              <div className="flex items-center gap-2 mt-1">
+                <span className="bg-gray-100 text-gray-500 px-2 py-0.5 rounded text-[10px] font-bold uppercase">
+                  {walletData.kycLevel}
+                </span>
+                {walletData.kycVerified && (
+                  <ShieldCheck size={14} className="text-zed-green" />
+                )}
+              </div>
             )}
           </div>
-          {/* Wallet Balance */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-sm font-medium text-gray-500">
-                  Current Balance
-                </p>
-                <h3 className="text-2xl font-bold text-gray-900 mt-2">
-                  {data?.currency || "ZMW"}{" "}
-                  {data?.balance?.toLocaleString() || "0"}
-                </h3>
-              </div>
-              <div className="p-2 bg-green-50 rounded-lg text-green-600">
-                <DollarSign size={20} />
-              </div>
-            </div>
-          </div>
 
-          {/* Total Earnings */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-sm font-medium text-gray-500">
-                  Total Earnings
-                </p>
-                <h3 className="text-2xl font-bold text-gray-900 mt-2">
-                  {data?.currency || "ZMW"}{" "}
-                  {data?.totalEarnings?.toLocaleString() || "0"}
-                </h3>
-              </div>
-              <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
-                <TrendingUp size={20} />
-              </div>
-            </div>
-          </div>
-
-          {/* Total Transactions */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-sm font-medium text-gray-500">
-                  Total Transactions
-                </p>
-                <h3 className="text-2xl font-bold text-gray-900 mt-2">
-                  {data?.totalTransactions || 0}
-                </h3>
-              </div>
-              <div className="p-2 bg-purple-50 rounded-lg text-purple-600">
-                <Eye size={20} />
-              </div>
-            </div>
-          </div>
+          <button className="bg-zed-green text-white px-6 py-3 rounded-xl font-bold shadow-lg flex items-center gap-2 hover:scale-105 transition-all text-sm">
+            Withdraw Funds <ArrowUpRight size={18} />
+          </button>
         </div>
       )}
 
-      {/* TRANSACTIONS TABLE */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        {/* 3. Filter UI Bar */}
-        <div className="p-4 border-b border-gray-100 bg-gray-50/50 flex flex-wrap gap-4">
-          <div className="flex flex-col gap-1">
-            <label className="text-[10px] font-bold uppercase text-gray-400 px-1">
-              Type
-            </label>
-            <select
-              value={filters.type}
-              onChange={(e) =>
-                setFilters((f) => ({ ...f, type: e.target.value }))
-              }
-              className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white outline-none focus:ring-2 ring-green-500/20"
-            >
-              <option value="all">All Types</option>
-              <option value="tip">Tips Received</option>
-              <option value="payout">Payouts</option>
-              <option value="fee">Fees</option>
-            </select>
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <label className="text-[10px] font-bold uppercase text-gray-400 px-1">
-              Status
-            </label>
-            <select
-              value={filters.status}
-              onChange={(e) =>
-                setFilters((f) => ({ ...f, status: e.target.value }))
-              }
-              className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white outline-none focus:ring-2 ring-green-500/20"
-            >
-              <option value="all">All Status</option>
-              <option value="completed">Completed</option>
-              <option value="pending">Pending</option>
-              <option value="failed">Failed</option>
-            </select>
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <label className="text-[10px] font-bold uppercase text-gray-400 px-1">
-              Timeframe
-            </label>
-            <select
-              value={filters.dateRange}
-              onChange={(e) =>
-                setFilters((f) => ({ ...f, dateRange: e.target.value }))
-              }
-              className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white outline-none focus:ring-2 ring-green-500/20"
-            >
-              <option value="all">All Time</option>
-              <option value="today">Today</option>
-              <option value="7days">Last 7 Days</option>
-              <option value="30days">Last 30 Days</option>
-            </select>
-          </div>
-
+      {/* EDIT PROFILE HEADER */}
+      {isEditProfileView && (
+        <div className="bg-white border-b border-gray-200 px-6 py-4 mb-10 top-0 z-30 flex justify-between items-center shadow-sm">
+          <h1 className="text-xl font-bold text-gray-900">Edit Profile</h1>
           <button
-            onClick={() =>
-              setFilters({ type: "all", status: "all", dateRange: "all" })
-            }
-            className="mt-auto mb-1 text-xs text-gray-400 hover:text-green-600 font-medium"
+            onClick={() => navigate("/creator-dashboard")}
+            className="text-gray-500 hover:text-gray-900"
           >
-            Reset Filters
+            <X size={24} />
           </button>
         </div>
+      )}
 
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[600px]">
-            {/* ... Thead ... */}
-            <tbody className="divide-y divide-gray-100">
-              {filteredTransactions.length > 0 ? (
-                filteredTransactions.map((txn) => (
-                  <tr
-                    key={txn.id}
-                    onClick={() => setSelectedTxn(txn)}
-                    className="hover:bg-gray-50 transition-colors cursor-pointer"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold">
-                      <span
-                        className={
-                          txn.type === "payout"
-                            ? "text-red-600"
-                            : "text-green-600"
-                        }
-                      >
-                        {txn.type === "payout" ? "-" : "+"} ZMW{" "}
-                        {txn.amount?.toFixed(2)}
-                      </span>
-                    </td>
-
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <Info size={16} className="text-gray-400 inline" />
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td
-                    colSpan="4"
-                    className="px-6 py-12 text-center text-gray-400 italic"
-                  >
-                    No transactions match your filters.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-       {/* Pagination Controls */}
-
-        {data?.pagination && data.pagination.pages > 1 && (
-
-          <div className="p-4 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
-
-            <button
-
-              disabled={page === 1 || loading}
-
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-
-              className="w-full sm:w-auto px-4 py-2 border rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
-
-            >
-
-              Previous
-
-            </button>
-
-            <span className="text-sm text-gray-600">
-
-              Page {data.pagination.page} of {data.pagination.pages}
-
-            </span>
-
-            <button
-
-              disabled={page >= data.pagination.pages || loading}
-
-              onClick={() => setPage((p) => p + 1)}
-
-              className="w-full sm:w-auto px-4 py-2 border rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
-
-            >
-
-              Next
-
-            </button>
-
-          </div>
-
-        )}
-
-
-      {/* Detail Modal */}
-      {selectedTxn && (
-        <TransactionDetailModal
-          transaction={selectedTxn}
-          onClose={() => setSelectedTxn(null)}
+      {/* ONBOARDING (Show on Dashboard views) */}
+      {showOnboarding && !isGuideView && !isEditProfileView && (
+        <OnboardingChecklist
+          missingSteps={missingSteps}
+          completionPercentage={completionPercentage}
         />
       )}
 
+      {/* ERROR MESSAGE (Inline) */}
+      {error && (
+        <div className="mb-6 rounded-xl border border-red-100 bg-red-50 px-6 py-4 text-sm font-bold text-red-600 flex items-center gap-3">
+          <AlertCircle size={18} />
+          {error}
+        </div>
+      )}
+
+      {/* --- CONTENT VIEWS --- */}
+
+      {/* VIEW A: OVERVIEW */}
+      {isOverview && <Overview walletData={walletData} />}
+
+      {/* VIEW B: TRANSACTIONS */}
+      {/* Note: Transactions view handles its own list display, we just pass data */}
+      {(isTransactionsView || isOverview) && (
+        <Transactions
+          error={error}
+          // If we are on Overview, we force "View Mode" behavior (usually simplified list)
+          // If on Transactions, it is the full view
+          isTransactionsView={isTransactionsView} 
+          txnData={txnData}
+          setPage={setPage}
+          loading={loading}
+          walletData={walletData}
+          page={page}
+        />
+      )}
+
+      {/* VIEW C: EDIT PROFILE */}
+      {isEditProfileView && <EditProfile user={user} />}
+
+      {/* VIEW D: GUIDE */}
+      {isGuideView && <Guide slug={user?.slug} />}
+
+
+      {/* FLOATING HELP BUTTON */}
+      {showOnboarding && (
+        <div className="fixed bottom-6 right-6 z-40">
+          <button
+            onClick={() => setShowHelp(!showHelp)}
+            className="bg-zed-green text-white p-4 rounded-full shadow-lg hover:scale-110 transition-transform"
+          >
+            <HelpCircle size={24} />
+          </button>
+
+          {showHelp && (
+            <div className="absolute bottom-full right-0 mb-4 w-80 bg-white rounded-2xl shadow-2xl p-6">
+              <h3 className="font-bold text-gray-900 mb-4">
+                Need help getting started?
+              </h3>
+              <div className="space-y-3">
+                <Link
+                  to="/creator-dashboard/guide"
+                  className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl"
+                >
+                  <BookOpen size={18} className="text-zed-green" />
+                  <span className="font-medium">View Complete Guide</span>
+                </Link>
+                <Link
+                  to="/creator-dashboard/edit-profile"
+                  className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl"
+                >
+                  <UserPen size={18} className="text-zed-green" />
+                  <span className="font-medium">Complete Your Profile</span>
+                </Link>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </DashboardLayout>
   );
 };

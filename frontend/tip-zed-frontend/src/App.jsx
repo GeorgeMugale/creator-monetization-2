@@ -46,6 +46,30 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/creator-dashboard/transactions"
+              element={
+                <ProtectedRoute>
+                  <CreatorDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/creator-dashboard/edit-profile"
+              element={
+                <ProtectedRoute>
+                  <CreatorDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/creator-dashboard/guide"
+              element={
+                <ProtectedRoute>
+                  <CreatorDashboard />
+                </ProtectedRoute>
+              }
+            />
 
             {/* 404 Fallback (Optional) */}
             <Route path="*" element={<NotFound />} />
