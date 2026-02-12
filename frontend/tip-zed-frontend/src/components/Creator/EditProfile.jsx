@@ -1,23 +1,46 @@
 import { useState } from "react";
-import { Camera, Save, Loader2, User, Image as ImageIcon } from "lucide-react";
+import {
+  Camera,
+  Save,
+  Loader2,
+  User,
+  Image as ImageIcon,
+  AlertCircle,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
+
+const convertToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
+};
 
 const EditProfile = () => {
   const navigate = useNavigate();
   const { user, update } = useAuth();
 
   const [loading, setLoading] = useState(false);
-  const [successMsg, setSuccessMsg] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
   const [formData, setFormData] = useState({
-    fullName: user?.firstName + user?.lastName || "",
+    fullName: `${user?.firstName || ""} ${user?.lastName || ""}`.trim(),
     bio: user?.bio || "",
     profileImage: user?.profileImage || null,
     coverImage: user?.coverImage || null,
   });
 
-  //preview State (showing new images before upload)
+  const [pendingFiles, setPendingFiles] = useState({
+    profile: null,
+    cover: null,
+  });
+
+
+  // Preview State- to show new images before upload
   const [previews, setPreviews] = useState({
     profile: user?.profileImage || null,
     cover: user?.coverImage || null,
@@ -26,28 +49,35 @@ const EditProfile = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (error) setError("");
   };
 
   const handleImageChange = (e, type) => {
     const file = e.target.files[0];
     if (file) {
-      //update Form Data (Real file for backend)
-      setFormData((prev) => ({ ...prev, [`${type}Image`]: file }));
+      // Clean up old preview URL to prevent memory leaks
+      if (previews[type]?.startsWith("blob:")) {
+        URL.revokeObjectURL(previews[type]);
+      }
 
-      //generate Local Preview URL
+      // store the file for later upload
+      setPendingFiles((prev) => ({ ...prev, [type]: file }));
+
+      // Generate Local Preview URL
       const previewUrl = URL.createObjectURL(file);
       setPreviews((prev) => ({ ...prev, [type]: previewUrl }));
+
+      if (error) setError("");
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setSuccessMsg("");
+    setError("");
+    setSuccess(false);
 
     try {
-      const cleanData = {};
-
       // VALIDATION
       if (!formData.fullName?.trim()) {
         throw new Error("Display name is required");
@@ -55,23 +85,54 @@ const EditProfile = () => {
 
       // Split full name
       const nameParts = formData.fullName.trim().split(/\s+/);
-      cleanData.firstName = nameParts[0];
-      cleanData.lastName = nameParts.slice(1).join(" ") || "";
+      const cleanData = {
+        firstName: nameParts[0],
+        lastName: nameParts.slice(1).join(" ") || "",
+      };
 
-      if (formData.bio?.trim()) cleanData.bio = formData.bio.trim();
+      // Add bio if provided
+      if (formData.bio?.trim()) {
+        cleanData.bio = formData.bio.trim();
+      }
 
-      if (formData.profileImage) cleanData.profileImage = formData.profileImage;
+      // convert profile image to Base64 if there's a pending file
+      if (pendingFiles.profile) {
+        try {
+          const profileImageBase64 = await convertToBase64(
+            pendingFiles.profile,
+          );
+          cleanData.profileImage = profileImageBase64; // Send Base64 string
+        } catch (uploadError) {
+          console.log(uploadError);
+          throw new Error("Failed to process profile image. Please try again.");
+        }
+      }
 
-      if (formData.coverImage) cleanData.coverImage = formData.coverImage;
+      //convert cover image to Base64 if there's a pending file
+      if (pendingFiles.cover) {
+        try {
+          const coverImageBase64 = await convertToBase64(pendingFiles.cover);
+          cleanData.coverImage = coverImageBase64; // Send Base64 string
+        } catch (uploadError) {
+          console.log(uploadError);
+          throw new Error("Failed to process cover image. Please try again.");
+        }
+      }
 
-      await update(user.id, cleanData);
+      // Send all data as JSON with Base64 strings
+      const result = await update(cleanData);
 
-      setSuccessMsg("Profile updated successfully!");
-
-      setTimeout(() => navigate("/creator-dashboard"), 2000);
+      if (result.success) {
+        setSuccess(true);
+        // Clear pending files
+        setPendingFiles({ profile: null, cover: null });
+        // Redirect after successful update
+        setTimeout(() => navigate("/creator-dashboard"), 1500);
+      } else {
+        setError(result.error || "Failed to update profile");
+      }
     } catch (error) {
-      console.error(error);
-      // optionally show error to user later
+      setError(error.message || "An unexpected error occurred");
     } finally {
       setLoading(false);
     }
@@ -80,8 +141,8 @@ const EditProfile = () => {
   const isEmpty = {
     fullName: !formData.fullName?.trim(),
     bio: !formData.bio?.trim(),
-    profileImage: !formData.profileImage,
-    coverImage: !formData.coverImage,
+    profileImage: !formData.profileImage && !user?.profileImage,
+    coverImage: !formData.coverImage && !user?.coverImage,
   };
 
   const hasMissingFields = Object.values(isEmpty).some(Boolean);
@@ -90,22 +151,29 @@ const EditProfile = () => {
     <div className="min-h-screen bg-gray-50 pb-20">
       <form onSubmit={handleSubmit} className="max-w-3xl mx-auto mt-6 px-4">
         {/* Success Message */}
-        {successMsg && (
+        {success && (
           <div className="mb-6 bg-green-50 text-green-700 px-4 py-3 rounded-xl border border-green-200 flex items-center gap-2 animate-in slide-in-from-top-2">
-            <User size={18} /> {successMsg}
+            <User size={18} /> Profile updated successfully! Redirecting...
           </div>
         )}
 
-        {/*IMAGES SECTION */}
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 bg-red-50 text-red-700 px-4 py-3 rounded-xl border border-red-200 flex items-center gap-2">
+            <AlertCircle size={18} /> {error}
+          </div>
+        )}
+
+        {/* IMAGES SECTION */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-6">
           {/* Cover Image Input */}
           <div
             className={`h-48 w-full bg-gray-100 relative group
-              ${isEmpty.coverImage ? "ring-2 ring-zed-green animate-pulse" : ""}
+              ${isEmpty.coverImage && !success ? "ring-2 ring-amber-400" : ""}
             `}
           >
-            {isEmpty.coverImage && (
-              <span className="absolute top-3 right-3 w-3 h-3 bg-zed-green rounded-full animate-ping" />
+            {isEmpty.coverImage && !success && (
+              <span className="absolute top-3 right-3 w-3 h-3 bg-amber-400 rounded-full animate-pulse" />
             )}
             {previews.cover ? (
               <img
@@ -130,13 +198,13 @@ const EditProfile = () => {
                 accept="image/*"
                 className="hidden"
                 onChange={(e) => handleImageChange(e, "cover")}
+                disabled={loading || success}
               />
             </label>
           </div>
 
           <div className="px-8 pb-8">
             {/* Profile Image Input (Overlapping) */}
-
             <div className="relative -mt-16 mb-6 inline-block">
               <div className="relative group">
                 {previews.profile ? (
@@ -148,14 +216,14 @@ const EditProfile = () => {
                 ) : (
                   <div
                     className={`relative group rounded-2xl
-                    ${isEmpty.profileImage ? "ring-2 ring-zed-green animate-pulse" : ""}
+                    ${isEmpty.profileImage && !success ? "ring-2 ring-amber-400" : ""}
                   `}
                   >
                     <div className="w-32 h-32 rounded-2xl border-4 border-white shadow-md bg-zed-green flex items-center justify-center text-white text-4xl font-bold">
                       {formData.fullName?.charAt(0) || "U"}
                     </div>
-                    {isEmpty.profileImage && (
-                      <span className="absolute -top-1 -right-1 w-3 h-3 bg-zed-green rounded-full" />
+                    {isEmpty.profileImage && !success && (
+                      <span className="absolute -top-1 -right-1 w-3 h-3 bg-amber-400 rounded-full" />
                     )}
                   </div>
                 )}
@@ -168,6 +236,7 @@ const EditProfile = () => {
                     accept="image/*"
                     className="hidden"
                     onChange={(e) => handleImageChange(e, "profile")}
+                    disabled={loading || success}
                   />
                 </label>
               </div>
@@ -184,15 +253,22 @@ const EditProfile = () => {
                   name="fullName"
                   value={formData.fullName}
                   onChange={handleChange}
+                  disabled={loading || success}
                   className={`w-full px-4 py-3 rounded-xl font-medium transition-all text-black
                   ${
-                    isEmpty.fullName
-                      ? "bg-green-50 border-zed-green ring-2 ring-zed-green animate-pulse"
+                    isEmpty.fullName && !success
+                      ? "bg-amber-50 border-amber-400 ring-2 ring-amber-400"
                       : "bg-gray-50 border-gray-200 focus:ring-zed-green"
                   }
+                  ${loading || success ? "opacity-50 cursor-not-allowed" : ""}
                 `}
                   placeholder="e.g. Chanda Mwamba"
                 />
+                {isEmpty.fullName && !success && (
+                  <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                    <AlertCircle size={12} /> Display name is required
+                  </p>
+                )}
               </div>
 
               <div>
@@ -204,14 +280,17 @@ const EditProfile = () => {
                   rows={4}
                   value={formData.bio}
                   onChange={handleChange}
+                  disabled={loading || success}
                   className={`w-full px-4 py-3 rounded-xl resize-none transition-all text-black
                   ${
-                    isEmpty.bio
-                      ? "bg-green-50 border-zed-green ring-2 ring-zed-green animate-pulse"
+                    isEmpty.bio && !success
+                      ? "bg-amber-50 border-amber-400 ring-2 ring-amber-400"
                       : "bg-gray-50 border-gray-200 focus:ring-zed-green"
                   }
+                  ${loading || success ? "opacity-50 cursor-not-allowed" : ""}
                 `}
                   placeholder="Tell your supporters about what you create..."
+                  maxLength={500}
                 />
                 <p className="text-right text-xs text-gray-400 mt-2">
                   {formData.bio.length}/500
@@ -226,25 +305,32 @@ const EditProfile = () => {
           <button
             type="button"
             onClick={() => navigate("/creator-dashboard")}
-            className="px-6 py-3 rounded-xl font-bold text-gray-500 hover:bg-gray-100 transition-colors"
+            disabled={loading}
+            className="px-6 py-3 rounded-xl font-bold text-gray-500 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel
           </button>
 
           <button
             type="submit"
-            disabled={loading}
-            className={`px-8 py-3 rounded-xl font-bold flex items-center gap-2
-            ${
-              hasMissingFields
-                ? "bg-zed-black/80 animate-pulse"
-                : "bg-zed-black hover:bg-gray-800"
-            }
-          `}
+            disabled={loading || success}
+            className={`px-8 py-3 rounded-xl font-bold flex items-center gap-2 transition-all
+              ${
+                hasMissingFields && !success
+                  ? "bg-amber-500 hover:bg-amber-600"
+                  : "bg-zed-black hover:bg-gray-800"
+              }
+              ${loading || success ? "opacity-50 cursor-not-allowed" : ""}
+              text-white
+            `}
           >
             {loading ? (
               <>
                 <Loader2 size={20} className="animate-spin" /> Saving...
+              </>
+            ) : success ? (
+              <>
+                <User size={20} /> Saved!
               </>
             ) : (
               <>

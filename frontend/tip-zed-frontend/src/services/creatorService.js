@@ -4,7 +4,7 @@ export const creatorService = {
   // Fetch all creators for the catalog page
   getAllCreators: async () => {
     try {
-      const response = await api.get("/creators/all/"); 
+      const response = await api.get("/creators/all/");
       return response.data; // Expecting { status: "success", data: [...] }
     } catch (error) {
       throw error.response?.data || error.message;
@@ -18,6 +18,23 @@ export const creatorService = {
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
+    }
+  },
+
+  updateCreator: async (userData) => {
+    console.log(userData);
+    try {
+      const response = await api.put("/creators/profile/me", userData);
+
+      return { success: true, data: response.data };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Profile update failed. Please try again.",
+      };
     }
   },
 };
