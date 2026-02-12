@@ -36,7 +36,7 @@ def finalise_wallet_payout(request, payout_tx_id):
     model_name = wallet._meta.model_name
 
     wallet_change_url = reverse(
-        f"lipila_admin:{app_label}_{model_name}_change",
+        f"admin:{app_label}_{model_name}_change",
         args=[wallet.id],
     )
 
@@ -46,7 +46,7 @@ def finalise_wallet_payout(request, payout_tx_id):
     if request.method == "GET":
         return render(
             request,
-            "wallets/confirm_finalise_payout.html",
+            "payouts/finalise_payout.html",
             {
                 "wallet": wallet,
                 "payout_tx": payout_tx,
@@ -92,7 +92,7 @@ def trigger_wallet_payout(request, wallet_id):
 
     # Lipila admin wallet change page
     change_url = reverse(
-        f"lipila_admin:{app_label}_{model_name}_change",
+        f"admin:{app_label}_{model_name}_change",
         args=[wallet.id],
     )
 
@@ -102,7 +102,7 @@ def trigger_wallet_payout(request, wallet_id):
     if request.method == "GET":
         return render(
             request,
-            "wallets/confirm_payout.html",
+            "payouts/confirm_payout.html",
             {
                 "wallet": wallet,
                 "change_url": change_url,
