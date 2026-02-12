@@ -165,11 +165,3 @@ def dispute_factory(payment_factory):
     """Create a test dispute"""
     from tests.factories import DisputeFactory
     return DisputeFactory(payment=payment_factory)
-
-
-@pytest.fixture
-def webhook_log_factory(payment_factory):
-    """Create a test webhook log"""
-    from tests.factories import PaymentWebhookLogFactory
-    return PaymentWebhookLogFactory(payment=payment_factory)
-

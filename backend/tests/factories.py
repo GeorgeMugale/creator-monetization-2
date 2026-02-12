@@ -9,7 +9,7 @@ from apps.creators.models import CreatorProfile, CreatorCategory
 from apps.payments.models import Payment
 from apps.wallets.models import (
     Wallet, WalletKYC, WalletPayoutAccount, WalletTransaction,
-    PaymentAttempt, Refund, Dispute, PaymentWebhookLog,)
+    PaymentAttempt, Refund, Dispute)
 
 User = get_user_model()
 
@@ -244,22 +244,3 @@ class DisputeFactory(factory.django.DjangoModelFactory):
     communication = factory.Dict({})
     provider = "pawapay"
     provider_data = factory.Dict({})
-
-
-class PaymentWebhookLogFactory(factory.django.DjangoModelFactory):
-    """Factory for creating test payment webhook logs."""
-
-    class Meta:
-        model = PaymentWebhookLog
-
-    provider = "pawapay"
-    event_type = "deposit.accepted"
-    external_id = factory.Sequence(lambda n: f"HOOK-{n}")
-    raw_payload = factory.Faker("text")
-    parsed_payload = factory.Dict({})
-    headers = factory.Dict({"Content-Type": "application/json"})
-    status = "received"
-    error_message = ""
-    payment = factory.SubFactory(PaymentFactory)
-    processed_at = None
-    processing_time_ms = None
