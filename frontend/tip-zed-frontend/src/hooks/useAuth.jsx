@@ -1,5 +1,6 @@
 import { createContext, useContext, useState } from "react";
-import authService from "@/services/authService";
+import { creatorService } from "@/services/creatorService";
+import { authService } from "@/services/authService";
 
 const AuthContext = createContext(null);
 
@@ -70,9 +71,9 @@ export const AuthProvider = ({ children }) => {
       const { accessToken, refreshToken, ...userData } = response.data;
 
       saveTokens(accessToken, refreshToken);
-      saveUser(userData);
+      saveUser(userData.user);
 
-      return { success: true, user: userData };
+      return { success: true, user: userData.user };
     } catch (error) {
       return {
         success: false,
@@ -92,16 +93,20 @@ export const AuthProvider = ({ children }) => {
 
   const update = async (formData) => {
     try {
-      const response = await authService.updateProfile(formData);
-      const { ...userData } = response.data;
+      const response = await creatorService.updateCreator(formData);
 
-      saveUser({ ...user, ...userData });
+      if (response.success) {
+        saveUser({ ...user, ...formData });
 
-      return { success: true, user };
+        return { success: true, user };
+      }
+
+      return  {success: false, error: response.error}
     } catch (error) {
+      console.log(error);
       return {
         success: false,
-        error: error.response?.data?.message || "Registration failed",
+        error: error.response?.data?.message || "RProfile Update failed",
       };
     }
   };
