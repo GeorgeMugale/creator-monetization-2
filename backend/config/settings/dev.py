@@ -2,6 +2,7 @@ from pathlib import Path
 import environ
 import os
 from datetime import timedelta
+from corsheaders.defaults import default_headers
 
 env = environ.Env(
     # set casting, default value
@@ -24,8 +25,17 @@ DEBUG = env('DEBUG')
 ALLOWED_HOSTS = env('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
 # CORS Configuration for multi-frontend support
-CORS_ALLOWED_ORIGINS = env('CORS_ALLOWED_ORIGINS', default='http://localhost:5173').split(',')
+
+CORS_ALLOW_ALL_ORIGINS = True # for development only
+# CORS_ALLOWED_ORIGINS = env('CORS_ALLOWED_ORIGINS', default='http://localhost:5173').split(',')
 CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_HEADERS = (
+    *default_headers,
+    "x-api-key",  # Allow the custom header
+)
+# CSRF_TRUSTED_ORIGINS = env('CSRF_TRUSTED_ORIGINS', default='http://localhost:5173').split(',')
+
 
 
 # Application definition

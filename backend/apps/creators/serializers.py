@@ -24,6 +24,8 @@ class UpdateCreatorProfileSerializer(serializers.ModelSerializer):
         many=True,
         required=False,
     )
+    profile_image = serializers.ImageField(max_length=None, use_url=True)
+    cover_image = serializers.ImageField(max_length=None, use_url=True)
 
     # --- Wallet KYC (nested) ---
     wallet_kyc = WalletKYCSerializer(required=False)
