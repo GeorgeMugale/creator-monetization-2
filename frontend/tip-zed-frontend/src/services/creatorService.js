@@ -24,7 +24,7 @@ export const creatorService = {
   updateCreator: async (userData) => {
     console.log(userData);
     try {
-      const response = await api.put("/creators/profile/me", userData);
+      const response = await api.put("/creators/profile/me/", userData);
 
       return { success: true, data: response.data };
     } catch (error) {
