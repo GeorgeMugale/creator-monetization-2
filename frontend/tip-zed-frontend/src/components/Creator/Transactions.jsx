@@ -308,7 +308,7 @@ const TransactionRow = ({ txn, currency, onClick }) => {
 };
 
 // Helper to format transaction type for display
-export const formatTransactionType = (type) => {
+const formatTransactionType = (type) => {
   if (!type) return "Unknown";
   return type
     .toLowerCase()

@@ -76,8 +76,7 @@ export const paymentService = {
       return {
         success: response.status,
       };
-
-      throw new Error(response.message);
+      
     } catch (error) {
       throw (
         error.response?.data ||

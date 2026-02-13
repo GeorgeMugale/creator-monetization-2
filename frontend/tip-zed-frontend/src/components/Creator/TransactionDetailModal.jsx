@@ -8,7 +8,6 @@ import {
   Hash,
   CreditCard,
 } from "lucide-react";
-import { formatTransactionType } from "./Transactions";
 
 const TransactionDetailModal = ({ transaction, onClose }) => {
   if (!transaction) return null;
@@ -186,6 +185,15 @@ const TransactionDetailModal = ({ transaction, onClose }) => {
       </div>
     </div>
   );
+};
+
+const formatTransactionType = (type) => {
+  if (!type) return "Unknown";
+  return type
+    .toLowerCase()
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 };
 
 // for future use - when seeing supporter is a supported feature
