@@ -10,7 +10,7 @@ from PIL import Image
 from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APIRequestFactory
 from apps.creators.serializers import CreatorPublicSerializer
-from tests.factories import UserFactory
+from tests.factories import UserFactory, CreatorCategoryFactory
 
 
 @pytest.mark.django_db
@@ -188,6 +188,29 @@ class TestUpdateCreatorProfile:
         assert creator_profile.profile_image.url is not None
         assert creator_profile.cover_image.url is not None
 
+
+    def test_update_user_categories(self, auth_api_client, user_factory):
+        categories = CreatorCategoryFactory.create_batch(4)
+
+        c1 = categories[0].slug
+        c2 = categories[1].slug
+        c3 = categories[2].slug
+        c4 = categories[3].slug
+       
+        data = {
+            "category_slugs": [c1, c2, c3, c4]
+        }
+        auth_api_client.force_authenticate(user=user_factory)
+        response = auth_api_client.put(
+            "/api/v1/creators/profile/me/", data=data, format="multipart"
+        )
+        # Check user info
+        assert response.status_code == 200
+
+        # Check categories
+        assert user_factory.creator_profile.categories.filter() is not None
+        assert len(user_factory.creator_profile.categories.filter()) == 4
+        
 
 @pytest.mark.django_db
 class TestPublicCreatorProfile:
