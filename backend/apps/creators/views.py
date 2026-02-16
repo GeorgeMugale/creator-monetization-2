@@ -18,7 +18,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 class UpdateProfileView(APIView):
     permission_classes = [RequireAPIKey, IsAuthenticated]
     serializer_class = UpdateCreatorProfileSerializer
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = (MultiPartParser, FormParser)
 
     @extend_schema(
         operation_id="retrieve_full_profile",
