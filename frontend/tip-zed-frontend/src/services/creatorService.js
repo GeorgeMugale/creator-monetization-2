@@ -51,9 +51,8 @@ export const creatorService = {
    *  or an error message if the update fails.
    */
   updateCreator: async (userData) => {
-    console.log(userData);
     try {
-      const response = await api.putForm("/creators/profile/me", userData);
+      const response = await api.put("/creators/profile/me", userData);
 
       return {
         success: true,
