@@ -7,7 +7,6 @@ from apps.wallets.serializers import (
     WalletDetailSerializer,
     WalletUpdateSerializer,
     WalletPayoutAccountSerializer,
-    WalletPayoutAccountCreateSerializer,
     WalletTransactionListSerializer,
     WalletTransactionDetailSerializer,
     WalletTransactionCreateSerializer,
@@ -107,39 +106,6 @@ class TestWalletPayoutAccountSerializer:
         serializer = WalletPayoutAccountSerializer(payout_account_factory)
         assert serializer.fields["id"].read_only is True
         assert serializer.fields["verified"].read_only is True
-
-
-class TestWalletPayoutAccountCreateSerializer:
-    """Test WalletPayoutAccountCreateSerializer"""
-
-    def test_create_payout_account_valid(self):
-        """Test creating payout account with valid data"""
-        data = {
-            "provider": "MTN_MOMO_ZMB",
-            "phone_number": "260960123456",
-        }
-        serializer = WalletPayoutAccountCreateSerializer(data=data)
-        assert serializer.is_valid(), serializer.errors
-
-    def test_create_payout_account_invalid_provider(self):
-        """Test creating with invalid provider"""
-        data = {
-            "provider": "INVALID_PROVIDER",
-            "phone_number": "260960123456",
-        }
-        serializer = WalletPayoutAccountCreateSerializer(data=data)
-        assert not serializer.is_valid()
-        assert "provider" in serializer.errors
-
-    def test_create_payout_account_short_phone(self):
-        """Test creating with short phone number"""
-        data = {
-            "provider": "MTN_MOMO_ZMB",
-            "phone_number": "12345",
-        }
-        serializer = WalletPayoutAccountCreateSerializer(data=data)
-        assert not serializer.is_valid()
-        assert "phone_number" in serializer.errors
 
 
 # ========== WALLET TRANSACTION SERIALIZER TESTS ==========
