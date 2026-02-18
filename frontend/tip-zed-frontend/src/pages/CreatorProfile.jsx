@@ -31,11 +31,6 @@ const CreatorProfile = () => {
   const [error, setError] = useState(null);
   const [toast, setToast] = useState({ show: false, message: "" });
 
-  const handleSupport = () => {
-    if (user) setIsSupportOpen(true);
-    else navigate("/login", { state: { from: location } });
-  };
-
   useEffect(() => {
     const fetchCreator = async () => {
       try {
@@ -327,7 +322,7 @@ const CreatorProfile = () => {
                   </p>
 
                   <button
-                    onClick={handleSupport}
+                    onClick={() => setIsSupportOpen(true)}
                     className="w-full bg-zed-green text-white py-4 rounded-2xl font-black text-lg shadow-lg shadow-green-200 hover:bg-green-600 hover:-translate-y-1 transition-all active:scale-95"
                   >
                     Send a Tip
