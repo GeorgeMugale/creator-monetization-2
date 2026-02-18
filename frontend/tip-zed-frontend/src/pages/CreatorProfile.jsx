@@ -8,10 +8,9 @@ import {
   Star,
   Share2,
 } from "lucide-react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { creatorService } from "@/services/creatorService";
 import SupportModal from "@/components/Payment/SupportModal";
-import { useAuth } from "@/hooks/useAuth";
 import MetaTags from "@/components/Common/MetaTags";
 
 const getName = (creator) =>
@@ -23,18 +22,11 @@ const CreatorProfile = () => {
   const [isSupportOpen, setIsSupportOpen] = useState(false);
   const { slug } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const location = useLocation();
 
   const [creator, setCreator] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [toast, setToast] = useState({ show: false, message: "" });
-
-  const handleSupport = () => {
-    if (user) setIsSupportOpen(true);
-    else navigate("/login", { state: { from: location } });
-  };
 
   useEffect(() => {
     const fetchCreator = async () => {
@@ -327,7 +319,7 @@ const CreatorProfile = () => {
                   </p>
 
                   <button
-                    onClick={handleSupport}
+                    onClick={() => setIsSupportOpen(true)}
                     className="w-full bg-zed-green text-white py-4 rounded-2xl font-black text-lg shadow-lg shadow-green-200 hover:bg-green-600 hover:-translate-y-1 transition-all active:scale-95"
                   >
                     Send a Tip
