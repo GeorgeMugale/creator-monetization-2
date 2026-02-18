@@ -132,8 +132,6 @@ const EditProfile = () => {
     bio: !formData.bio?.trim(),
     profileImage: !previews.profile && !user?.profileImage,
     coverImage: !previews.cover && !user?.coverImage,
-    profileImage: !previews.profile && !user?.profileImage,
-    coverImage: !previews.cover && !user?.coverImage,
   };
 
   const hasMissingFields = Object.values(isEmpty).some(Boolean);
