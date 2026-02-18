@@ -8,10 +8,9 @@ import {
   Star,
   Share2,
 } from "lucide-react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { creatorService } from "@/services/creatorService";
 import SupportModal from "@/components/Payment/SupportModal";
-import { useAuth } from "@/hooks/useAuth";
 import MetaTags from "@/components/Common/MetaTags";
 
 const getName = (creator) =>
@@ -23,8 +22,6 @@ const CreatorProfile = () => {
   const [isSupportOpen, setIsSupportOpen] = useState(false);
   const { slug } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const location = useLocation();
 
   const [creator, setCreator] = useState(null);
   const [loading, setLoading] = useState(true);
