@@ -95,7 +95,7 @@ const SupportModal = ({ isOpen, onClose, creator }) => {
           setErrorMsg("Transaction was declined or failed.");
         }
       } catch (err) {
-        console.log(err);
+        console.error(err);
         setErrorMsg(
           "We couldn't verify the payment status. It might still be processing.",
         );

@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 
 export const useCreatorOnboarding = (user, walletStats) => {
+  
   const onboardingState = useMemo(() => {
     if (!user) return { showOnboarding: false, missingSteps: [] };
 
@@ -32,7 +33,7 @@ export const useCreatorOnboarding = (user, walletStats) => {
     // Check Earnings (New Creator State)
     // If balance is 0 AND no transactions, they are "New"
     const hasEarnings =
-      walletStats?.totalEarnings > 0 || walletStats?.transactionCount > 0;
+      walletStats?.totalEarnings > 0 || walletStats?.transactionCount > 0 || user?.hasEarnings;
 
     if (!hasEarnings) {
       missingSteps.push({

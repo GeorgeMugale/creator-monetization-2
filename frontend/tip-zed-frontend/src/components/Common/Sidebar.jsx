@@ -1,39 +1,14 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  LayoutDashboard,
-  ArrowRightLeft,
-  X,
-  LogOut,
-  UserPen,
-  UserCog,
-} from "lucide-react";
+import { X, LogOut } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { useCreatorOnboarding } from "../../hooks/useCreatorOnboarding";
+import { menuItems } from "@/utils/creatorMenuItems";
 
 const Sidebar = ({ onClose, showCloseButton = false, title = "TipZed" }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { logout, user } = useAuth();
   const { missingSteps } = useCreatorOnboarding(user);
-
-  const menuItems = [
-    { icon: LayoutDashboard, label: "Overview", path: "/creator-dashboard" },
-    {
-      icon: ArrowRightLeft,
-      label: "Transactions",
-      path: "/creator-dashboard/transactions",
-    },
-    {
-      icon: UserPen,
-      label: "Edit Profile",
-      path: "/creator-dashboard/edit-profile",
-    },
-    {
-      icon: UserCog,
-      label: "Guide",
-      path: "/creator-dashboard/guide",
-    },
-  ];
 
   const handleLogout = async () => {
     try {

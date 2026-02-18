@@ -1,7 +1,6 @@
 import {
-  TrendingUp,
   DollarSign,
-  ArrowDownLeft,
+  ArrowUpRight,
 } from "lucide-react";
 
 const Overview = ({ walletData }) => {
@@ -14,23 +13,16 @@ const Overview = ({ walletData }) => {
       bg: "bg-green-50",
     },
     {
-      label: "Incoming",
-      val: walletData?.totalIncoming,
-      icon: TrendingUp,
-      color: "text-blue-600",
-      bg: "bg-blue-50",
-    },
-    {
       label: "Outgoing",
       val: walletData?.totalOutgoing,
-      icon: ArrowDownLeft,
+      icon: ArrowUpRight,
       color: "text-orange-600",
       bg: "bg-orange-50",
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+    <div className="grid grid-cols-1 md:grid-cols gap-12 mb-10">
       {statCards.map((stat, i) => (
         <div
           key={i}

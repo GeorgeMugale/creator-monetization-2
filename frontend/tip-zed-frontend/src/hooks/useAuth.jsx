@@ -1,6 +1,7 @@
 import { createContext, useContext, useState } from "react";
 import { creatorService } from "@/services/creatorService";
 import { authService } from "@/services/authService";
+import { walletService } from "../services/walletService";
 
 const AuthContext = createContext(null);
 
@@ -36,17 +37,20 @@ export const AuthProvider = ({ children }) => {
     }
   });
 
-  
   // Helper function to fetch and enhance user data
   const fetchEnhancedUserData = async (user) => {
     const { data: creatorData } = await creatorService.getCreatorBySlug(
       user.slug,
     );
+    const walletData = await walletService.getWalletData();
 
     return {
       ...user,
+      bio: creatorData.bio,
       profileImage: creatorData.profileImage || user.profileImage,
       coverImage: creatorData.coverImage || user.coverImage,
+      hasEarnings:
+        walletData?.totalEarnings > 0 || walletData?.transactionCount,
     };
   };
 

@@ -1,15 +1,65 @@
-import { Inbox, Info, ArrowUpRight, ArrowDownLeft, Filter } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import {
+  Inbox,
+  Info,
+  ArrowUpRight,
+  ArrowDownLeft,
+  Filter,
+  AlertCircle,
+} from "lucide-react";
+import { walletService } from "../../services/walletService";
 import TransactionDetailModal from "./TransactionDetailModal";
 
+// Skeleton Primitives
+const ShimmerStyles = () => (
+  <style>{`
+    @keyframes shimmer {
+      0%   { background-position: 100% 50%; }
+      100% { background-position: 0%   50%; }
+    }
+  `}</style>
+);
+
+const Shimmer = ({ className = "" }) => (
+  <div
+    className={`animate-pulse bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 bg-[length:400%_100%] ${className}`}
+    style={{ animation: "shimmer 1.6s ease-in-out infinite" }}
+  />
+);
+
+const TransactionSkeletonRow = () => (
+  <tr className="border-b border-gray-50">
+    <td className="px-6 py-5">
+      <Shimmer className="h-3 w-20 rounded" />
+    </td>
+    <td className="px-6 py-5">
+      <div className="flex items-center gap-2">
+        <Shimmer className="h-7 w-7 rounded-full" />
+        <Shimmer className="h-3 w-24 rounded" />
+      </div>
+    </td>
+    <td className="px-6 py-5">
+      <Shimmer className="h-6 w-20 rounded-md" />
+    </td>
+    <td className="px-6 py-5">
+      <div className="flex justify-end">
+        <Shimmer className="h-4 w-24 rounded" />
+      </div>
+    </td>
+    <td className="px-4 py-5">
+      <Shimmer className="h-4 w-4 rounded-full mx-auto" />
+    </td>
+  </tr>
+);
+
 const Transactions = ({
-  txnData,
   isTransactionsView,
-  error,
+  recentTxnData,
+  error: parentError,
+  page = 1,
   setPage,
-  loading,
+  loading: parentLoading,
   walletData,
-  page,
 }) => {
   const [selectedTxn, setSelectedTxn] = useState(null);
   const [filters, setFilters] = useState({
@@ -17,38 +67,66 @@ const Transactions = ({
     status: "all",
     dateRange: "all",
   });
+  const [count, setCount] = useState(0);
 
-  // Normalize transaction data to handle API response format
+  const [txnData, setTxnData] = useState(recentTxnData);
+  const [innerLoading, setInnerLoading] = useState(false);
+  const [fetchError, setFetchError] = useState(null);
+
+  // Extracted fetch logic so it can be reused by a "Retry" button
+  const fetchTransactions = useCallback(async () => {
+    setInnerLoading(true);
+    setFetchError(null);
+    try {
+      const data = await walletService.getWalletTxnData(page);
+      if (data) {
+        setTxnData(data.data);
+        setCount(data.count);
+      }
+    } catch (err) {
+      console.error("Failed to fetch transactions:", err);
+      setFetchError(
+        err?.response?.data?.message || "Unable to load transactions.",
+      );
+    } finally {
+      setInnerLoading(false);
+    }
+  }, [page]);
+
+  useEffect(() => {
+    // Fetch if it's the full view
+    if (isTransactionsView) fetchTransactions();
+    // Added page to dependency array so it re-fetches when the user clicks next/prev
+  }, [page, isTransactionsView, fetchTransactions]);
+
+  // Combined Loading & Error states
+  const isLoading = parentLoading || innerLoading;
+  const currentError = parentError || fetchError;
+
+  // Normalize transaction data
   const normalizedTransactions = useMemo(() => {
-    if (!txnData?.data) return [];
+    if (!txnData) return [];
 
-    return txnData.data.map((txn) => ({
+    return txnData.map((txn) => ({
       ...txn,
-      // Ensure amount is number
       amount:
         typeof txn.amount === "string" ? parseFloat(txn.amount) : txn.amount,
       fee: typeof txn.fee === "string" ? parseFloat(txn.fee) : txn.fee,
-      // Map transactionType to a consistent type for filtering
       type: mapTransactionType(txn.transactionType || txn.type),
-      typeDisplay: txn.typeDisplay || txn.transactionType,
-      // Ensure status is lowercase for consistent filtering
+      typeDisplay: txn.typeDisplay,
       status: (txn.status || "").toLowerCase(),
       statusDisplay: txn.statusDisplay || txn.status,
-      // Use consistent date field
-      createdAt: txn.createdAt || txn.date,
+      createdAt: txn.createdAt,
     }));
   }, [txnData]);
 
+  // Filter transactions
   const filteredTransactions = useMemo(() => {
     return normalizedTransactions.filter((txn) => {
-      // Filter by Type
       const matchType = filters.type === "all" || txn.type === filters.type;
-
-      // Filter by Status
       const matchStatus =
         filters.status === "all" || txn.status === filters.status.toLowerCase();
 
-      // Filter by Date Range
       let matchDate = true;
       const txnDate = new Date(txn.createdAt);
       const now = new Date();
@@ -69,28 +147,30 @@ const Transactions = ({
     });
   }, [normalizedTransactions, filters]);
 
-  // Calculate total pages from count (assuming 10 per page)
   const totalPages = useMemo(() => {
-    if (!txnData?.count) return 1;
-    return Math.ceil(txnData.count / 10);
-  }, [txnData]);
+    if (!count) return 1;
+    return Math.ceil(txnData.length / count);
+  }, [txnData, count]);
 
   const handleResetFilters = () => {
     setFilters({ type: "all", status: "all", dateRange: "all" });
   };
 
   return (
-    <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden flex flex-col h-full">
+    <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden flex flex-col h-full relative">
+      <ShimmerStyles />
+
       {/* Header */}
       <div className="p-8 border-b border-gray-50 flex justify-between items-center">
         <h2 className="text-xl font-black text-gray-900 tracking-tight">
           {isTransactionsView ? "Full Statement" : "Recent Activity"}
         </h2>
-        {isTransactionsView && loading && <LoaderSpin />}
+        {isTransactionsView && isLoading && <LoaderSpin />}
       </div>
 
       {/* Filter UI Bar */}
       <div className="p-4 border-b border-gray-100 bg-gray-50/30 flex flex-wrap items-end gap-3">
+        {/* ... Filter Selects Remain Unchanged ... */}
         <FilterSelect
           label="Type"
           value={filters.type}
@@ -102,7 +182,6 @@ const Transactions = ({
             { value: "payout", label: "Payouts" },
           ]}
         />
-
         <FilterSelect
           label="Status"
           value={filters.status}
@@ -114,7 +193,6 @@ const Transactions = ({
             { value: "failed", label: "Failed" },
           ]}
         />
-
         <FilterSelect
           label="Timeframe"
           value={filters.dateRange}
@@ -136,7 +214,7 @@ const Transactions = ({
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto flex-grow">
+      <div className="overflow-x-auto flex-grow min-h-[300px]">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-gray-50/50 border-b border-gray-100">
@@ -156,16 +234,40 @@ const Transactions = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
-            {error ? (
+            {isLoading ? (
+              /* --- SKELETON LOADER STATE --- */
+              Array.from({ length: 5 }).map((_, index) => (
+                <TransactionSkeletonRow key={index} />
+              ))
+            ) : currentError ? (
+              /* --- ERROR STATE --- */
               <tr>
-                <td
-                  colSpan="5"
-                  className="py-16 text-center text-red-500 font-bold text-sm bg-red-50/10"
-                >
-                  Unable to load transactions. Please try again.
+                <td colSpan="5" className="py-16 text-center">
+                  <div className="bg-red-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-100">
+                    <AlertCircle
+                      className="text-red-500"
+                      size={24}
+                      strokeWidth={2}
+                    />
+                  </div>
+                  <p className="text-gray-900 font-bold text-sm mb-1">
+                    Unable to load transactions
+                  </p>
+                  <p className="text-gray-500 text-xs mb-4">
+                    {typeof currentError === "string"
+                      ? currentError
+                      : "Please check your connection and try again."}
+                  </p>
+                  <button
+                    onClick={fetchTransactions}
+                    className="px-4 py-2 bg-gray-900 text-white text-xs font-bold rounded-lg hover:bg-gray-800 transition-colors"
+                  >
+                    Retry
+                  </button>
                 </td>
               </tr>
             ) : filteredTransactions.length > 0 ? (
+              /* --- DATA STATE --- */
               filteredTransactions.map((txn) => (
                 <TransactionRow
                   key={txn.id}
@@ -181,8 +283,8 @@ const Transactions = ({
         </table>
       </div>
 
-      {/* Pagination - Fixed logic */}
-      {isTransactionsView && totalPages > 1 && (
+      {/* Pagination */}
+      {isTransactionsView && totalPages > 1 && !isLoading && !currentError && (
         <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-between items-center sticky bottom-0">
           <button
             disabled={page === 1}
@@ -230,7 +332,6 @@ const mapTransactionType = (type) => {
 };
 
 /*Sub Components for readability */
-
 const TransactionRow = ({ txn, currency, onClick }) => {
   const isNegative =
     txn.amount < 0 || txn.type === "fee" || txn.type === "payout";
