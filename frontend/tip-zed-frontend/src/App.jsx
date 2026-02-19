@@ -11,6 +11,7 @@ import ProtectedRoute from "./components/Auth/ProtectedRoute";
 import CreatorCatalog from "./pages/CreatorCatalog";
 import CreatorProfile from "./pages/CreatorProfile";
 import NotFound from "./pages/NotFound";
+import { menuItems } from "@/utils/creatorMenuItems";
 
 function App() {
   return (
@@ -38,38 +39,17 @@ function App() {
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
             {/* Creator Pages*/}
-            <Route
-              path="/creator-dashboard"
-              element={
-                <ProtectedRoute>
-                  <CreatorDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/creator-dashboard/transactions"
-              element={
-                <ProtectedRoute>
-                  <CreatorDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/creator-dashboard/edit-profile"
-              element={
-                <ProtectedRoute>
-                  <CreatorDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/creator-dashboard/guide"
-              element={
-                <ProtectedRoute>
-                  <CreatorDashboard />
-                </ProtectedRoute>
-              }
-            />
+            {menuItems.map((item, key) => (
+              <Route
+                key={key}
+                path={item.path}
+                element={
+                  <ProtectedRoute>
+                    <CreatorDashboard />
+                  </ProtectedRoute>
+                }
+              />
+            ))}
 
             {/* 404 Fallback (Optional) */}
             <Route path="*" element={<NotFound />} />

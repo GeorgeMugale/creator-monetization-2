@@ -38,4 +38,12 @@ export const walletService = {
       );
     }
   },
+
+  getPayoutsData: async () => {
+    return {
+      date: "Oct 25, 2026",
+      schedule: "Weekly",
+      estimatedAmount: 1250,
+    };
+  },
 };
