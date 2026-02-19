@@ -242,6 +242,8 @@ class PaymentManager(models.Manager):
         }
 
 # ========== MAIN PAYMENT MODEL ==========
+
+
 class Payment(UUIDModel, TimeStampedModel, SoftDeleteModel):
     """
     Main Payment model with support for multiple gateways,
@@ -322,7 +324,7 @@ class Payment(UUIDModel, TimeStampedModel, SoftDeleteModel):
 
     # Timing Information
     completed_at = models.DateTimeField(null=True, blank=True)
-  
+
     # Fee and Settlement Information
     provider_fee = models.DecimalField(
         max_digits=20,
@@ -366,6 +368,7 @@ class Payment(UUIDModel, TimeStampedModel, SoftDeleteModel):
     redirect_url = models.URLField(blank=True)
     webhook_url = models.URLField(blank=True)
     callback_data = models.JSONField(default=dict, blank=True)
+
     class Meta:
         ordering = ["-created_at"]
         indexes = [
@@ -408,13 +411,13 @@ class Payment(UUIDModel, TimeStampedModel, SoftDeleteModel):
         """Calculate remaining amount to be captured"""
         return Decimal(self.amount) - Decimal(self.amount_captured)
 
-    
     @property
     def is_successful(self) -> bool:
         """Check if payment was successful"""
         return self.status in [PaymentStatus.CAPTURED, PaymentStatus.COMPLETED]
 
-    
+            
+
     def update_status(self, new_status: str, metadata: Optional[Dict] = None):
         """Safely update payment status with validation"""
         old_status = self.status
