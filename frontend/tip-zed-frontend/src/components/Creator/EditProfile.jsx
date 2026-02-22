@@ -9,6 +9,15 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { validateMobileNumber } from "@/utils/mobileMoney";
+
+const CATEGORY_OPTIONS = [
+  { label: "Music", value: "music-djs" },
+  { label: "Comedy", value: "comedy" },
+  { label: "Video", value: "videography" },
+  { label: "Art", value: "art-design" },
+  { label: "Podcast", value: "podcasts-radio" },
+];
 
 const EditProfile = () => {
   const navigate = useNavigate();
@@ -21,7 +30,19 @@ const EditProfile = () => {
   const [formData, setFormData] = useState({
     fullName: `${user?.firstName || ""} ${user?.lastName || ""}`.trim(),
     bio: user?.bio || "",
+    email: user?.email || "",
+    phone_number: user?.phone_number || "",
+    category_slugs: user?.categories?.map((c) => c.slug) || [],
   });
+
+  const toggleCategory = (slug) => {
+    setFormData((prev) => ({
+      ...prev,
+      category_slugs: prev.category_slugs.includes(slug)
+        ? prev.category_slugs.filter((s) => s !== slug)
+        : [...prev.category_slugs, slug],
+    }));
+  };
 
   const [pendingFiles, setPendingFiles] = useState({
     profile: null,
@@ -87,6 +108,25 @@ const EditProfile = () => {
         formDataToSend.append("bio", formData.bio.trim());
       }
 
+      // Email & phone
+      // if (formData.email?.trim()) {
+      //   formDataToSend.append("email", formData.email.trim());
+      // }
+
+      if (formData.phone_number?.trim()) {
+        const phoneValidation = validateMobileNumber(formData.phone_number);
+        
+        if (!phoneValidation.isValid)
+          throw new Error("Please enter a valid phone number");
+
+        formDataToSend.append("phone_number", phoneValidation.formatted);
+      }
+
+      // Categories (IMPORTANT)
+      formData.category_slugs.forEach((slug) => {
+        formDataToSend.append("category_slugs", slug);
+      });
+
       // IMPORTANT: Append files directly - NO Base64 conversion!
       if (pendingFiles.profile) {
         formDataToSend.append("profile_image", pendingFiles.profile);
@@ -146,14 +186,12 @@ const EditProfile = () => {
               <User size={18} /> Profile updated successfully! Redirecting...
             </div>
           )}
-
           {/* Error Message */}
           {error && (
             <div className="mb-6 bg-red-50 text-red-700 px-4 py-3 rounded-xl border border-red-200 flex items-center gap-2">
               <AlertCircle size={18} /> {error}
             </div>
           )}
-
           {/* IMAGES SECTION */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-6">
             {/* Cover Image Input */}
@@ -290,6 +328,63 @@ const EditProfile = () => {
                   <p className="text-right text-xs text-gray-400 mt-2">
                     {formData.bio.length}/500
                   </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone_number"
+                    value={formData.phone_number}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-zed-green"
+                    placeholder="0 97 123 4567"
+                  />
+                </div>
+
+                {/* <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-zed-green"
+                    placeholder="you@example.com"
+                  />
+                </div> */}
+
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-3">
+                    Categories
+                  </label>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    {CATEGORY_OPTIONS.map((cat) => (
+                      <label
+                        key={cat.value}
+                        className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition
+                        ${
+                          formData.category_slugs.includes(cat.value)
+                            ? "bg-zed-green/10 border-zed-green text-zed-green"
+                            : "bg-gray-50 border-gray-200 hover:border-gray-300"
+                        }
+                      `}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={formData.category_slugs.includes(cat.value)}
+                          onChange={() => toggleCategory(cat.value)}
+                          className="hidden"
+                        />
+                        <span className="font-medium">{cat.label}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>

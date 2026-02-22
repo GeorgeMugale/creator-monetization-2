@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 const OnboardingChecklist = ({
   missingSteps,
+  firstTipOnly,
   completionPercentage,
 }) => {
   if (missingSteps.length === 0) return null;
@@ -30,10 +31,10 @@ const OnboardingChecklist = ({
               {completionPercentage}%
             </span>
             <Link
-              to="/creator-dashboard/guide"
+              to={`/creator-dashboard/guide${firstTipOnly ? "#share" : ""}`}
               className="text-sm font-bold text-zed-green hover:text-zed-green-dark underline"
             >
-              View Guide
+              {firstTipOnly ? "Receive your first tip" : "View Guide"}
             </Link>
           </div>
         </div>
@@ -74,7 +75,6 @@ const OnboardingChecklist = ({
       </div>
     </div>
   );
-}
-
+};
 
 export default OnboardingChecklist;
