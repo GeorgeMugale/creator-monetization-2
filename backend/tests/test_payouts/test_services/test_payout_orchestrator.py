@@ -9,6 +9,41 @@ from apps.wallets.services.wallet_services import\
 
 class TestPayoutOrchestratorTest:
 
+    def test_payout_does_not_add_incoming_funds_after_initiation(
+            self, staff_user, user_factory):
+        """
+        Test that once a payout is initiated, the payout amount is
+        reserved and cannot be used for another payout
+        """
+        wallet = user_factory.creator_profile.wallet
+        wallet.is_verified = True
+        wallet.save()
+        WalletTxnService.cash_in(
+            wallet=wallet,
+            amount=Decimal("100.00"),
+            payment=None,
+            reference="CASHIN-NOT-PAYOUT",
+        )
+        payout_tx = PayoutOrchestrator.initiate_payout(
+            wallet=wallet,
+            initiated_by=staff_user,
+        )
+        # cashin after payout initiation should not affect the pending payout
+        WalletTxnService.cash_in(
+            wallet=wallet,
+            amount=Decimal("50.00"),
+            payment=None,
+            reference="CASHIN-AFTER-PAYOUT",
+        )
+        payout_tx.refresh_from_db()
+        assert payout_tx.amount == Decimal("-90.00")
+        assert payout_tx.status == "PENDING"
+
+        # finalize payout and check final balance
+        PayoutOrchestrator.finalize(payout_tx=payout_tx, success=True)
+        wallet.refresh_from_db()
+        assert wallet.balance == Decimal("45.00")
+
     def test_staff_cannot_initiate_payout_unverified_kyc(self, staff_user, user_factory):
         wallet = user_factory.creator_profile.wallet
       
