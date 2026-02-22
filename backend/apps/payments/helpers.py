@@ -1,5 +1,5 @@
 from apps.payments.models import PaymentWebhookLog as WebHook
-from apps.payments.webhooks import resend_callback
+from utils.external_requests import resend_callback
 
 def check_final_status(payment):
     """Checks if the payment is in a final state and logs the webhook call."""

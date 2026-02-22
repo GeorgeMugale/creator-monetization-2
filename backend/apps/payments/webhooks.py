@@ -1,5 +1,4 @@
 import json
-from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
 from django.contrib.auth import get_user_model
 from rest_framework.response import Response
@@ -12,7 +11,7 @@ from apps.payments.models import PaymentWebhookLog as WebHook
 from apps.wallets.services.wallet_services import WalletTransactionService
 from utils.authentication import RequireAPIKey
 from utils.exceptions import DuplicateTransaction
-from utils.external_requests import pawapay_request
+from utils.external_requests import resend_callback
 
 User = get_user_model()
 
@@ -94,15 +93,6 @@ class WebhookAPIView(APIView):
             )
         return Response({"message": "Callback processed"}, status=status.HTTP_200_OK)
 
-
-def resend_callback(deposit_id):
-    """Helper function to resend callback for a given deposit id
-    ARgs:
-        deposit_id (str): ID of the deposit to resend callback for
-    Returns:        tuple: (response data, status code) from the callback resend request
-    """
-    data, code = pawapay_request("POST", f"/v2/deposits/resend-callback/{deposit_id}")
-    return data, code
 
 class PaymentStatusAPIView(APIView):
     """Endpoint to get payment status by deposit id"""
