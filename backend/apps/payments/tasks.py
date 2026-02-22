@@ -1,6 +1,6 @@
 from celery import shared_task
 from apps.payments.models import Payment
-from apps.payments.webhooks import resend_callback
+from utils.external_requests import resend_callback
 
 
 @shared_task(bind=True, max_retries=5, default_retry_delay=300)

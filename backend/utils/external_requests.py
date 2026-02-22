@@ -85,3 +85,14 @@ def pawapay_request(method, endpoint, headers=None, payload=None):
     except Exception as e:
         logger.error(f"Internal Error: {e}")
         return {"status": e}, 500
+
+
+def resend_callback(deposit_id):
+    """Helper function to resend callback for a given deposit id
+    Args:
+        deposit_id (str): ID of the deposit to resend callback for
+    Returns:
+        tuple: (response data, status code) from the callback resend request
+    """
+    data, code = pawapay_request("POST", f"/v2/deposits/resend-callback/{deposit_id}")
+    return data, code

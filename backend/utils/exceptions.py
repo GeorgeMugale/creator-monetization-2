@@ -20,3 +20,7 @@ class InvalidTransaction(WalletError):
 
 class InvalidAmount(Exception):
     pass
+
+
+class PayoutNotFound(Exception):
+    pass

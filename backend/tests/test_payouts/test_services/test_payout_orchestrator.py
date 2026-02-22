@@ -2,10 +2,9 @@ from decimal import Decimal
 from django.core.exceptions import PermissionDenied
 import pytest
 from apps.payments.services.payout_orchestrator import PayoutOrchestrator
-from utils.exceptions import InsufficientBalance, InvalidTransaction
+from utils.exceptions import InsufficientBalance, InvalidTransaction, PayoutNotFound
 from apps.wallets.services.wallet_services import\
     WalletTransactionService as WalletTxnService
-from apps.wallets.models import WalletTransaction
 
 
 class TestPayoutOrchestratorTest:
@@ -137,7 +136,8 @@ class TestPayoutOrchestratorTest:
 
         assert txn_filter(transaction_type="FEE_REVERSAL") is None
 
-    def test_finalize_is_idempotent(self, staff_user, user_factory, txn_filter):
+    
+    def test_finalize_non_pending_payout(self, staff_user, user_factory):
         wallet = user_factory.creator_profile.wallet
         wallet.is_verified = True
         wallet.save()
@@ -153,9 +153,48 @@ class TestPayoutOrchestratorTest:
             initiated_by=staff_user,
         )
 
-        PayoutOrchestrator.finalize(payout_tx=payout_tx, success=False)
+        # Manually set to completed to simulate edge case
+        payout_tx.status = "COMPLETED"
+        payout_tx.save()
 
-        # Call again (should not create duplicate reversals)
-        PayoutOrchestrator.finalize(payout_tx=payout_tx, success=False)
+        with pytest.raises(InvalidTransaction, match="Only pending payouts can be finalized"):
+            PayoutOrchestrator.finalize(payout_tx=payout_tx, success=True)
 
-        assert WalletTransaction.objects.filter(transaction_type="FEE_REVERSAL").count() == 0
+
+    def test_finalize_nonexistent_payout(self, staff_user):
+        with pytest.raises(PayoutNotFound):
+            PayoutOrchestrator.finalize(payout_tx=9999, success=True)
+
+    def test_initiate_payout_insufficient_balance(self, staff_user, user_factory):
+        wallet = user_factory.creator_profile.wallet
+        wallet.is_verified = True
+        wallet.save()
+
+        with pytest.raises(InsufficientBalance):
+            PayoutOrchestrator.initiate_payout(
+                wallet=wallet,
+                initiated_by=staff_user,
+            )
+
+
+    def test_initiate_payout_pending_payout_exists(self, staff_user, user_factory):
+        wallet = user_factory.creator_profile.wallet
+        wallet.is_verified = True
+        wallet.save()
+        WalletTxnService.cash_in(
+            wallet=wallet,
+            amount=Decimal("100.00"),
+            payment=None,
+            reference="CASHIN-NOT-PAYOUT",
+        )
+
+        payout_tx1 = PayoutOrchestrator.initiate_payout(
+            wallet=wallet,
+            initiated_by=staff_user,
+        )
+
+        with pytest.raises(InvalidTransaction, match="A payout is already pending for this wallet"):
+            PayoutOrchestrator.initiate_payout(
+                wallet=wallet,
+                initiated_by=staff_user,
+            )

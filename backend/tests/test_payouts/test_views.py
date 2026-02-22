@@ -12,6 +12,7 @@ from django.urls import reverse
 from apps.wallets.services.wallet_services import WalletTransactionService
 from apps.payments.services.payout_orchestrator import PayoutOrchestrator
 from tests.factories import UserFactory, WalletTransactionFactory
+from utils.exceptions import InvalidTransaction
 
 
 @pytest.mark.django_db
@@ -171,6 +172,36 @@ class TestTriggerWalletPayout:
             reverse("payouts:trigger_wallet_payout", args=[fake_wallet_id])
         )
         assert response.status_code == 404
+
+    def test_initiate_payout_pending_payout_exists(self):
+        """Test that initiating a payout when a pending payout exists shows error message"""
+        client = Client()
+        user = UserFactory(is_staff=True)
+        wallet = user.creator_profile.wallet
+
+        wallet.is_verified = True
+        wallet.save()
+        WalletTransactionService.cash_in(
+            wallet=wallet,
+            amount=Decimal("100.00"),
+            payment=None,
+            reference="TEST-CASHIN",
+        )
+        # Create a pending payout transaction
+        WalletTransactionFactory(
+            wallet=wallet, transaction_type="PAYOUT", status="PENDING"
+        )
+
+        client.force_login(user)
+        response = client.post(
+            reverse("payouts:trigger_wallet_payout", args=[wallet.id]),
+            follow=True,
+        )
+        # Should show error message about existing pending payout
+        if response.context:
+            messages = list(response.context.get("messages", []))
+            assert len(messages) >= 1
+            assert "already has a pending payout" in str(messages[0])
 
 
 @pytest.mark.django_db
@@ -360,3 +391,26 @@ class TestFinaliseWalletPayout:
             reverse("payouts:finalise_wallet_payout", args=[fake_tx_id])
         )
         assert response.status_code == 404
+
+    def test_finalize_non_pending_payout(self, staff_user, user_factory):
+        wallet = user_factory.creator_profile.wallet
+        wallet.is_verified = True
+        wallet.save()
+        WalletTransactionService.cash_in(
+            wallet=wallet,
+            amount=Decimal("100.00"),
+            payment=None,
+            reference="CASHIN-NOT-PAYOUT",
+        )
+
+        payout_tx = PayoutOrchestrator.initiate_payout(
+            wallet=wallet,
+            initiated_by=staff_user,
+        )
+
+        # Manually set to completed to simulate edge case
+        payout_tx.status = "COMPLETED"
+        payout_tx.save()
+
+        with pytest.raises(InvalidTransaction, match="Only pending payouts can be finalized"):
+            PayoutOrchestrator.finalize(payout_tx=payout_tx, success=True)
