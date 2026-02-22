@@ -105,7 +105,7 @@ const CreatorDashboard = () => {
     isFundsAndPayoutsView,
   ]);
 
-  const { missingSteps, showOnboarding, completionPercentage } =
+  const { missingSteps, showOnboarding, completionPercentage, firstTipOnly } =
     useCreatorOnboarding(user, walletData);
 
   // --- RENDER HELPERS ---
@@ -190,7 +190,7 @@ const CreatorDashboard = () => {
               </p>
             </div>
 
-            {!showOnboarding && (
+            {(!showOnboarding || firstTipOnly) && (
               <button
                 onClick={() => setIsShareModalOpen(true)}
                 className="bg-zed-green text-white px-6 py-3 rounded-xl font-bold shadow-lg flex items-center gap-2 hover:scale-105 transition-all text-sm"
@@ -219,6 +219,7 @@ const CreatorDashboard = () => {
           <OnboardingChecklist
             missingSteps={missingSteps}
             completionPercentage={completionPercentage}
+            firstTipOnly={firstTipOnly}
           />
         )}
 
