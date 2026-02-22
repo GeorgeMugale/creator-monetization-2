@@ -190,12 +190,14 @@ const CreatorDashboard = () => {
               </p>
             </div>
 
-            <button
-              onClick={() => setIsShareModalOpen(true)}
-              className="bg-zed-green text-white px-6 py-3 rounded-xl font-bold shadow-lg flex items-center gap-2 hover:scale-105 transition-all text-sm"
-            >
-              Share Payment Link <Share2 size={18} />
-            </button>
+            {!showOnboarding && (
+              <button
+                onClick={() => setIsShareModalOpen(true)}
+                className="bg-zed-green text-white px-6 py-3 rounded-xl font-bold shadow-lg flex items-center gap-2 hover:scale-105 transition-all text-sm"
+              >
+                Share Payment Link <Share2 size={18} />
+              </button>
+            )}
           </div>
         )}
 
