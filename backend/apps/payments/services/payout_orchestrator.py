@@ -5,8 +5,8 @@ from django.core.exceptions import PermissionDenied
 from apps.wallets.services.wallet_services import WalletTransactionService
 from apps.payments.services.fee_service import FeeService
 from apps.wallets.services.wallet_services import WalletService
-from utils.exceptions import InsufficientBalance, InvalidTransaction
-
+from utils.exceptions import InsufficientBalance, InvalidTransaction, PayoutNotFound
+from apps.wallets.models import WalletTransaction
 
 class PayoutOrchestrator:
     """Orchestrates the payout process for wallets."""
@@ -38,6 +38,12 @@ class PayoutOrchestrator:
         if wallet.balance <= 0:
             raise InsufficientBalance("No balance to payout")
 
+        # Check if theres a pending payout transaction to avoid duplicates
+        if WalletTransaction.objects.filter(
+            wallet=wallet, transaction_type="PAYOUT", status="PENDING"
+        ).exists():
+            raise InvalidTransaction("A payout is already pending for this wallet")
+
         correlation_id = f"PAYOUT-{uuid.uuid4()}"
         
         payout_tx = WalletTransactionService.payout(
@@ -51,6 +57,12 @@ class PayoutOrchestrator:
     @staticmethod
     @transaction.atomic
     def finalize(*, payout_tx, success: bool, approved_by=None):
-        return WalletTransactionService.finalize_payout(
-            payout_tx=payout_tx, success=success, approved_by=approved_by
-        )
+        try:
+            # ensure only pending payout transactions can be finalized
+            if payout_tx.transaction_type != "PAYOUT" or payout_tx.status != "PENDING":
+                raise InvalidTransaction("Only pending payouts can be finalized")
+            return WalletTransactionService.finalize_payout(
+                payout_tx=payout_tx, success=success, approved_by=approved_by
+            )
+        except (WalletTransaction.DoesNotExist, ValueError, TypeError, AttributeError):
+            raise PayoutNotFound("Payout transaction not found")
