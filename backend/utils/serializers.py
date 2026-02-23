@@ -7,7 +7,10 @@ class SuccessResponseSerializer(serializers.Serializer):
     Used for successful resource creation responses.
     """
     status = serializers.CharField(default="success")
-    data = serializers.JSONField()
+    data = serializers.JSONField(
+        allow_null=True,
+        default=None
+    )
 
 
 class TipResponseSerializer(serializers.Serializer):
@@ -17,7 +20,10 @@ class TipResponseSerializer(serializers.Serializer):
     Used for successful resource creation responses.
     """
     status = serializers.CharField(default="accepted")
-    data = serializers.JSONField()
+    data = serializers.JSONField(
+        allow_null=True,
+        default=None
+    )
 
 
 class CreatedResponseSerializer(serializers.Serializer):
@@ -27,7 +33,10 @@ class CreatedResponseSerializer(serializers.Serializer):
     Used for successful resource creation responses.
     """
     status = serializers.CharField(default="success")
-    data = serializers.JSONField()
+    data = serializers.JSONField(
+        allow_null=True,
+        default=None
+    )
     
 
 class ErrorSerializer(serializers.Serializer):
@@ -82,11 +91,17 @@ class NotFoundErrorSerializer(ErrorSerializer):
 
 class ConflictErrorSerializer(ErrorSerializer):
     """409 – Duplicate or conflicting request"""
+    error = serializers.CharField(default="conflict")
+    message = serializers.CharField(default="Duplicate or conflicting request")
 
 
 class RateLimitErrorSerializer(ErrorSerializer):
     """429 – Too many requests"""
+    error = serializers.CharField(default="rate_limit_exceeded")
+    message = serializers.CharField(default="Too many requests - rate limit exceeded")
 
 
 class ServerErrorSerializer(ErrorSerializer):
     """500 – Unexpected server error"""
+    error = serializers.CharField(default="server_error")
+    message = serializers.CharField(default="An unexpected error occurred on the server")

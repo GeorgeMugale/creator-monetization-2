@@ -7,7 +7,7 @@ from apps.payments.models import (
     PaymentStatus,
     Currency,
     UUIDModel,
-    TimeStampedModel
+    TimeStampedModel,
     )
 from django.contrib.auth import get_user_model
 
@@ -64,7 +64,6 @@ class WalletPayoutAccount(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
 
-
 class WalletTransaction(UUIDModel):
 
     TRANSACTION_TYPE = (
@@ -90,6 +89,7 @@ class WalletTransaction(UUIDModel):
         max_length=20, choices=TRANSACTION_TYPE)
 
     status = models.CharField(max_length=20, choices=STATUS, default="PENDING")
+
 
     # Link to Payment or Payout
     payment = models.ForeignKey(

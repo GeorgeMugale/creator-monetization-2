@@ -7,6 +7,7 @@ from drf_spectacular.utils import extend_schema
 from apps.wallets.models import WalletTransaction, WalletKYC, WalletPayoutAccount
 from apps.payments.models import Payment
 from apps.wallets.serializers import (
+    CreatorSupporterSerializer,
     WalletDetailSerializer,
     WalletTransactionListSerializer,
     WalletKYCSerializer,
@@ -20,6 +21,57 @@ from utils.authentication import RequireAPIKey
 from utils import serializers as helpers
 from utils.external_requests import pawapay_request
 
+
+class SupporterListView(APIView):
+    permission_classes = [RequireAPIKey, IsAuthenticated]
+    serializer_class = CreatorSupporterSerializer
+
+    @extend_schema(
+        operation_id="list_wallet_supporters",
+        summary="List Wallet Supporters",
+        responses={
+            200: helpers.SuccessResponseSerializer,
+            400: helpers.ValidationErrorSerializer,
+            401: helpers.UnauthorizedErrorSerializer,
+            403: helpers.ForbiddenErrorSerializer,
+            404: helpers.NotFoundErrorSerializer,
+            409: helpers.ConflictErrorSerializer,
+            429: helpers.RateLimitErrorSerializer,
+            500: helpers.ServerErrorSerializer,
+        }
+    )
+    def get(self, request):
+        """
+        List supporters who have sent tips to the authenticated creator.
+
+        Returns a list of supporters who have sent tips to the creator, including
+        their name and total amount tipped.
+
+        Authentication
+        --------------
+        Requires authentication (creator).
+        """
+        try:
+            wallet = WalletService.get_wallet_for_user(request.user)
+        except WalletNotFound:
+            return Response(
+                {"status": "NOT_FOUND"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Aggregate total tips by supporter
+        supporters = (
+            WalletTransaction.objects.filter(
+                wallet=wallet, transaction_type="CASH_IN"
+            )
+        )
+
+        serializer = CreatorSupporterSerializer(supporters, many=True)
+       
+        return Response(
+            {"status": "success", "data": serializer.data},
+            status=status.HTTP_200_OK
+        )
 
 class WalletPayoutAccountView(APIView):
     permission_classes = [RequireAPIKey, IsAuthenticated]
