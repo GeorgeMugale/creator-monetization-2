@@ -295,7 +295,7 @@ const Guide = ({ slug }) => {
                     </p>
                     <button
                       onClick={() => copyToClipboard(script.script, script.id)}
-                      className="text-sm text-zed-green font-bold hover:underline flex items-center gap-1"
+                      className="text-sm text-white font-bold hover:underline flex items-center gap-1"
                     >
                       {copiedScript === script.id ? (
                         <>
