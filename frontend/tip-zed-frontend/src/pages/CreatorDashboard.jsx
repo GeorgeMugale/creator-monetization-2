@@ -71,7 +71,7 @@ const CreatorDashboard = () => {
           isOverview || isTransactionsView || isFundsAndPayoutsView;
 
         if (shouldFetchWalletData) {
-          const walletRes = await walletService.getWalletData();
+          const walletRes = await walletService.getWalletData(1);
 
           // Only update walletData if we actually fetched a new one
           if (walletRes) {
@@ -251,7 +251,7 @@ const CreatorDashboard = () => {
             isTransactionsView={isTransactionsView}
             setPage={setPage}
             loading={loading}
-            recentTxnData={walletData.recentTransactions}
+            recentTxnData={walletData?.recentTransactions ?? []}
             walletData={walletData}
             page={page}
           />
@@ -323,7 +323,7 @@ const CopyModal = ({ isOpen, onClose, url }) => {
 
   const handleShare = async () => {
     try {
-      await navigator.clipboard.writeText(window.location.href);
+      await navigator.clipboard.writeText(url);
       showToast("Link copied!");
       setCopied(true);
     } catch (err) {

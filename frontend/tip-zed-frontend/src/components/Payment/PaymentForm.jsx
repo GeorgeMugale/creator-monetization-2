@@ -95,15 +95,10 @@ const PaymentForm = ({ amount, onSubmit, onBack }) => {
             </button>
           </div>
 
-          {isManual ? (
-            <div className="grid grid-cols-3 gap-2">
-              {PROVIDERS_ARRAY.map((p) => {
-                return <>{p.id}</>;
-              })}
-            </div>
-          ) : (
+          {/* Render the interactive grid ONLY when isManual is true */}
+          {isManual && (
             <div className="grid grid-cols-3 gap-3">
-              {PROVIDERS_ARRAY.map((p) => {
+              {PROVIDERS_ARRAY.map((p, key) => {
                 const isSelected = provider?.id === p.id;
 
                 // Mapping brand colors for the active state
@@ -115,7 +110,7 @@ const PaymentForm = ({ amount, onSubmit, onBack }) => {
 
                 return (
                   <button
-                    key={p.id}
+                    key={p.id || key} // Better to use p.id as the key if it's unique
                     onClick={() => setProvider(p)}
                     className={`p-4 border-2 rounded-2xl flex flex-col items-center gap-2 transition-all duration-200 ${
                       isSelected
