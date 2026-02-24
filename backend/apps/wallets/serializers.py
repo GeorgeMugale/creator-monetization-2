@@ -7,6 +7,17 @@ from django.db import models
 from .models import Wallet, WalletPayoutAccount, WalletTransaction, WalletKYC
 
 
+class CreatorSupporterSerializer(serializers.ModelSerializer):
+    """Serializer for creator/supporter info in wallet serializers"""
+    patron_name = serializers.CharField(read_only=True, source="payment.patron_name")
+    patron_message = serializers.CharField(read_only=True, source="payment.patron_message")
+    account_type = serializers.CharField(read_only=True, default="Supporter")
+
+    class Meta:
+        model = WalletTransaction
+        fields = ["patron_name", "patron_message", "account_type"]
+
+
 # ========== WALLET SERIALIZERS ==========
 class WalletListSerializer(serializers.ModelSerializer):
     """Lightweight serializer for listing wallets"""

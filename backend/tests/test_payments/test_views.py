@@ -246,6 +246,7 @@ class TestCashinViews:
             "patronPhone": "7655555556",
             "provider": "MTN_MOMO_ZMB",
             "amount": "10",
+            "patronName": "Pita Zyambo",
             "patronmessage": 'test message',
             "patronEmail": "test@email.com",
             "extraField": "test",

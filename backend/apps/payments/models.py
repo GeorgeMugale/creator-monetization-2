@@ -404,6 +404,10 @@ class Payment(UUIDModel, TimeStampedModel, SoftDeleteModel):
         # Auto-calculate net_amount if provider_fee exists
         if self.provider_fee and self.amount_captured:
             self.net_amount = self.amount_captured - self.provider_fee
+
+        # Check if name is empty or None and set it to Anonymus
+        if not self.patron_name:
+            self.patron_name = "Anonymous"
         super().save(*args, **kwargs)
 
     @property

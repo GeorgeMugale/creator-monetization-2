@@ -2,7 +2,8 @@ import pytest
 from tests.factories import (
     APIClientFactory,
     UserFactory,
-    PaymentFactory
+    PaymentFactory,
+    WalletTransactionFactory
     )
 
 
@@ -112,7 +113,85 @@ class TestWalletPayoutAccountView:
 @pytest.mark.django_db
 class TestWalletDetailsViews:
     """Tests for wallet views"""
-    
+    def test_wallet_supporters_list_with_donations(
+            self, auth_api_client,
+            user_factory):
+        """Test getting current user's wallet supporters with donations"""
+        user = user_factory
+        wallet = user.creator_profile.wallet
+        p1 = PaymentFactory(
+            wallet = wallet,
+            amount=100,
+            patron_name="Supporter 1",
+            patron_message="Great content!"
+        )
+
+        p2 = PaymentFactory(
+            wallet = wallet,
+            amount=120,
+            patron_name="Supporter 2",
+            patron_message="Keep it up!"
+        )
+  
+        WalletTransactionFactory(
+            wallet=wallet,
+            payment=p1,
+            amount=p1.amount
+        )
+
+        WalletTransactionFactory(
+            wallet=wallet,
+            payment=p2,
+            amount=p2.amount
+        )
+
+        auth_api_client.force_authenticate(user=user)
+        response = auth_api_client.get("/api/v1/wallets/supporters/")
+        
+        assert response.status_code == 200
+        data = response.data.get("data")
+        assert isinstance(data, list)
+        assert len(data) == 2
+        supporter1 = data[0]
+        assert supporter1["patron_name"] == "Supporter 1"
+        assert supporter1["patron_message"] == "Great content!"
+        assert supporter1["account_type"] == "Supporter"
+        supporter2 = data[1]
+        assert supporter2["patron_name"] == "Supporter 2"
+        assert supporter2["patron_message"] == "Keep it up!"
+        assert supporter2["account_type"] == "Supporter"
+
+    def test_wallet_supporters_list_supporter_name_not_provided(
+            self, auth_api_client, user_factory):
+        """Test getting current user's wallet supporters with
+        donations but supporter name not provided"""
+        user = user_factory
+        wallet = user.creator_profile.wallet
+        p1 = PaymentFactory(
+            wallet = wallet,
+            amount=100,
+            patron_name=None,
+            patron_message="Great content!"
+        )
+
+        WalletTransactionFactory(
+            wallet=wallet,
+            payment=p1,
+            amount=p1.amount
+        )
+
+        auth_api_client.force_authenticate(user=user)
+        response = auth_api_client.get("/api/v1/wallets/supporters/")
+        
+        assert response.status_code == 200
+        data = response.data.get("data")
+        assert isinstance(data, list)
+        assert len(data) == 1
+        supporter = data[0]
+        assert supporter["patron_name"] == "Anonymous"
+        assert supporter["patron_message"] == "Great content!"
+        assert supporter["account_type"] == "Supporter"
+
     def test_wallet_has_next_payout_date_and_payout_interval(self, api_client, user_factory):
         """Test that wallet details include next payout date"""
         client = APIClientFactory()
