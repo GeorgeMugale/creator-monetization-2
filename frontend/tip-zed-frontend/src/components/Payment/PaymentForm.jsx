@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { ChevronLeft, Lock, Edit2 } from "lucide-react";
 import { detectProvider, PROVIDERS } from "../../utils/mobileMoney";
 import { validateMobileNumber } from "../../utils/mobileMoney";
@@ -16,15 +16,13 @@ const PaymentForm = ({ amount, onSubmit, onBack }) => {
   });
   const [isManual, setIsManual] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
-  const [notValid, setNotValid] = useState(false);
-  const [validationError, setValidationError] = useState("");
 
-  useEffect(() => {
-    const validation = validateMobileNumber(phone);
-    setNotValid(!validation.isValid);
+  const validation = useMemo(() => validateMobileNumber(phone), [phone]);
 
-    if (!validation.isValid && phone.length === 10) setValidationError(validation.error);
-  }, [phone]);
+  const notValid = !validation.isValid;
+
+  const validationError =
+    !validation.isValid && phone.length === 10 ? validation.error : null;
 
   // Auto-detect only if NOT in manual mode and phone changes
   const handlePhoneChange = (e) => {
