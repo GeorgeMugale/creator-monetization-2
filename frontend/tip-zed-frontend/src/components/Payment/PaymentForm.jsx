@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronLeft, Lock, Edit2 } from "lucide-react";
 import { detectProvider, PROVIDERS } from "../../utils/mobileMoney";
+import { validateMobileNumber } from "../../utils/mobileMoney";
 
 const PROVIDERS_ARRAY = Object.values(PROVIDERS);
 
@@ -15,6 +16,15 @@ const PaymentForm = ({ amount, onSubmit, onBack }) => {
   });
   const [isManual, setIsManual] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
+  const [notValid, setNotValid] = useState(false);
+  const [validationError, setValidationError] = useState("");
+
+  useEffect(() => {
+    const validation = validateMobileNumber(phone);
+    setNotValid(!validation.isValid);
+
+    if (!validation.isValid && phone.length === 10) setValidationError(validation.error);
+  }, [phone]);
 
   // Auto-detect only if NOT in manual mode and phone changes
   const handlePhoneChange = (e) => {
@@ -79,6 +89,9 @@ const PaymentForm = ({ amount, onSubmit, onBack }) => {
               )}
             </div>
           </div>
+          {validationError && (
+            <span style={{ color: "red" }}>{validationError}</span>
+          )}
         </div>
 
         {/* Provider Selection */}
@@ -91,7 +104,8 @@ const PaymentForm = ({ amount, onSubmit, onBack }) => {
               onClick={() => setIsManual(!isManual)}
               className="text-xs text-zed-green font-semibold flex items-center gap-1 hover:underline"
             >
-              <Edit2 size={12} /> {isManual ? "Detect Network" : "Select Network"}
+              <Edit2 size={12} />{" "}
+              {isManual ? "Detect Network" : "Select Network"}
             </button>
           </div>
 
@@ -157,7 +171,7 @@ const PaymentForm = ({ amount, onSubmit, onBack }) => {
 
       <button
         onClick={handlePayment}
-        disabled={!phone || !provider || phone.length < 10}
+        disabled={notValid}
         className="w-full bg-zed-green text-white py-4 rounded-xl font-bold text-lg hover:bg-green-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-green-100"
       >
         Tip K{amount}
@@ -169,6 +183,6 @@ const PaymentForm = ({ amount, onSubmit, onBack }) => {
       </div>
     </div>
   );
-}
+};
 
 export default PaymentForm;
