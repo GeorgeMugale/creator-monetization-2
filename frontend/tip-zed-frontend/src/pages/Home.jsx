@@ -1,7 +1,7 @@
+import {HashLink as Hlink} from 'react-router-hash-link';
 import {
-  ArrowRight,
+  ArrowDown,
   XCircle,
-  CheckCircle,
   Heart,
   Repeat,
   Lock,
@@ -50,12 +50,12 @@ const Home = () => {
               >
                 Start as a Creator
               </Link>
-              <Link
-                to="/creator-catalog"
+              <Hlink
+                to="#learn-more"
                 className="w-full md:w-auto text-white flex items-center justify-center px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/10 transition-all active:scale-95"
               >
-                Support a creator <ArrowRight className="ml-2 w-5 h-5" />
-              </Link>
+                Learn More <ArrowDown className="ml-2 w-5 h-5" />
+              </Hlink>
             </div>
           </div>
         </section>
@@ -77,7 +77,7 @@ const Home = () => {
             </div>
           </div>
         </section>        {/* THE STRUGGLE */}
-        <section className="py-20 px-6 bg-gray-50">
+        <section className="py-20 px-6 bg-gray-50" id="learn-more">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-tight">
               <span className="text-zed-orange">The Problem.</span>
