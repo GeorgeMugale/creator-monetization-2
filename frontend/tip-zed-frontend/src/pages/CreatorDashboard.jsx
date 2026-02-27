@@ -308,7 +308,7 @@ const CreatorDashboard = () => {
         <CopyModal
           isOpen={isShareModalOpen}
           onClose={() => setIsShareModalOpen(false)}
-          url={`${window.location.protocol}//${window.location.host}/creator-profile/${user?.slug}`}
+          url={`${window.location.protocol}//${window.location.host}/${user?.slug}`}
         />
       </DashboardLayout>
     </>
