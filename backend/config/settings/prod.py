@@ -15,6 +15,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # Take environment variables from .env file
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
+os.environ.setdefault('DJANGO_AUTO_SETUP', 'true')
+
 # Raises Django's ImproperlyConfigured
 # exception if SECRET_KEY not in os.environ
 SECRET_KEY = env('SECRET_KEY')
@@ -246,6 +248,7 @@ REST_FRAMEWORK = {
         'djangorestframework_camel_case.parser.CamelCaseJSONParser',
     ),
 }
+
 
 # Simple JWT Configuration
 SIMPLE_JWT = {
