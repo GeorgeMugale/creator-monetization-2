@@ -76,7 +76,7 @@ const Header = () => {
                   to="/creator-catalog"
                   className="text-gray-600 hover:text-zed-green font-medium px-3 py-2"
                 >
-                  Creators
+                  Explore
                 </Link>
                 <Link
                   to={pathname === "/login" ? "/register" : "/login"}
