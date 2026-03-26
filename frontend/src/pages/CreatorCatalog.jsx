@@ -13,7 +13,7 @@ import { creatorService } from "@/services/creatorService";
 import MetaTags from "../components/Common/MetaTags";
 
 const getCreatorName = (creator) => {
-  return creator?.user?.username || creator?.username || "Anonymous Creator";
+  return creator?.user?.name || creator?.name || "Anonymous Creator";
 };
 
 const CreatorCatalog = () => {

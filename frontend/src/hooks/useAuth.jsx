@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }) => {
             const newUser = {
               uid: firebaseUser.uid,
               email: firebaseUser.email,
-              username: firebaseUser.displayName || firebaseUser.email.split("@")[0],
+              name: firebaseUser.name || firebaseUser.email.split("@")[0],
               role: "user",
               bio: "",
               createdAt: serverTimestamp(),
@@ -91,17 +91,17 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (data) => {
-    const { email, password, username } = data;
+    const { email, password, name } = data;
 
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(userCredential.user, { displayName: username });
+      await updateProfile(userCredential.user, { displayName: name });
       
       const newUser = {
         uid: userCredential.user.uid,
         email: email,
-        username: username || "",
-        slug: (username || "").toLowerCase().replace(/[^a-z0-9]/g, ""),
+        name: name || "",
+        slug: (name || "").toLowerCase().replace(/[^a-z0-9]/g, ""),
         role: "creator", // Defaulting to creator for this app's context
         bio: "",
         createdAt: serverTimestamp(),
@@ -127,15 +127,15 @@ export const AuthProvider = ({ children }) => {
       if (userDoc.exists()) {
         userData = userDoc.data();
       } else {
-        const username = firebaseUser.displayName || firebaseUser.email.split("@")[0];
+        const name = firebaseUser.displayName || firebaseUser.email.split("@")[0];
         userData = {
           uid: firebaseUser.uid,
           email: firebaseUser.email,
-          username: username,
+          name: name,
           role: "creator", // Defaulting to creator for social login too
           bio: "",
           createdAt: serverTimestamp(),
-          slug: username.toLowerCase().replace(/[^a-z0-9]/g, ""),
+          slug: name.toLowerCase().replace(/[^a-z0-9]/g, ""),
         };
         await setDoc(doc(db, "users", firebaseUser.uid), userData);
       }
@@ -160,13 +160,13 @@ export const AuthProvider = ({ children }) => {
     try {
       const updates = {};
       if (formData.get("bio")) updates.bio = formData.get("bio");
-      if (formData.get("username")) {
-        const username = formData.get("username").toLowerCase().replace(/[^a-z0-9]/g, "");
-        updates.username = username;
-        updates.slug = username; // Slug is same as username for now
+      if (formData.get("name")) {
+        const name = formData.get("name");
+        updates.name = name;
+        updates.slug = name.toLowerCase().replace(/[^a-z0-9]/g, "");
         
         // Also update Firebase Auth profile
-        await updateProfile(auth.currentUser, { displayName: username });
+        await updateProfile(auth.currentUser, { displayName: name });
       }
       
       await setDoc(doc(db, "users", user.uid), updates, { merge: true });

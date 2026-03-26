@@ -12,7 +12,7 @@ const Onboarding = () => {
   const [error, setError] = useState("");
   
   const [formData, setFormData] = useState({
-    username: user?.username || "",
+    name: user?.name || "",
     bio: user?.bio || "",
   });
 
@@ -29,7 +29,7 @@ const Onboarding = () => {
     try {
       const data = new FormData();
       data.append("bio", formData.bio);
-      data.append("username", formData.username);
+      data.append("name", formData.name);
       
       const result = await update(data);
       if (result.success) {
@@ -64,12 +64,12 @@ const Onboarding = () => {
         <div className="p-8">
           <div className="mb-8 text-center">
             <h1 className="text-2xl font-black text-gray-900 mb-2">
-              {step === 1 && "Choose your username"}
+              {step === 1 && "What's your name?"}
               {step === 2 && "Tell us about yourself"}
               {step === 3 && "Almost there!"}
             </h1>
             <p className="text-gray-500 text-sm">
-              {step === 1 && "This is your unique handle on TipZed."}
+              {step === 1 && "This is how you'll be known on TipZed."}
               {step === 2 && "A short bio helps people know what you do."}
               {step === 3 && "Confirm your details to finish setup."}
             </p>
@@ -85,12 +85,12 @@ const Onboarding = () => {
             {step === 1 && (
               <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">@</span>
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                   <input
                     type="text"
-                    name="username"
-                    placeholder="username"
-                    value={formData.username}
+                    name="name"
+                    placeholder="Your Name"
+                    value={formData.name}
                     onChange={handleChange}
                     required
                     className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-zed-green outline-none transition-all"
@@ -99,7 +99,7 @@ const Onboarding = () => {
                 <button
                   type="button"
                   onClick={() => setStep(2)}
-                  disabled={!formData.username}
+                  disabled={!formData.name}
                   className="w-full py-4 bg-zed-black text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-gray-800 transition-all disabled:opacity-50"
                 >
                   Next Step <ArrowRight size={20} />
@@ -146,10 +146,10 @@ const Onboarding = () => {
                 <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
                   <div className="flex items-center gap-4 mb-4">
                     <div className="w-16 h-16 bg-zed-green rounded-full flex items-center justify-center text-white text-2xl font-black">
-                      {formData.username?.[0]?.toUpperCase() || "U"}
+                      {formData.name?.[0]?.toUpperCase() || "U"}
                     </div>
                     <div>
-                      <h3 className="font-bold text-gray-900">@{formData.username}</h3>
+                      <h3 className="font-bold text-gray-900">{formData.name}</h3>
                     </div>
                   </div>
                   <p className="text-sm text-gray-600 italic">"{formData.bio}"</p>

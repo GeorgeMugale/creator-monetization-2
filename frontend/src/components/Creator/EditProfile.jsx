@@ -28,7 +28,7 @@ const EditProfile = () => {
   const [success, setSuccess] = useState(false);
 
   const [formData, setFormData] = useState({
-    username: user?.username || "",
+    name: user?.name || "",
     bio: user?.bio || "",
     email: user?.email || "",
     phone_number: user?.phone_number || "",
@@ -90,15 +90,15 @@ const EditProfile = () => {
 
     try {
       // VALIDATION
-      if (!formData.username?.trim()) {
-        throw new Error("Username is required");
+      if (!formData.name?.trim()) {
+        throw new Error("Name is required");
       }
 
       // Create FormData object -what DRF MultiPartParser expects
       const formDataToSend = new FormData();
 
       // Add text fields
-      formDataToSend.append("username", formData.username.trim());
+      formDataToSend.append("name", formData.name.trim());
 
       if (formData.bio?.trim()) {
         formDataToSend.append("bio", formData.bio.trim());
@@ -164,7 +164,7 @@ const EditProfile = () => {
   };
 
   const isEmpty = {
-    username: !formData.username?.trim(),
+    name: !formData.name?.trim(),
     bio: !formData.bio?.trim(),
     profileImage: !previews.profile && !user?.profileImage,
     coverImage: !previews.cover && !user?.coverImage,
@@ -244,7 +244,7 @@ const EditProfile = () => {
                   `}
                     >
                       <div className="w-32 h-32 rounded-2xl border-4 border-white shadow-md bg-zed-green flex items-center justify-center text-white text-4xl font-bold">
-                        {formData.username?.charAt(0) || "U"}
+                        {formData.name?.charAt(0) || "U"}
                       </div>
                       {isEmpty.profileImage && !success && (
                         <span className="absolute -top-1 -right-1 w-3 h-3 bg-amber-400 rounded-full" />
@@ -275,27 +275,27 @@ const EditProfile = () => {
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-2">
-                    Username <span className="text-red-500">*</span>
+                    Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
-                    name="username"
-                    value={formData.username}
+                    name="name"
+                    value={formData.name}
                     onChange={handleChange}
                     disabled={loading || success}
                     className={`w-full px-4 py-3 rounded-xl font-medium transition-all text-black
                   ${
-                    isEmpty.username && !success
+                    isEmpty.name && !success
                       ? "bg-amber-50 border-amber-400 ring-2 ring-amber-400"
                       : "bg-gray-50 border-gray-200 focus:ring-zed-green"
                   }
                   ${loading || success ? "opacity-50 cursor-not-allowed" : ""}
                 `}
-                    placeholder="e.g. chandamwamba"
+                    placeholder="e.g. Chanda Mwamba"
                   />
-                  {isEmpty.username && !success && (
+                  {isEmpty.name && !success && (
                     <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
-                      <AlertCircle size={12} /> Username is required
+                      <AlertCircle size={12} /> Name is required
                     </p>
                   )}
                 </div>

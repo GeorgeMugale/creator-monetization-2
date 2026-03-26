@@ -14,9 +14,9 @@
           "format": "email",
           "description": "The user's email address."
         },
-        "username": {
+        "name": {
           "type": "string",
-          "description": "The user's username."
+          "description": "The user's name."
         },
         "slug": {
           "type": "string",
@@ -37,7 +37,7 @@
           "description": "When the user profile was created."
         }
       },
-      "required": ["uid", "username", "email", "role"]
+      "required": ["uid", "name", "email", "role"]
     }
   },
   "firestore": {

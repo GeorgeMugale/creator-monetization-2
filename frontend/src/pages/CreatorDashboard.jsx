@@ -113,7 +113,7 @@ const CreatorDashboard = () => {
   // Helper to prevent content jumping: Skeleton Loader
   if (loading && !walletData && isDataView) {
     return (
-      <DashboardLayout title={user?.username}>
+      <DashboardLayout title={user?.name}>
         <div className="animate-pulse space-y-8">
           <div className="h-8 bg-gray-200 w-1/4 rounded-lg"></div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -129,7 +129,7 @@ const CreatorDashboard = () => {
   // Error State (Only for Data Views)
   if (error && isDataView) {
     return (
-      <DashboardLayout title={user?.username ?? "Dashboard"}>
+      <DashboardLayout title={user?.name ?? "Dashboard"}>
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <div className="bg-red-50 border border-red-100 text-red-600 rounded-2xl p-8 max-w-md">
             <AlertCircle size={40} className="mx-auto mb-4" />
@@ -154,7 +154,7 @@ const CreatorDashboard = () => {
         description="Manage your dashboard, track transactions, view wallet balances, and monitor your earnings"
         keywords="creator dashboard, wallet view, transactions, earnings, balance, analytics, creator tools"
       />
-      <DashboardLayout title={user?.username ?? "Dashboard"}>
+      <DashboardLayout title={user?.name ?? "Dashboard"}>
         {/* HEADER SECTION (Shared by Overview & Transactions) */}
         {isDataView && (
           <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">

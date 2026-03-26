@@ -9,7 +9,7 @@ const SignupForm = () => {
     email: "",
     password: "",
     password2: "",
-    username: "",
+    name: "",
     userType: "creator",
   });
   const [error, setError] = useState("");
@@ -37,9 +37,9 @@ const SignupForm = () => {
       return;
     }
 
-    // VALIDATE USERNAME
-    if (formData.username.length < 2) {
-      setError("Username must be at least 2 characters");
+    // VALIDATE NAME
+    if (formData.name.length < 2) {
+      setError("Name must be at least 2 characters");
       return;
     }
 
@@ -82,12 +82,12 @@ const SignupForm = () => {
       )}
 
       <div>
-        <label className="text-sm font-medium text-gray-600">Username</label>
+        <label className="text-sm font-medium text-gray-600">Name</label>
         <input
-          name="username"
+          name="name"
           required
           className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-zed-orange focus:border-zed-orange outline-none"
-          value={formData.username}
+          value={formData.name}
           onChange={handleChange}
         />
       </div>

@@ -24,15 +24,15 @@ const Header = () => {
       return (
         <img
           src={user.profileImage}
-          alt={`${user.username || user.email}'s profile`}
+          alt={`${user.name || user.email}'s profile`}
           className="w-9 h-9 rounded-full object-cover border border-gray-200"
         />
       );
     }
 
     const initials =
-      user?.username
-        ? user.username.substring(0, 2).toUpperCase()
+      user?.name
+        ? user.name.substring(0, 2).toUpperCase()
         : user?.email?.[0]?.toUpperCase() || "U";
 
     return (

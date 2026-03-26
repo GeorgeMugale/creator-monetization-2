@@ -21,7 +21,7 @@ import SupportModal from "@/components/Payment/SupportModal";
 import MetaTags from "@/components/Common/MetaTags";
 
 const getName = (creator) =>
-  creator?.user?.username || creator?.username || "Creator";
+  creator?.user?.name || creator?.name || "Creator";
 
 const CreatorProfile = () => {
   const [isSupportOpen, setIsSupportOpen] = useState(false);
@@ -231,7 +231,7 @@ const CreatorProfile = () => {
               {creator.profileImage ? (
                 <img
                   src={creator.profileImage}
-                  alt={creator.user?.username || creator.username}
+                  alt={creator.user?.name || creator.name}
                   className="w-40 h-40 md:w-48 md:h-48 rounded-[2.5rem] object-cover border-[6px] border-white shadow-xl bg-white"
                 />
               ) : (
@@ -260,7 +260,7 @@ const CreatorProfile = () => {
                 )}
               </div>
               <p className="text-lg text-gray-500 font-medium mb-2">
-                @{creator.user?.username || creator.username}
+                @{creator.user?.name || creator.name}
               </p>
 
               {/* Social Links */}

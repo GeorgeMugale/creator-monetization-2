@@ -11,7 +11,7 @@ service cloud.firestore {
     // Fields:
     //   - uid: string (required) - The unique identifier for the user.
     //   - email: string (required, email) - The user's email address.
-    //   - username: string (optional) - The user's username.
+    //   - name: string (optional) - The user's name.
     //   - slug: string (optional) - The user's URL-friendly slug.
     //   - bio: string (optional) - The user's biography.
     //   - role: string (required, enum: ['admin', 'creator', 'guest', 'patron']) - The user's role.
@@ -53,13 +53,13 @@ service cloud.firestore {
     }
 
     function isValidUser(data) {
-      return data.keys().hasAll(['uid', 'email', 'username', 'role', 'createdAt']) &&
-             data.keys().hasOnly(['uid', 'email', 'username', 'slug', 'bio', 'role', 'createdAt']) &&
+      return data.keys().hasAll(['uid', 'email', 'name', 'role', 'createdAt']) &&
+             data.keys().hasOnly(['uid', 'email', 'name', 'slug', 'bio', 'role', 'createdAt']) &&
              data.uid is string && data.uid.size() > 0 &&
              data.email is string && isValidEmail(data.email) &&
              data.role in ['admin', 'creator', 'guest', 'patron'] &&
              data.createdAt is timestamp &&
-             (data.username == null || (data.username is string && data.username.size() < 100)) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
              (data.slug == null || (data.slug is string && data.slug.size() < 100)) &&
              (data.bio == null || (data.bio is string && data.bio.size() < 1000));
     }
