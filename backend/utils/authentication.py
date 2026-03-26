@@ -54,27 +54,33 @@ class FirebaseAuthentication(authentication.BaseAuthentication):
 
         firebase_uid = decoded_token.get("uid")
         email = decoded_token.get("email", "")
-        username = decoded_token.get("name", "")
+        username = decoded_token.get("username", "")
+        user_type = decoded_token.get("role", "")
         picture = decoded_token.get("picture", "")
 
-        if not firebase_uid:
-            raise exceptions.AuthenticationFailed("Firebase UID not found.")
+        if not username or not email:
+            raise exceptions.AuthenticationFailed("Firebase username or email not found.")
+        
+        allowed_roles = ["admin", "creator", "patron", "guest", "staff"]
+
+        if user_type not in allowed_roles:
+            user_type = "creator"
 
         # Determine user_type from Firebase custom claims or use default
-        user_type = self._get_user_type_from_token(decoded_token)
+        # user_type = self._get_user_type_from_token(decoded_token)
 
         user, created = User.objects.get_or_create(
             email=email,
             defaults={
-                "username": username or "",
+                "username": username,
                 "user_type": user_type,  # Set user_type on creation (triggers CreatorProfile signal)
             },
         )
 
         # Sync email if changed
-        if email and user.email != email:
-            user.email = email
-            user.save(update_fields=["email"])
+        if username and user.username != username:
+            user.username = username
+            user.save(update_fields=["username"])
         
         # Sync user_type if changed (this will trigger CreatorProfile creation/deletion signals)
         if user.user_type != user_type:

@@ -31,10 +31,8 @@ class TestFirebaseAuthenticationUserType:
         """Test that Firebase auth creates a user with user_type='creator' by default."""
         # Mock Firebase token verification
         mock_verify.return_value = {
-            "uid": "firebase_user_123",
+            "username": "firebase_user_123",
             "email": "test@example.com",
-            "name": "Test User",
-            "picture": "https://example.com/pic.jpg",
         }
 
         request = self.create_mock_request()
@@ -44,7 +42,6 @@ class TestFirebaseAuthenticationUserType:
         user, auth_data = result
         assert user.username == "firebase_user_123"
         assert user.email == "test@example.com"
-        assert user.first_name == "Test User"
         assert user.user_type == "creator"  # Should default to 'creator'
         assert auth_data is None
 
@@ -52,10 +49,9 @@ class TestFirebaseAuthenticationUserType:
     def test_firebase_auth_creates_creator_profile_automatically(self, mock_verify):
         """Test that creating a Firebase user with user_type='creator' triggers CreatorProfile creation."""
         mock_verify.return_value = {
-            "uid": "firebase_creator_123",
+            "username": "firebase_creator_123",
             "email": "creator@example.com",
-            "name": "Creator User",
-            "picture": "https://example.com/pic.jpg",
+            "role": "creator",
         }
 
         # Ensure no existing users
@@ -77,11 +73,9 @@ class TestFirebaseAuthenticationUserType:
     def test_firebase_auth_respects_custom_user_type_claim(self, mock_verify):
         """Test that Firebase custom claims can override default user_type."""
         mock_verify.return_value = {
-            "uid": "firebase_admin_123",
+            "username": "firebase_admin_123",
             "email": "admin@example.com",
-            "name": "Admin User",
-            "picture": "https://example.com/pic.jpg",
-            "user_type": "admin",  # Custom claim
+            "role": "admin",  # Custom claim
         }
 
         request = self.create_mock_request()
@@ -95,11 +89,9 @@ class TestFirebaseAuthenticationUserType:
     def test_firebase_auth_with_staff_user_type(self, mock_verify):
         """Test Firebase auth with staff user_type."""
         mock_verify.return_value = {
-            "uid": "firebase_staff_123",
+            "username": "firebase_staff_123",
             "email": "staff@example.com",
-            "name": "Staff User",
-            "picture": "https://example.com/pic.jpg",
-            "user_type": "staff",
+            "role": "staff",
         }
 
         request = self.create_mock_request()
@@ -112,11 +104,9 @@ class TestFirebaseAuthenticationUserType:
     def test_firebase_auth_ignores_invalid_user_type_claim(self, mock_verify):
         """Test that invalid user_type claims are ignored and defaults to 'creator'."""
         mock_verify.return_value = {
-            "uid": "firebase_invalid_123",
+            "username": "firebase_invalid_123",
             "email": "invalid@example.com",
-            "name": "Invalid User",
-            "picture": "https://example.com/pic.jpg",
-            "user_type": "invalid_type",  # Invalid claim
+            "role": "invalid_type",  # Invalid claim
         }
 
         request = self.create_mock_request()
@@ -131,10 +121,8 @@ class TestFirebaseAuthenticationUserType:
         """Test that subsequent logins sync email if changed."""
         # Create initial user
         initial_token = {
-            "uid": "firebase_sync_123",
+            "username": "firebase_sync_123",
             "email": "original@example.com",
-            "name": "Sync User",
-            "picture": "https://example.com/pic.jpg",
         }
         mock_verify.return_value = initial_token
         request = self.create_mock_request()
@@ -142,30 +130,26 @@ class TestFirebaseAuthenticationUserType:
 
         assert user_1.email == "original@example.com"
 
-        # Simulate second login with updated email
+        # Simulate second login with updated username
         updated_token = {
-            "uid": "firebase_sync_123",
-            "email": "updated@example.com",
-            "name": "Sync User",
-            "picture": "https://example.com/pic.jpg",
+            "username": "firebase_updated_123",
+            "email": "original@example.com",
         }
         mock_verify.return_value = updated_token
         request = self.create_mock_request()
         user_2, _ = self.auth.authenticate(request)
 
-        # Should be same user with updated email
+        # Should be same user with updated username
         assert user_2.id == user_1.id
-        assert user_2.email == "updated@example.com"
+        assert user_2.username == "firebase_updated_123"
 
     @patch("utils.authentication.auth.verify_id_token")
     def test_firebase_auth_existing_user_sync_user_type(self, mock_verify):
         """Test that user_type changes are synced on subsequent logins."""
         # Create initial creator user
         initial_token = {
-            "uid": "firebase_type_sync_123",
+            "username": "firebase_type_sync_123",
             "email": "typesync@example.com",
-            "name": "Type Sync User",
-            "picture": "https://example.com/pic.jpg",
         }
         mock_verify.return_value = initial_token
         request = self.create_mock_request()
@@ -176,11 +160,9 @@ class TestFirebaseAuthenticationUserType:
 
         # Simulate second login with different user_type
         updated_token = {
-            "uid": "firebase_type_sync_123",
+            "username": "firebase_type_sync_123",
             "email": "typesync@example.com",
-            "name": "Type Sync User",
-            "picture": "https://example.com/pic.jpg",
-            "user_type": "admin",
+            "role": "admin",
         }
         mock_verify.return_value = updated_token
         request = self.create_mock_request()
@@ -232,33 +214,42 @@ class TestFirebaseAuthenticationUserType:
             self.auth.authenticate(request)
 
     @patch("utils.authentication.auth.verify_id_token")
-    def test_firebase_auth_missing_uid(self, mock_verify):
-        """Test that missing Firebase UID raises AuthenticationFailed."""
+    def test_firebase_auth_missing_email(self, mock_verify):
+        """Test that missing email raises Authentication failed"""
+        from rest_framework.exceptions import AuthenticationFailed
+        
+        mock_verify.return_value = {
+                "username": "testuser",
+                }
+        request = self.create_mock_request()
+
+        with pytest.raises(AuthenticationFailed, match="Firebase username or email not found"):
+            self.auth.authenticate(request)
+
+    @patch("utils.authentication.auth.verify_id_token")
+    def test_firebase_auth_missing_username(self, mock_verify):
+        """Test that missing Firebase username raises AuthenticationFailed."""
         from rest_framework.exceptions import AuthenticationFailed
 
         mock_verify.return_value = {
             "email": "test@example.com",
-            "name": "Test User",
         }
         request = self.create_mock_request()
 
-        with pytest.raises(AuthenticationFailed, match="Firebase UID not found"):
+        with pytest.raises(AuthenticationFailed, match="Firebase username or email not found"):
             self.auth.authenticate(request)
 
     @patch("utils.authentication.auth.verify_id_token")
     def test_firebase_auth_attaches_token_to_request(self, mock_verify):
         """Test that decoded token is attached to request."""
         mock_verify.return_value = {
-            "uid": "firebase_attach_123",
+            "username": "firebase_attach_123",
             "email": "attach@example.com",
-            "name": "Attach User",
-            "picture": "https://example.com/pic.jpg",
         }
 
         request = self.create_mock_request()
         self.auth.authenticate(request)
 
         assert hasattr(request, "firebase_user")
-        assert request.firebase_user["uid"] == "firebase_attach_123"
+        assert request.firebase_user["username"] == "firebase_attach_123"
         assert hasattr(request, "firebase_picture")
-        assert request.firebase_picture == "https://example.com/pic.jpg"
