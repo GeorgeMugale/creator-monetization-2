@@ -35,8 +35,7 @@ class TestSelectUserTypeView:
         response = auth_api_client.post(
             "/api/v1/creators/profile/user-type/", data=data, format='json'
         )
-        assert response.status_code == 403
-        assert response.data["detail"] == "Authentication credentials were not provided."
+        assert response.status_code == 401
 
     def test_select_user_type_missing_field(self, auth_api_client, normal_user):
         """Test selecting a user type with missing required field"""

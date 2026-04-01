@@ -217,17 +217,17 @@ class TestErrorHandling:
         
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_accessing_protected_endpoint_without_auth_returns_403(self, api_client):
-        """Test accessing protected endpoint without auth returns 403."""
+    def test_accessing_protected_endpoint_unauthorized(self, api_client):
+        """Test accessing protected endpoint without auth returns 401."""
         client = APIClientFactory()
         api_client.credentials(HTTP_X_API_KEY=client.api_key)
         profile_url = reverse('customauth:user_profile')
         response = api_client.get(profile_url)
         
-        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
-    def test_invalid_token_returns_403(self, api_client):
-        """Test invalid token returns 403."""
+    def test_invalid_token_is_unauthorized(self, api_client):
+        """Test invalid token returns 401."""
         client = APIClientFactory()
         api_client.credentials(HTTP_X_API_KEY=client.api_key)
         api_client.credentials(HTTP_AUTHORIZATION='Bearer invalid_token')
@@ -235,4 +235,4 @@ class TestErrorHandling:
         profile_url = reverse('customauth:user_profile')
         response = api_client.get(profile_url)
         
-        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED

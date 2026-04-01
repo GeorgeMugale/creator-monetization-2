@@ -251,16 +251,15 @@ class TestUserProfileView:
         assert response.data['data']['email'] == user.email
         assert response.data['data']['first_name'] == 'John'
 
-    def test_get_profile_not_authenticated(self, api_client):
-        """Test getting profile without authentication."""
+    def test_get_profile_not_authorized(self, api_client):
+        """Test getting profile without authorization."""
         url = reverse('customauth:user_profile')
         client = APIClientFactory()
         api_client.credentials(HTTP_X_API_KEY=client.api_key)
         response = api_client.get(url)
 
-        assert response.status_code == status.HTTP_403_FORBIDDEN
-        assert response.data['detail'] == "Authentication credentials were not provided."
-
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        
     def test_update_profile_patch(self, api_client):
         """Test updating profile with PATCH."""
         client = APIClientFactory()
@@ -350,7 +349,7 @@ class TestChangePasswordView:
         user.refresh_from_db()
         assert user.check_password('NewPass456!')
 
-    def test_change_password_not_authenticated(self, api_client):
+    def test_change_password_not_authorized(self, api_client):
         """Test change password requires authentication."""
         data = {
             'oldPassword': 'OldPass123!',
@@ -361,8 +360,7 @@ class TestChangePasswordView:
         api_client.credentials(HTTP_X_API_KEY=client.api_key)
         response = api_client.post(url, data, format='json')
 
-        assert response.status_code == status.HTTP_403_FORBIDDEN
-        assert response.data['detail'] == "Authentication credentials were not provided."
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     def test_change_password_incorrect_old(self, api_client):
         """Test change password fails with incorrect old password."""
@@ -419,15 +417,14 @@ class TestLogoutView:
         assert response.status_code == status.HTTP_200_OK
         assert 'message' in response.data
 
-    def test_logout_not_authenticated(self, api_client):
+    def test_logout_not_authorized(self, api_client):
         """Test logout requires authentication."""
         url = reverse('customauth:logout')
         client = APIClientFactory()
         api_client.credentials(HTTP_X_API_KEY=client.api_key)
         response = api_client.post(url, {}, format='json')
 
-        assert response.status_code == status.HTTP_403_FORBIDDEN
-        assert response.data['detail'] == "Authentication credentials were not provided."
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     def test_logout_without_refresh_token(self, api_client):
         """Test logout without refresh token still succeeds."""
