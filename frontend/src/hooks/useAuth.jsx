@@ -43,6 +43,18 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const formatUser = (firebaseUser, userData) => {
+    if (!firebaseUser) return null;
+    return {
+      uid: firebaseUser.uid,
+      email: firebaseUser.email,
+      displayName: firebaseUser.displayName,
+      photoURL: firebaseUser.photoURL,
+      emailVerified: firebaseUser.emailVerified,
+      ...userData,
+    };
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
@@ -51,23 +63,20 @@ export const AuthProvider = ({ children }) => {
           const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            setUser({
-              ...firebaseUser,
-              ...userData,
-            });
+            setUser(formatUser(firebaseUser, userData));
             enhanceUserInBackground(userData);
           } else {
             // If doc doesn't exist, we might need to create it (e.g. after Google login)
             const newUser = {
               uid: firebaseUser.uid,
               email: firebaseUser.email,
-              name: firebaseUser.name || firebaseUser.email.split("@")[0],
+              name: firebaseUser.displayName || firebaseUser.email.split("@")[0],
               role: "user",
               bio: "",
               createdAt: serverTimestamp(),
             };
             await setDoc(doc(db, "users", firebaseUser.uid), newUser);
-            setUser(newUser);
+            setUser(formatUser(firebaseUser, newUser));
           }
         } catch (error) {
           handleFirestoreError(error, OperationType.GET, `users/${firebaseUser.uid}`);
@@ -84,7 +93,18 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      return { success: true, user: userCredential.user };
+      const firebaseUser = userCredential.user;
+      
+      // Fetch user profile from Firestore to get role and bio
+      const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
+      let userData = {};
+      
+      if (userDoc.exists()) {
+        userData = userDoc.data();
+      }
+      
+      const combinedUser = formatUser(firebaseUser, userData);
+      return { success: true, user: combinedUser };
     } catch (error) {
       return { success: false, error: error.message };
     }
@@ -140,7 +160,8 @@ export const AuthProvider = ({ children }) => {
         await setDoc(doc(db, "users", firebaseUser.uid), userData);
       }
       
-      return { success: true, user: { ...firebaseUser, ...userData } };
+      const combinedUser = formatUser(firebaseUser, userData);
+      return { success: true, user: combinedUser };
     } catch (error) {
       return { success: false, error: error.message };
     }
@@ -158,24 +179,47 @@ export const AuthProvider = ({ children }) => {
     if (!user) return { success: false, error: "Not authenticated" };
     
     try {
-      const updates = {};
-      if (formData.get("bio")) updates.bio = formData.get("bio");
-      if (formData.get("name")) {
-        const name = formData.get("name");
-        updates.name = name;
-        updates.slug = name.toLowerCase().replace(/[^a-z0-9]/g, "");
+      // Call backend
+      const result = await creatorService.updateCreator(formData);
+      
+      if (result.success) {
+        const updatedData = result.data;
         
-        // Also update Firebase Auth profile
-        await updateProfile(auth.currentUser, { displayName: name });
+        // Prepare Firestore updates to keep in sync
+        const firestoreUpdates = {
+          name: updatedData.name,
+          bio: updatedData.bio,
+          slug: updatedData.slug,
+          profileImage: updatedData.profileImage,
+          coverImage: updatedData.coverImage,
+          // Social links
+          tiktok: updatedData.tiktok || "",
+          facebook: updatedData.facebook || "",
+          website: updatedData.website || "",
+          instagram: updatedData.instagram || "",
+          twitter: updatedData.twitter || "",
+        };
+
+        // Remove undefined fields
+        Object.keys(firestoreUpdates).forEach(key => 
+          firestoreUpdates[key] === undefined && delete firestoreUpdates[key]
+        );
+
+        await setDoc(doc(db, "users", user.uid), firestoreUpdates, { merge: true });
+        
+        // Update Firebase Auth display name if name changed
+        if (updatedData.name) {
+          await updateProfile(auth.currentUser, { displayName: updatedData.name });
+        }
+
+        setUser(prev => ({ ...prev, ...updatedData }));
+        return { success: true, data: updatedData };
+      } else {
+        return result;
       }
-      
-      await setDoc(doc(db, "users", user.uid), updates, { merge: true });
-      setUser(prev => ({ ...prev, ...updates }));
-      
-      return { success: true };
     } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, `users/${user.uid}`);
-      return { success: false, error: error.message };
+      console.error("Update failed:", error);
+      return { success: false, error: error.message || "Update failed" };
     }
   };
 
@@ -190,3 +234,4 @@ export const AuthProvider = ({ children }) => {
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext);
+
