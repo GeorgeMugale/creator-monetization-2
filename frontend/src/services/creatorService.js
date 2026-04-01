@@ -1,16 +1,37 @@
 import api from "./api";
 
+let creatorsCache = null;
+const creatorBySlugCache = new Map();
+
 export const creatorService = {
   /**
    * Fetch all creators.
+   * @param {boolean} forceRefresh Whether to bypass the cache and fetch fresh data.
    * @returns {Promise<Array<any>>} Resolves with a list of all creators.
    *
    * @throws {string} Throws an error message if the request fails.
    */
-  getAllCreators: async () => {
+  getAllCreators: async (forceRefresh = false) => {
     try {
+      if (creatorsCache && !forceRefresh) {
+        return creatorsCache;
+      }
       const response = await api.get("/creators/all/");
-      return response.data;
+      creatorsCache = response.data;
+
+      // Populate individual cache for faster profile loading
+      const creators = Array.isArray(creatorsCache)
+        ? creatorsCache
+        : creatorsCache?.data;
+
+      if (Array.isArray(creators)) {
+        creators.forEach((c) => {
+          const slug = c.user?.slug || c.slug;
+          if (slug) creatorBySlugCache.set(slug, c);
+        });
+      }
+
+      return creatorsCache;
     } catch (error) {
       throw error.response?.data || error.message;
     }
@@ -19,14 +40,19 @@ export const creatorService = {
   /**
    * Fetch a single creator by their URL slug.
    * @param {string} slug The unique URL-friendly identifier of the creator.
+   * @param {boolean} forceRefresh Whether to bypass the cache and fetch fresh data.
    *
    * @returns {Promise<any>}  Resolves with the creator object.
    *
    * @throws {string} Throws an error message if the creator cannot be retrieved.
    */
-  getCreatorBySlug: async (slug) => {
+  getCreatorBySlug: async (slug, forceRefresh = false) => {
     try {
+      if (creatorBySlugCache.has(slug) && !forceRefresh) {
+        return creatorBySlugCache.get(slug);
+      }
       const response = await api.get(`/creators/${slug}/`);
+      creatorBySlugCache.set(slug, response.data);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message || "Failed to fetch creator.";
@@ -52,7 +78,7 @@ export const creatorService = {
    */
   updateCreator: async (userData) => {
     try {
-      const response = await api.putForm("/creators/profile/me", userData);
+      const response = await api.putForm("/creators/profile/me/", userData);
 
       return {
         success: true,
@@ -69,3 +95,4 @@ export const creatorService = {
     }
   },
 };
+

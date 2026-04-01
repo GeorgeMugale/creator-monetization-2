@@ -15,7 +15,7 @@ import {
   Instagram,
   Link as LinkIcon,
 } from "lucide-react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { creatorService } from "@/services/creatorService";
 import SupportModal from "@/components/Payment/SupportModal";
 import MetaTags from "@/components/Common/MetaTags";
@@ -27,6 +27,7 @@ const CreatorProfile = () => {
   const [isSupportOpen, setIsSupportOpen] = useState(false);
   const { slug } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [creator, setCreator] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -35,7 +36,15 @@ const CreatorProfile = () => {
 
   useEffect(() => {
     const fetchCreator = async () => {
+      // 1. Check if we have the creator in location state (from Catalog)
+      if (location.state?.creator) {
+        setCreator(location.state.creator);
+        setLoading(false);
+        return;
+      }
+
       try {
+        // 2. Fetch from service (which now has its own in-memory cache)
         const response = await creatorService.getCreatorBySlug(slug);
         // Handle both wrapped {status: 'success', data: {}} and direct object {}
         if (response && response.status === "success" && response.data) {
@@ -58,7 +67,7 @@ const CreatorProfile = () => {
       }
     };
     if (slug) fetchCreator();
-  }, [slug]);
+  }, [slug, location.state]);
 
   if (loading)
     return (

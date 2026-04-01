@@ -202,6 +202,7 @@ const CreatorCatalog = () => {
                 return (
                   <Link
                     to={`/${creator.user?.slug || creator.slug}`}
+                    state={{ creator }}
                     key={creator.user?.id || creator._id || creator.id}
                     className="group"
                   >
