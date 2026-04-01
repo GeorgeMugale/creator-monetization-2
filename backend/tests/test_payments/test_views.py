@@ -7,7 +7,7 @@ from apps.wallets.models import WalletTransaction
 @pytest.mark.django_db
 class TestCashinViews:
 
-    def test_unautenticated_frontend_client_fails(self, api_client, wallet_factory, mocker):
+    def test_unauthorized_frontend_client_fails(self, api_client, wallet_factory, mocker):
         mock_request = mocker.patch("apps.payments.views.pawapay_request")
         mock_request.return_value = (
             {"depositId": "1234", "status": "ACCEPTED"}, 200)

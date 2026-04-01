@@ -258,7 +258,8 @@ class TestUserProfileView:
         api_client.credentials(HTTP_X_API_KEY=client.api_key)
         response = api_client.get(url)
 
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.data['detail'] == "Authentication credentials were not provided."
 
     def test_update_profile_patch(self, api_client):
         """Test updating profile with PATCH."""
@@ -360,7 +361,8 @@ class TestChangePasswordView:
         api_client.credentials(HTTP_X_API_KEY=client.api_key)
         response = api_client.post(url, data, format='json')
 
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.data['detail'] == "Authentication credentials were not provided."
 
     def test_change_password_incorrect_old(self, api_client):
         """Test change password fails with incorrect old password."""
@@ -424,7 +426,8 @@ class TestLogoutView:
         api_client.credentials(HTTP_X_API_KEY=client.api_key)
         response = api_client.post(url, {}, format='json')
 
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.data['detail'] == "Authentication credentials were not provided."
 
     def test_logout_without_refresh_token(self, api_client):
         """Test logout without refresh token still succeeds."""

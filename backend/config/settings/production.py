@@ -162,8 +162,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Django REST Framework Configuration
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'utils.authentication.FirebaseAuthentication',
         'utils.authentication.APIKeyAuthentication',
+        'utils.authentication.FirebaseAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (

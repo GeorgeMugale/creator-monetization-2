@@ -159,8 +159,8 @@ AUTH_USER_MODEL = 'customauth.CustomUser'
 # Django REST Framework Configuration
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'utils.authentication.FirebaseAuthentication',
         'utils.authentication.APIKeyAuthentication',
+        'utils.authentication.FirebaseAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
