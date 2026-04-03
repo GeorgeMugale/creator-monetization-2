@@ -210,19 +210,16 @@ const CreatorCatalog = () => {
                       {/* Image Container with high-end shadow */}
                       <div className="aspect-[4/5] overflow-hidden rounded-[2rem] bg-gray-100 relative shadow-[0_15px_35px_-10px_rgba(0,0,0,0.1)] transition-transform duration-500 group-hover:-translate-y-2">
                         {/* Cover Image as Background */}
-                        <div className="absolute inset-0">
-                          {creator.coverImage ? (
+                        <div className="absolute inset-0 bg-gradient-to-br from-zed-green to-zed-orange">
+                          {creator.coverImage && (
                             <img
                               src={creator.coverImage}
                               alt="Cover"
                               className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-700"
                               onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.src = "https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=1200&auto=format&fit=crop";
+                                e.target.style.opacity = 0;
                               }}
                             />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-gray-50 to-gray-200" />
                           )}
                         </div>
 
@@ -266,10 +263,7 @@ const CreatorCatalog = () => {
                         <p className="text-gray-500 text-sm mb-4 line-clamp-2">
                           {creator.bio || "No bio available."}
                         </p>
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11px] font-black uppercase tracking-widest text-zed-green bg-zed-green/10 px-2 py-1 rounded">
-                            {creator.followersCount || 0} Supporters
-                          </span>
+                        <div className="flex items-center justify-end">
                           <ArrowRight
                             size={18}
                             className="text-gray-300 group-hover:text-zed-green group-hover:translate-x-1 transition-all"

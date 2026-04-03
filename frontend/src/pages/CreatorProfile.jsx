@@ -25,6 +25,7 @@ const getName = (creator) =>
 
 const CreatorProfile = () => {
   const [isSupportOpen, setIsSupportOpen] = useState(false);
+  const [isFansClubOpen, setIsFansClubOpen] = useState(false);
   const { slug } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -210,7 +211,7 @@ const CreatorProfile = () => {
       />
       <div className="min-h-screen bg-white">
         {/* Cover Image Section */}
-        <div className="h-64 md:h-80 w-full bg-gray-100 relative overflow-hidden">
+        <div className="h-64 md:h-80 w-full bg-gradient-to-br from-zed-green to-zed-orange relative overflow-hidden">
           <button
             onClick={() => navigate("/creator-catalog")}
             className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20 p-2.5 bg-white/70 hover:bg-white backdrop-blur-md text-gray-800 rounded-full shadow-lg transition-all active:scale-95 group"
@@ -221,15 +222,16 @@ const CreatorProfile = () => {
               className="group-hover:-translate-x-0.5 transition-transform"
             />
           </button>
-          <img
-            src={creator.coverImage || `https://picsum.photos/seed/${creator.id || slug}/1200/400?blur=2`}
-            alt="Cover"
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = "https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=1200&auto=format&fit=crop"; // Fallback to a nice gradient image
-            }}
-          />
+          {creator.coverImage && (
+            <img
+              src={creator.coverImage}
+              alt="Cover"
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.target.style.opacity = 0;
+              }}
+            />
+          )}
         </div>
 
         <main className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10 -mt-24 pb-20">
@@ -256,7 +258,7 @@ const CreatorProfile = () => {
               )}
             </div>
 
-            <div className="flex-1 pb-2">
+            <div className="flex-1 pb-2 bg-white/80 backdrop-blur-md p-4 rounded-3xl shadow-sm border border-white/20">
               <div className="flex flex-wrap items-center gap-3 mb-1">
                 <h1 className="text-4xl font-black text-gray-900 tracking-tight">
                   {getName(creator)}
@@ -269,7 +271,7 @@ const CreatorProfile = () => {
                 )}
               </div>
               <p className="text-lg text-gray-500 font-medium mb-2">
-                @{creator.user?.name || creator.name}
+                @{creator.user?.slug || creator.user.username}
               </p>
 
               {/* Social Links */}
@@ -343,13 +345,6 @@ const CreatorProfile = () => {
                     <span className="text-gray-400">Supporters</span>
                   </div>
                 )}
-                {creator.rating > 0 && (
-                  <div className="flex items-center gap-1.5 text-gray-700">
-                    <Star size={18} className="text-zed-orange" />
-                    <span className="font-bold">{creator.rating || 0}</span>
-                    <span className="text-gray-400">Rating</span>
-                  </div>
-                )}
                 <div className="flex items-center gap-1.5 text-gray-700">
                   <Calendar size={18} className="text-gray-400" />
                   <span className="text-gray-400">
@@ -378,19 +373,19 @@ const CreatorProfile = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             {/* Left Side: About & Feed */}
             <div className="lg:col-span-8 space-y-12">
-              {/* Support Button - Moved here */}
-              <div className="bg-zed-green/5 border-2 border-zed-green/20 rounded-[2rem] p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+              {/* Support Button - Primary Focus */}
+              <div className="bg-zed-green/5 border-2 border-zed-green/20 rounded-[2rem] p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
                 <div className="text-center sm:text-left">
-                  <h3 className="text-xl font-black text-gray-900">
+                  <h3 className="text-2xl font-black text-gray-900 mb-1">
                     Support {getName(creator).split(" ")[0]}
                   </h3>
-                  <p className="text-gray-500 text-sm">
+                  <p className="text-gray-500">
                     Direct support helps me keep creating.
                   </p>
                 </div>
                 <button
                   onClick={() => setIsSupportOpen(true)}
-                  className="whitespace-nowrap bg-zed-green text-white px-10 py-4 rounded-2xl font-black text-lg shadow-lg shadow-green-200 hover:bg-green-600 hover:-translate-y-1 transition-all active:scale-95"
+                  className="whitespace-nowrap bg-zed-green text-white px-12 py-4 rounded-2xl font-black text-xl shadow-lg shadow-green-200 hover:bg-green-600 hover:-translate-y-1 transition-all active:scale-95"
                 >
                   Support
                 </button>
@@ -407,14 +402,21 @@ const CreatorProfile = () => {
               </section>
 
               <section>
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-black text-gray-900 uppercase tracking-widest text-xs">
-                    Latest Activity
-                  </h2>
-                </div>
-                <div className="aspect-video w-full rounded-[2rem] bg-gray-50 border-2 border-dashed border-gray-100 flex flex-col items-center justify-center text-gray-400">
-                  <p className="font-bold">Exclusive feed coming soon</p>
-                  <p className="text-xs">Follow to stay updated</p>
+                <div className="bg-zed-orange/5 border-2 border-zed-orange/20 rounded-[2rem] p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+                  <div className="text-center sm:text-left">
+                    <h3 className="text-xl font-black text-gray-900 mb-1">
+                      Join Fans Club
+                    </h3>
+                    <p className="text-gray-500 text-sm">
+                      Get exclusive content and perks.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setIsFansClubOpen(true)}
+                    className="whitespace-nowrap bg-zed-orange text-white px-8 py-3.5 rounded-2xl font-black text-lg shadow-lg shadow-orange-200 hover:bg-orange-600 hover:-translate-y-1 transition-all active:scale-95"
+                  >
+                    Join Now
+                  </button>
                 </div>
               </section>
             </div>
@@ -455,8 +457,7 @@ const CreatorProfile = () => {
                 {/* Secondary info card */}
                 <div className="px-8 text-center">
                   <p className="text-xs text-gray-400 font-medium">
-                    100% of your support goes directly to the creator (minus
-                    processing fees).
+                    100% of your support goes directly to the creator.
                   </p>
                 </div>
               </div>
@@ -486,6 +487,27 @@ const CreatorProfile = () => {
           onClose={() => setIsSupportOpen(false)}
           creator={creator}
         />
+
+        {/* Fans Club Modal */}
+        {isFansClubOpen && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div className="bg-white rounded-[2.5rem] p-10 max-w-md w-full text-center shadow-2xl animate-in zoom-in-95 duration-300">
+              <div className="w-20 h-20 bg-zed-orange/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Star size={40} className="text-zed-orange" />
+              </div>
+              <h3 className="text-2xl font-black text-gray-900 mb-2">Fans Club</h3>
+              <p className="text-gray-500 mb-8">
+                Exclusive content, early access, and special perks are coming soon! Stay tuned.
+              </p>
+              <button
+                onClick={() => setIsFansClubOpen(false)}
+                className="w-full bg-zed-orange text-white py-4 rounded-2xl font-black text-lg shadow-lg shadow-orange-100 hover:bg-orange-600 transition-all active:scale-95"
+              >
+                Got it!
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
