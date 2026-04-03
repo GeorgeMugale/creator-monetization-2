@@ -335,7 +335,7 @@ const CreatorProfile = () => {
               </div>
 
               {/* Cleaner Stats Row */}
-              <div className="flex flex-wrap gap-6 text-sm">
+              <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-sm">
                 {creator.followersCount > 0 && (
                   <div className="flex items-center gap-1.5 text-gray-700">
                     <Users size={18} className="text-zed-green" />
@@ -351,6 +351,17 @@ const CreatorProfile = () => {
                     Joined {new Date(creator.user?.dateJoined || creator.dateJoined || Date.now()).getFullYear()}
                   </span>
                 </div>
+              </div>
+
+              {/* Mobile-only Primary Support Button - High Prominence */}
+              <div className="md:hidden mt-6">
+                <button
+                  onClick={() => setIsSupportOpen(true)}
+                  className="w-full bg-zed-green text-white py-4 rounded-2xl font-black text-xl shadow-lg shadow-green-100 active:scale-95 transition-all flex items-center justify-center gap-2"
+                >
+                  <Star size={20} className="fill-white" />
+                  Support Now
+                </button>
               </div>
             </div>
 
@@ -372,48 +383,57 @@ const CreatorProfile = () => {
           {/* Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             {/* Left Side: About & Feed */}
-            <div className="lg:col-span-8 space-y-12">
-              {/* Support Button - Primary Focus */}
-              <div className="bg-zed-green/5 border-2 border-zed-green/20 rounded-[2rem] p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
-                <div className="text-center sm:text-left">
-                  <h3 className="text-2xl font-black text-gray-900 mb-1">
-                    Support {getName(creator).split(" ")[0]}
+            <div className="lg:col-span-8 space-y-8 sm:space-y-12">
+              {/* Support Button - Primary Focus Hero Section (Hidden on mobile as we have it in header) */}
+              <div className="hidden md:flex bg-zed-green text-white rounded-[2.5rem] p-10 flex-col items-center text-center gap-8 shadow-2xl shadow-green-100 relative overflow-hidden group">
+                {/* Decorative elements */}
+                <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-24 -mt-24 blur-3xl group-hover:scale-125 transition-transform duration-1000" />
+                <div className="absolute bottom-0 left-0 w-32 h-32 bg-black/5 rounded-full -ml-16 -mb-16 blur-2xl" />
+                
+                <div className="relative z-10 space-y-3">
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-[0.2em]">
+                    <Star size={12} className="fill-white" />
+                    Support the Creator
+                  </div>
+                  <h3 className="text-3xl sm:text-4xl font-black tracking-tight">
+                    Support {getName(creator)}
                   </h3>
-                  <p className="text-gray-500">
-                    Direct support helps me keep creating.
+                  <p className="text-green-50 opacity-90 max-w-md mx-auto text-lg leading-relaxed">
+                    Direct support empowers my creative journey and helps me bring more content to life.
                   </p>
                 </div>
+                
                 <button
                   onClick={() => setIsSupportOpen(true)}
-                  className="whitespace-nowrap bg-zed-green text-white px-12 py-4 rounded-2xl font-black text-xl shadow-lg shadow-green-200 hover:bg-green-600 hover:-translate-y-1 transition-all active:scale-95"
+                  className="relative z-10 w-full sm:w-auto bg-white text-zed-green px-16 py-5 rounded-2xl font-black text-2xl shadow-xl hover:bg-gray-50 hover:-translate-y-1 transition-all active:scale-95"
                 >
-                  Support
+                  Support Now
                 </button>
               </div>
 
-              <section>
-                <h2 className="text-xl font-black text-gray-900 mb-4 flex items-center gap-2 uppercase tracking-widest text-xs">
+              <section className="bg-gray-50/50 rounded-[2.5rem] p-6 sm:p-10">
+                <h2 className="text-xl font-black text-gray-900 mb-4 sm:mb-6 flex items-center gap-2 uppercase tracking-widest text-xs">
                   <span className="w-8 h-[2px] bg-zed-green" />
                   About Creator
                 </h2>
-                <p className="text-gray-600 text-lg leading-relaxed whitespace-pre-wrap max-w-3xl">
+                <p className="text-gray-600 text-base sm:text-lg leading-relaxed whitespace-pre-wrap">
                   {creator.bio || `${getName(creator)} hasn't added a bio yet.`}
                 </p>
               </section>
 
               <section>
-                <div className="bg-zed-orange/5 border-2 border-zed-orange/20 rounded-[2rem] p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
-                  <div className="text-center sm:text-left">
-                    <h3 className="text-xl font-black text-gray-900 mb-1">
+                <div className="bg-zed-orange/5 border-2 border-zed-orange/20 rounded-[2.5rem] p-6 sm:p-10 flex flex-col sm:flex-row items-center justify-between gap-6 sm:gap-8">
+                  <div className="text-center sm:text-left space-y-1">
+                    <h3 className="text-xl sm:text-2xl font-black text-gray-900">
                       Join Fans Club
                     </h3>
-                    <p className="text-gray-500 text-sm">
-                      Get exclusive content and perks.
+                    <p className="text-gray-500 text-sm sm:text-base">
+                      Get exclusive content and special perks.
                     </p>
                   </div>
                   <button
                     onClick={() => setIsFansClubOpen(true)}
-                    className="whitespace-nowrap bg-zed-orange text-white px-8 py-3.5 rounded-2xl font-black text-lg shadow-lg shadow-orange-200 hover:bg-orange-600 hover:-translate-y-1 transition-all active:scale-95"
+                    className="w-full sm:w-auto whitespace-nowrap bg-zed-orange text-white px-8 sm:px-10 py-3.5 sm:py-4 rounded-2xl font-black text-lg sm:text-xl shadow-lg shadow-orange-200 hover:bg-orange-600 hover:-translate-y-1 transition-all active:scale-95"
                   >
                     Join Now
                   </button>
@@ -508,6 +528,23 @@ const CreatorProfile = () => {
             </div>
           </div>
         )}
+
+        {/* Sticky Mobile Support Bar */}
+        <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-xl border-t border-gray-100 z-[90] flex items-center gap-3 shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.1)] animate-in slide-in-from-bottom duration-500">
+          <button
+            onClick={() => setIsSupportOpen(true)}
+            className="flex-1 bg-zed-green text-white py-4 rounded-2xl font-black text-lg shadow-lg shadow-green-100 active:scale-95 transition-all"
+          >
+            Support {getName(creator).split(" ")[0]}
+          </button>
+          <button
+            onClick={handleShare}
+            className="p-4 rounded-2xl bg-gray-100 text-gray-500 active:scale-95 transition-all"
+            title="Share"
+          >
+            <Share2 size={24} />
+          </button>
+        </div>
       </div>
     </>
   );
