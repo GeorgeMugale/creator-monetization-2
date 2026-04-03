@@ -127,7 +127,7 @@ class PaymentAdmin(admin.ModelAdmin):
         ),
         (
             "Timing",
-            {"fields": ("created_at", "updated_at", "completed_at", "captured_at")},
+            {"fields": ("created_at", "updated_at", "completed_at")},
         ),
         (
             "Metadata",
