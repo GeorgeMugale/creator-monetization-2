@@ -7,10 +7,40 @@ from apps.customauth.models import APIClient
 from apps.creators.models import CreatorProfile
 from apps.payments.models import Payment, PaymentStatus
 from apps.payments.models import PaymentWebhookLog as WebHook
-from apps.wallets.models import PaymentAttempt, Refund, Wallet, WalletTransaction
+from apps.wallets.models import (
+    PaymentAttempt, Refund, Wallet,
+    WalletTransaction, WalletPayoutAccount)
 
 User = get_user_model()
 
+
+class WalletPayoutAccountAdmin(admin.ModelAdmin):
+    list_display = (
+        "provider",
+        "account_name",
+        "wallet",
+        "phone_number",
+        "verified",
+        "created_at",
+        "updated_at",
+    )
+    list_filter = ("provider", "verified", "created_at")
+    search_fields = (
+        "account_name",
+        "phone_number",
+        "wallet__creator__user__email",
+        "wallet__creator__user__username",
+    )
+    readonly_fields = ("created_at", "updated_at")
+    actions = ["verify_payout_account"]
+
+    @admin.action(description="Verify selected payout accounts")
+    def verify_payout_account(self, request, queryset):
+        """Admin action to verify payout accounts."""
+        count = queryset.update(verified=True)
+        self.message_user(request, f"Verified {count} payout accounts.")
+
+       
 
 class WebHookAdmin(admin.ModelAdmin):
     list_display = (
@@ -356,6 +386,7 @@ admin.site.register(WebHook, WebHookAdmin)
 admin.site.register(CreatorProfile, CreatorProfileAdmin)
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(APIClient, APIClientAdmin)
+admin.site.register(WalletPayoutAccount, WalletPayoutAccountAdmin)
 
 # Update the admin site header and titles
 admin.site.site_header = "TipZed Admin"
