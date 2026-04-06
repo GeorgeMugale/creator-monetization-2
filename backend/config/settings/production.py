@@ -234,7 +234,7 @@ SPECTACULAR_SETTINGS = {
         'utils.hooks.capitalize_operation_hook',
     ],
     'SERVE_PERMISSIONS': ['rest_framework.permissions.AllowAny'],
-    'SERVERS': [{'url': 'https://123f-41-216-82-30.ngrok-free.app/api'}],
+    'SERVERS': [{'url': 'https://backend.tipzed.space/api'}],
 }
 
 PAWAPAY_BASE_URL = env(
