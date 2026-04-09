@@ -292,7 +292,7 @@ class CustomUserAdmin(BaseUserAdmin):
             None,
             {
                 "classes": ("wide",),
-                "fields": ("email", "username", "password1", "password2"),
+                "fields": ("email", "username", "user_type", "password1", "password2"),
             },
         ),
     )
