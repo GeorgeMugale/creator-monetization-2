@@ -244,3 +244,5 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
+# set default from email to the same as host user
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
