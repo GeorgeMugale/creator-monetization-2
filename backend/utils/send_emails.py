@@ -425,3 +425,172 @@ TipZed Team
         logger.error(f"Failed to send summary email for wallet {wallet.id}: {str(e)}")
         return False
 
+
+def send_welcome_email(user):
+    """
+    Send a welcome email to a newly signed up creator.
+    
+    Sent when a creator account is created, welcoming them to the platform
+    and providing getting started information.
+    
+    Args:
+        user (CustomUser): The newly created creator user object
+        
+    Returns:
+        bool: True if email sent successfully, False otherwise
+    """
+    try:
+        subject = "Welcome to TipZed! 🎉 Let's Get You Started"
+        
+        # Plain text version
+        message = f"""
+Hello {user.first_name or user.username},
+
+Welcome to TipZed! We're thrilled to have you join our creative community.
+
+You're now part of a platform where your supporters can easily send you tips
+to show their appreciation for the amazing content you create.
+
+Getting Started:
+1. Complete Your Creator Profile
+   - Add a profile picture and cover image
+   - Write a bio describing what you do
+   - Select your content categories
+
+2. Set Up Your Wallet
+   - Link your mobile money account (MTN, Airtel, Zamtel)
+   - Enable automatic payouts if desired
+   - Track your earnings in real-time
+
+3. Share Your Creator Link
+   - Promote your unique creator page to your audience
+   - Each tip supports your creative work directly
+   - Engage with your supporters and thank them
+
+Tips for Success:
+- Keep your profile up to date
+- Respond to your supporters' messages
+- Create consistent, quality content
+- Share your earnings milestones to celebrate with your community
+
+If you have any questions or need assistance, our support team is here to help.
+Don't hesitate to reach out!
+
+Happy creating!
+
+Best regards,
+The TipZed Team
+        """
+        
+        # HTML version
+        html_message = f"""
+<html>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        <div style="max-width: 700px; margin: 0 auto; padding: 0;">
+            <!-- Header -->
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center; color: white; border-radius: 8px 8px 0 0;">
+                <h1 style="margin: 0; font-size: 28px;">🎉 Welcome to TipZed!</h1>
+                <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Your creative journey starts here</p>
+            </div>
+            
+            <!-- Main Content -->
+            <div style="background-color: #fff; padding: 40px 20px; border: 1px solid #e0e0e0; border-top: none;">
+                <p>Hello {user.first_name or user.username},</p>
+                
+                <p style="font-size: 16px; color: #666;">
+                    Welcome to TipZed! We're thrilled to have you join our creative community.
+                </p>
+                
+                <p style="font-size: 16px; color: #666;">
+                    You're now part of a platform where your supporters can easily send you tips
+                    to show their appreciation for the amazing content you create.
+                </p>
+                
+                <!-- Getting Started Section -->
+                <h2 style="color: #667eea; margin-top: 30px; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+                    Getting Started
+                </h2>
+                
+                <div style="margin: 20px 0;">
+                    <div style="background-color: #f9f9f9; padding: 15px; margin-bottom: 15px; border-left: 4px solid #667eea; border-radius: 4px;">
+                        <h3 style="margin: 0 0 8px 0; color: #667eea;">1. Complete Your Creator Profile</h3>
+                        <ul style="margin: 8px 0; color: #666;">
+                            <li>Add a profile picture and cover image</li>
+                            <li>Write a bio describing what you do</li>
+                            <li>Select your content categories</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background-color: #f9f9f9; padding: 15px; margin-bottom: 15px; border-left: 4px solid #667eea; border-radius: 4px;">
+                        <h3 style="margin: 0 0 8px 0; color: #667eea;">2. Set Up Your Wallet</h3>
+                        <ul style="margin: 8px 0; color: #666;">
+                            <li>Link your mobile money account (MTN, Airtel, Zamtel)</li>
+                            <li>Enable automatic payouts if desired</li>
+                            <li>Track your earnings in real-time</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #667eea; border-radius: 4px;">
+                        <h3 style="margin: 0 0 8px 0; color: #667eea;">3. Share Your Creator Link</h3>
+                        <ul style="margin: 8px 0; color: #666;">
+                            <li>Promote your unique creator page to your audience</li>
+                            <li>Each tip supports your creative work directly</li>
+                            <li>Engage with your supporters and thank them</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Tips Section -->
+                <div style="background-color: #f0f7ff; padding: 20px; border-radius: 8px; margin: 30px 0;">
+                    <h3 style="margin-top: 0; color: #667eea;">💡 Tips for Success</h3>
+                    <ul style="margin: 10px 0; color: #666; padding-left: 20px;">
+                        <li>Keep your profile up to date</li>
+                        <li>Respond to your supporters' messages</li>
+                        <li>Create consistent, quality content</li>
+                        <li>Share your earnings milestones to celebrate with your community</li>
+                    </ul>
+                </div>
+                
+                <!-- Support Section -->
+                <div style="background-color: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;">
+                    <p style="margin: 0; color: #856404;">
+                        <strong>Need Help?</strong> If you have any questions or need assistance, our support team is here to help.
+                        Don't hesitate to reach out!
+                    </p>
+                </div>
+                
+                <p style="margin-top: 30px; text-align: center; color: #999; font-size: 14px;">
+                    <strong>Happy creating!</strong>
+                </p>
+            </div>
+            
+            <!-- Footer -->
+            <div style="background-color: #f5f5f5; padding: 20px; text-align: center; color: #666; font-size: 13px; border-radius: 0 0 8px 8px; border: 1px solid #e0e0e0; border-top: none;">
+                <p style="margin: 0;">
+                    Best regards,<br>
+                    <strong>The TipZed Team</strong>
+                </p>
+                <p style="margin: 10px 0 0 0; color: #999;">
+                    TipZed - Empower Creators, Support Creativity
+                </p>
+            </div>
+        </div>
+    </body>
+</html>
+        """
+        
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL or 'noreply@tipzed.space',
+            recipient_list=[user.email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+        logger.info(f"Successfully sent welcome email to {user.email}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Failed to send welcome email for user {user.id}: {str(e)}")
+        return False
+

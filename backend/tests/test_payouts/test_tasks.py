@@ -3,7 +3,6 @@ from apps.wallets.models import Wallet
 from apps.wallets.services.wallet_services import WalletTransactionService as WalletTxnService
 import pytest
 from decimal import Decimal
-from tests.conftest import user_factory
 from tests.factories import UserFactory
 
 

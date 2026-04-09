@@ -2,6 +2,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth import get_user_model
 from apps.creators.models import CreatorProfile
+from apps.creators.tasks import send_welcome_email_task
 
 User = get_user_model()
 
@@ -10,6 +11,8 @@ def create_creator_profile(sender, instance, created, **kwargs):
     """Create a CreatorProfile when a User with user_type 'creator' is created."""
     if created and instance.user_type == 'creator':
         CreatorProfile.objects.get_or_create(user=instance)
+        # Send welcome email asynchronously
+        send_welcome_email_task.delay(instance.id)
 
 
 @receiver(post_save, sender=User)

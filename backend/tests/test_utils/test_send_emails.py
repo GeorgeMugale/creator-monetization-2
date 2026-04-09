@@ -2,23 +2,19 @@
 Tests for email sending utility functions in utils/send_emails.py
 """
 import pytest
-from django.core.mail import send_mail
 from django.utils import timezone
 from datetime import timedelta
 from decimal import Decimal
-from unittest.mock import Mock, patch, call
 
 from django.conf import settings
 from utils.send_emails import (
     send_missing_payout_account_email,
     send_transaction_receipt_email,
     send_daily_weekly_summary_email,
+    send_welcome_email,
 )
 from tests.factories import (
-    WalletFactory,
-    PaymentFactory,
     UserFactory,
-    CreatorProfileFactory,
     WalletTransactionFactory,
 )
 
@@ -622,3 +618,145 @@ class TestSendDailyWeeklySummaryEmail:
         subject = call_kwargs['subject']
         
         assert 'This Week' in subject
+
+
+@pytest.mark.django_db
+class TestSendWelcomeEmail:
+    """Tests for send_welcome_email function."""
+
+    def test_send_welcome_email_success(self, mocker):
+        """Test successful sending of welcome email to new creator."""
+        # Arrange
+        user = UserFactory(user_type='creator', first_name='Alex')
+        mock_send_mail = mocker.patch('utils.send_emails.send_mail')
+        
+        # Act
+        result = send_welcome_email(user)
+        
+        # Assert
+        assert result is True
+        mock_send_mail.assert_called_once()
+        call_kwargs = mock_send_mail.call_args[1]
+        
+        assert 'Welcome' in call_kwargs['subject']
+        assert 'TipZed' in call_kwargs['subject']
+        assert user.email in call_kwargs['recipient_list']
+        assert 'Hello Alex' in call_kwargs['message']
+        assert '<html>' in call_kwargs['html_message']
+
+    def test_send_welcome_email_includes_getting_started_info(self, mocker):
+        """Test that welcome email includes getting started instructions."""
+        # Arrange
+        user = UserFactory(user_type='creator')
+        mock_send_mail = mocker.patch('utils.send_emails.send_mail')
+        
+        # Act
+        send_welcome_email(user)
+        
+        # Assert
+        call_kwargs = mock_send_mail.call_args[1]
+        message = call_kwargs['message']
+        
+        assert 'Complete Your Creator Profile' in message
+        assert 'Set Up Your Wallet' in message
+        assert 'Share Your Creator Link' in message
+        assert 'MTN' in message or 'Airtel' in message or 'mobile money' in message.lower()
+
+    def test_send_welcome_email_includes_tips_for_success(self, mocker):
+        """Test that welcome email includes success tips."""
+        # Arrange
+        user = UserFactory(user_type='creator')
+        mock_send_mail = mocker.patch('utils.send_emails.send_mail')
+        
+        # Act
+        send_welcome_email(user)
+        
+        # Assert
+        call_kwargs = mock_send_mail.call_args[1]
+        message = call_kwargs['message']
+        
+        assert 'Tips for Success' in message
+        assert 'profile' in message.lower()
+        assert 'community' in message.lower()
+
+    def test_send_welcome_email_fallback_username(self, mocker):
+        """Test that welcome email uses username when first_name is empty."""
+        # Arrange
+        user = UserFactory(user_type='creator', first_name='', username='newcreator')
+        mock_send_mail = mocker.patch('utils.send_emails.send_mail')
+        
+        # Act
+        send_welcome_email(user)
+        
+        # Assert
+        call_kwargs = mock_send_mail.call_args[1]
+        message = call_kwargs['message']
+        
+        assert 'Hello newcreator' in message
+
+    def test_send_welcome_email_html_format(self, mocker):
+        """Test that HTML version is properly formatted with styling."""
+        # Arrange
+        user = UserFactory(user_type='creator')
+        mock_send_mail = mocker.patch('utils.send_emails.send_mail')
+        
+        # Act
+        send_welcome_email(user)
+        
+        # Assert
+        call_kwargs = mock_send_mail.call_args[1]
+        html_message = call_kwargs['html_message']
+        
+        assert '<html>' in html_message
+        assert 'Getting Started' in html_message
+        assert '#667eea' in html_message  # Brand color
+        assert 'TipZed' in html_message
+        assert 'gradient' in html_message  # Background gradient
+
+    def test_send_welcome_email_includes_support_info(self, mocker):
+        """Test that welcome email includes support information."""
+        # Arrange
+        user = UserFactory(user_type='creator')
+        mock_send_mail = mocker.patch('utils.send_emails.send_mail')
+        
+        # Act
+        send_welcome_email(user)
+        
+        # Assert
+        call_kwargs = mock_send_mail.call_args[1]
+        message = call_kwargs['message']
+        
+        assert 'support' in message.lower()
+
+    def test_send_welcome_email_exception_handling(self, mocker):
+        """Test exception handling during welcome email send."""
+        # Arrange
+        user = UserFactory(user_type='creator')
+        mock_send_mail = mocker.patch(
+            'utils.send_emails.send_mail',
+            side_effect=Exception("Email service error")
+        )
+        mock_logger = mocker.patch('utils.send_emails.logger')
+        
+        # Act
+        result = send_welcome_email(user)
+        
+        # Assert
+        assert result is False
+        mock_logger.error.assert_called_once()
+        assert 'Failed to send welcome email' in mock_logger.error.call_args[0][0]
+
+    def test_send_welcome_email_uses_correct_from_email(self, mocker):
+        """Test that welcome email uses configured FROM email."""
+        # Arrange
+        user = UserFactory(user_type='creator')
+        mock_send_mail = mocker.patch('utils.send_emails.send_mail')
+        
+        # Act
+        send_welcome_email(user)
+        
+        # Assert
+        call_kwargs = mock_send_mail.call_args[1]
+        from_email = call_kwargs['from_email']
+        
+        assert from_email == settings.DEFAULT_FROM_EMAIL
