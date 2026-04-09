@@ -6,7 +6,7 @@
  and tipzed summary of total (creators, tips, total amount process etc)
   {% endcomment %}
   <div class="user-tools">
-    <a href="#"> Payout Summary / </a>
-    <a href="#"> Stats</a>
+    <a href="{% url 'payouts:payout_summary' %}">Payout Summary / </a>
+    <a href="{% url 'payouts:stats' %}">Stats</a>
   </div>
 {% endblock %}

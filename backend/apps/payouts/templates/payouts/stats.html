@@ -1,0 +1,166 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+{% load custom_filters %}
+
+{% block title %}Platform Statistics{% endblock %}
+
+{% block content %}
+<h1>Platform Statistics</h1>
+
+<style>
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+    
+    .stat-card {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 20px;
+        background-color: #f9f9f9;
+    }
+    
+    .stat-card h3 {
+        margin-top: 0;
+        color: #333;
+        font-size: 16px;
+        border-bottom: 3px solid #417690;
+        padding-bottom: 10px;
+    }
+    
+    .stat-value {
+        font-size: 32px;
+        font-weight: bold;
+        color: #417690;
+        margin: 10px 0 5px 0;
+    }
+    
+    .stat-label {
+        font-size: 12px;
+        color: #666;
+        margin: 5px 0;
+    }
+    
+    .section-title {
+        font-size: 20px;
+        font-weight: bold;
+        color: #333;
+        margin-top: 40px;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #417690;
+        padding-bottom: 10px;
+    }
+    
+    .currency {
+        color: #079e04;
+        font-weight: bold;
+    }
+</style>
+
+<!-- Creator Statistics -->
+<div class="section-title">Creator Statistics</div>
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>Total Creators</h3>
+        <div class="stat-value">{{ total_creators }}</div>
+        <div class="stat-label">Registered creators</div>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Verified Creators</h3>
+        <div class="stat-value">{{ verified_creators }}</div>
+        <div class="stat-label">Verified wallets</div>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Active Creators</h3>
+        <div class="stat-value">{{ active_creators }}</div>
+        <div class="stat-label">Active wallets</div>
+    </div>
+</div>
+
+<!-- Wallet Statistics -->
+<div class="section-title">Wallet Statistics</div>
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>Total Wallets</h3>
+        <div class="stat-value">{{ total_wallets }}</div>
+        <div class="stat-label">Number of wallets</div>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Total Balance</h3>
+        <div class="stat-value currency">ZMW {{ total_balance|floatformat:2 }}</div>
+        <div class="stat-label">Across all wallets</div>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Average Balance</h3>
+        <div class="stat-value currency">ZMW {{ avg_balance|floatformat:2 }}</div>
+        <div class="stat-label">Per wallet</div>
+    </div>
+</div>
+
+<!-- Transaction Statistics (Last 30 Days) -->
+<div class="section-title">Transactions (Last 30 Days)</div>
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>Cash In Transactions</h3>
+        <div class="stat-value">{{ cash_in_count }}</div>
+        <div class="stat-label">Transactions</div>
+        <div class="stat-value currency">ZMW {{ cash_in_total|floatformat:2 }}</div>
+        <div class="stat-label">Total amount</div>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Payout Transactions</h3>
+        <div class="stat-value">{{ payout_count }}</div>
+        <div class="stat-label">Transactions</div>
+        <div class="stat-value currency">ZMW {{ payout_total|floatformat:2 }}</div>
+        <div class="stat-label">Total amount</div>
+    </div>
+</div>
+
+<!-- Payment Statistics -->
+<div class="section-title">Payment Statistics</div>
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>Total Payments</h3>
+        <div class="stat-value">{{ total_payments }}</div>
+        <div class="stat-label">Received</div>
+        <div class="stat-value currency">ZMW {{ total_payment_amount|floatformat:2 }}</div>
+        <div class="stat-label">Total amount</div>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Successful Payments</h3>
+        <div class="stat-value" style="color: #079e04;">{{ successful_payments }}</div>
+        <div class="stat-label">Completed</div>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Pending Payments</h3>
+        <div class="stat-value" style="color: #f57c00;">{{ pending_payments }}</div>
+        <div class="stat-label">Awaiting completion</div>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Failed Payments</h3>
+        <div class="stat-value" style="color: #d32f2f;">{{ failed_payments }}</div>
+        <div class="stat-label">Not processed</div>
+    </div>
+</div>
+
+<!-- Fee Statistics -->
+<div class="section-title">Fee Statistics</div>
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>Total Fees Collected</h3>
+        <div class="stat-value currency">ZMW {{ total_fees|floatformat:2 }}</div>
+        <div class="stat-label">Platform fees</div>
+    </div>
+</div>
+
+{% endblock %}
