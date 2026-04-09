@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   CheckCircle,
   AlertCircle,
@@ -5,7 +6,9 @@ import {
   Smartphone,
   Clock,
   Loader2,
+  MessageSquare,
 } from "lucide-react";
+import FeedbackModal from "../Common/FeedbackModal";
 
 const PaymentStatus = ({
   status,
@@ -16,6 +19,8 @@ const PaymentStatus = ({
   onVerify,
   onClose,
 }) => {
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+
   // PROCESSING STATE (Action Required)
   if (status === "PROCESSING") {
     return (
@@ -106,12 +111,29 @@ const PaymentStatus = ({
           Your tip of <span className="font-bold text-gray-900">K{amount}</span>{" "}
           has been confirmed.
         </p>
-        <button
-          onClick={onClose}
-          className="w-full bg-zed-black text-white py-3.5 rounded-xl font-bold hover:bg-gray-800"
-        >
-          Close
-        </button>
+        
+        <div className="flex flex-col gap-3">
+          <button
+            onClick={() => setIsFeedbackOpen(true)}
+            className="w-full bg-zed-green text-white py-3.5 rounded-xl font-bold hover:bg-green-700 flex items-center justify-center gap-2"
+          >
+            <MessageSquare size={18} />
+            Leave Feedback
+          </button>
+          
+          <button
+            onClick={onClose}
+            className="w-full bg-zed-black text-white py-3.5 rounded-xl font-bold hover:bg-gray-800"
+          >
+            Close
+          </button>
+        </div>
+
+        <FeedbackModal 
+          isOpen={isFeedbackOpen} 
+          onClose={() => setIsFeedbackOpen(false)} 
+          userRole="supporter"
+        />
       </div>
     );
   }
@@ -141,3 +163,4 @@ const PaymentStatus = ({
 };
 
 export default PaymentStatus;
+

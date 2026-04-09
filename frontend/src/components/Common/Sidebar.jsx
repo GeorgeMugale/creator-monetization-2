@@ -1,14 +1,17 @@
+import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { X, LogOut } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { useCreatorOnboarding } from "../../hooks/useCreatorOnboarding";
 import { menuItems } from "@/utils/creatorMenuItems";
+import FeedbackModal from "./FeedbackModal";
 
 const Sidebar = ({ onClose, showCloseButton = false, title = "TipZed" }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { logout, user } = useAuth();
   const { missingSteps } = useCreatorOnboarding(user);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -48,7 +51,18 @@ const Sidebar = ({ onClose, showCloseButton = false, title = "TipZed" }) => {
             (item.path === "/creator-dashboard/guide" &&
               missingSteps.length > 0);
 
-          return (
+          return item.isAction ? (
+            <button
+              key={item.label}
+              onClick={() => {
+                if (item.path === "#feedback") setIsFeedbackOpen(true);
+              }}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+            >
+              <item.icon size={18} strokeWidth={2} />
+              {item.label}
+            </button>
+          ) : (
             <Link
               key={item.path}
               to={item.path}
@@ -75,6 +89,12 @@ const Sidebar = ({ onClose, showCloseButton = false, title = "TipZed" }) => {
         })}
       </div>
 
+      <FeedbackModal 
+        isOpen={isFeedbackOpen} 
+        onClose={() => setIsFeedbackOpen(false)} 
+        userRole="creator"
+      />
+
       {/* Footer Section - Will now be pushed to the bottom */}
       <div className="p-4 border-t border-gray-50 mt-auto">
         <button
@@ -90,3 +110,4 @@ const Sidebar = ({ onClose, showCloseButton = false, title = "TipZed" }) => {
 };
 
 export default Sidebar;
+

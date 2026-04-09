@@ -11,11 +11,18 @@ service cloud.firestore {
     // Fields:
     //   - uid: string (required) - The unique identifier for the user.
     //   - email: string (required, email) - The user's email address.
-    //   - name: string (optional) - The user's name.
+    //   - name: string (required) - The user's name.
     //   - slug: string (optional) - The user's URL-friendly slug.
     //   - bio: string (optional) - The user's biography.
     //   - role: string (required, enum: ['admin', 'creator', 'guest', 'patron']) - The user's role.
     //   - createdAt: timestamp (required) - When the user profile was created.
+    //   - tiktok: string (optional) - TikTok URL.
+    //   - facebook: string (optional) - Facebook URL.
+    //   - website: string (optional) - Website URL.
+    //   - instagram: string (optional) - Instagram URL.
+    //   - twitter: string (optional) - Twitter URL.
+    //   - profileImage: string (optional) - Profile image URL.
+    //   - coverImage: string (optional) - Cover image URL.
     //
     // ===============================================================
 
@@ -53,15 +60,27 @@ service cloud.firestore {
     }
 
     function isValidUser(data) {
+      let allowedFields = [
+        'uid', 'email', 'name', 'slug', 'bio', 'role', 'createdAt',
+        'tiktok', 'facebook', 'website', 'instagram', 'twitter',
+        'profileImage', 'coverImage'
+      ];
       return data.keys().hasAll(['uid', 'email', 'name', 'role', 'createdAt']) &&
-             data.keys().hasOnly(['uid', 'email', 'name', 'slug', 'bio', 'role', 'createdAt']) &&
+             data.keys().hasOnly(allowedFields) &&
              data.uid is string && data.uid.size() > 0 &&
              data.email is string && isValidEmail(data.email) &&
              data.role in ['admin', 'creator', 'guest', 'patron'] &&
              data.createdAt is timestamp &&
              data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
              (data.slug == null || (data.slug is string && data.slug.size() < 100)) &&
-             (data.bio == null || (data.bio is string && data.bio.size() < 1000));
+             (data.bio == null || (data.bio is string && data.bio.size() < 1000)) &&
+             (data.tiktok == null || (data.tiktok is string && data.tiktok.size() < 200)) &&
+             (data.facebook == null || (data.facebook is string && data.facebook.size() < 200)) &&
+             (data.website == null || (data.website is string && data.website.size() < 200)) &&
+             (data.instagram == null || (data.instagram is string && data.instagram.size() < 200)) &&
+             (data.twitter == null || (data.twitter is string && data.twitter.size() < 200)) &&
+             (data.profileImage == null || (data.profileImage is string && data.profileImage.size() < 500)) &&
+             (data.coverImage == null || (data.coverImage is string && data.coverImage.size() < 500));
     }
 
     // ===============================================================
@@ -86,9 +105,25 @@ service cloud.firestore {
                       uidNotModified() || isAdmin();
     }
 
+    match /feedback/{feedbackId} {
+      // Feedback can only be read by admins
+      allow read: if isAdmin();
+      
+      // Anyone can create feedback (supporters might be anonymous)
+      allow create: if request.resource.data.userRole in ['creator', 'supporter'] &&
+                      request.resource.data.rating is number &&
+                      request.resource.data.rating >= 1 &&
+                      request.resource.data.rating <= 5 &&
+                      request.resource.data.suggestion is string &&
+                      request.resource.data.suggestion.size() > 0 &&
+                      request.resource.data.suggestion.size() < 2000 &&
+                      request.resource.data.createdAt is timestamp;
+    }
+
     // Default deny
     match /{path=**} {
       allow read, write: if false;
     }
   }
 }
+

@@ -2,6 +2,7 @@ import {
   ArrowRightLeft,
   Banknote,
   LayoutDashboard,
+  MessageSquare,
   PiggyBank,
   UserCog,
   UserPen,
@@ -43,6 +44,12 @@ export const menuItems = [
     icon: UserCog,
     label: "Guide",
     path: "/creator-dashboard/guide",
+  },
+  {
+    icon: MessageSquare,
+    label: "Talk to us",
+    path: "#feedback",
+    isAction: true,
   },
 ];
 

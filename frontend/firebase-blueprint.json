@@ -35,15 +35,74 @@
           "type": "string",
           "format": "date-time",
           "description": "When the user profile was created."
+        },
+        "tiktok": {
+          "type": "string",
+          "description": "The user's TikTok profile URL."
+        },
+        "facebook": {
+          "type": "string",
+          "description": "The user's Facebook profile URL."
+        },
+        "website": {
+          "type": "string",
+          "description": "The user's personal or business website URL."
+        },
+        "instagram": {
+          "type": "string",
+          "description": "The user's Instagram profile URL."
+        },
+        "twitter": {
+          "type": "string",
+          "description": "The user's Twitter profile URL."
         }
       },
       "required": ["uid", "name", "email", "role"]
+    },
+    "Feedback": {
+      "title": "Feedback",
+      "description": "Represents feedback from creators or supporters.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the feedback."
+        },
+        "userId": {
+          "type": "string",
+          "description": "The UID of the user leaving feedback (optional for anonymous supporters)."
+        },
+        "userRole": {
+          "type": "string",
+          "enum": ["creator", "supporter"],
+          "description": "The role of the person leaving feedback."
+        },
+        "rating": {
+          "type": "number",
+          "description": "Rating from 1 to 5."
+        },
+        "suggestion": {
+          "type": "string",
+          "description": "The feedback text or suggestion."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the feedback was submitted."
+        }
+      },
+      "required": ["userRole", "rating", "suggestion", "createdAt"]
     }
   },
   "firestore": {
     "/users/{userId}": {
       "schema": "UserProfile",
       "description": "Collection of user profiles."
+    },
+    "/feedback/{feedbackId}": {
+      "schema": "Feedback",
+      "description": "Collection of feedback from users."
     }
   }
 }
+

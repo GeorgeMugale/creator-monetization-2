@@ -7,12 +7,13 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Footer from "./components/Common/Footer";
 import Header from "./components/Common/Header";
 import CreatorDashboard from "./pages/CreatorDashboard";
+import Onboarding from "./pages/Onboarding";
 import ProtectedRoute from "./components/Auth/ProtectedRoute";
 import CreatorCatalog from "./pages/CreatorCatalog";
 import CreatorProfile from "./pages/CreatorProfile";
+import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import { menuItems } from "@/utils/creatorMenuItems";
-import AuthCallback from "./pages/AuthCallback";
 
 function App() {
   return (
@@ -30,11 +31,19 @@ function App() {
             {/* Public Facing Pages */}
             <Route path="/:slug" element={<CreatorProfile />} />
             <Route path="/creator-catalog" element={<CreatorCatalog />} />
+            <Route path="/contact" element={<Contact />} />
 
             {/* Auth Pages */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Signup />} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route 
+              path="/onboarding" 
+              element={
+                <ProtectedRoute>
+                  <Onboarding />
+                </ProtectedRoute>
+              } 
+            />
 
             {/* Legal Pages */}
             <Route path="/terms-of-service" element={<TermsOfService />} />
@@ -65,3 +74,4 @@ function App() {
 }
 
 export default App;
+
