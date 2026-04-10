@@ -4,7 +4,8 @@ Handles async operations like sending welcome emails to new creators.
 """
 from celery import shared_task
 from django.contrib.auth import get_user_model
-from utils.send_emails import send_welcome_email
+from apps.wallets.models import Wallet
+from utils.send_emails import send_welcome_email, send_daily_weekly_summary_email
 import logging
 
 
@@ -51,3 +52,21 @@ def send_welcome_email_task(user_id):
     except Exception as e:
         logger.error(f"Error in send_welcome_email_task for user {user_id}: {str(e)}")
         raise
+
+
+# Schedule task to send send_daily_weekly_summary_email to creators every day at 8 AM
+from celery.schedules import crontab
+from config.celery import app
+@app.on_after_finalize.connect
+def setup_periodic_tasks(sender, **kwargs):
+    """Schedule the daily summary email task to run every day at 7:30 AM for
+    every wallet with balance.
+    Fetch all wallets and check if they have balance, then send the email to the associated creator.
+    """
+    wallets = Wallet.objects.filter(balance__gt=0)
+    for wallet in wallets:
+        sender.add_periodic_task(
+            crontab(hour=7, minute=30), # Adjust the time as needed
+            send_daily_weekly_summary_email(wallet),
+            name='Send daily summary email to creators with balance'
+        )

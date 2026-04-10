@@ -490,7 +490,7 @@ The TipZed Team
             <!-- Header -->
             <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center; color: white; border-radius: 8px 8px 0 0;">
                 <h1 style="margin: 0; font-size: 28px;">🎉 Welcome to TipZed!</h1>
-                <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Your creative journey starts here</p>
+                <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Earning Made Easy</p>
             </div>
             
             <!-- Main Content -->
