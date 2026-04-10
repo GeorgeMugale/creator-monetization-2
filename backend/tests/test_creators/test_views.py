@@ -285,6 +285,11 @@ class TestPublicCreatorProfile:
         users = UserFactory.create_batch(3)
         profiles = [user.creator_profile for user in users]
 
+        for profile in profiles:
+            # verify profiles for them to be included in the response
+            profile.verified = True
+            profile.save()
+       
         url = reverse("creators:creator_profiles_list")
 
         response = api_client.get(url)
@@ -292,9 +297,9 @@ class TestPublicCreatorProfile:
         assert response.status_code == 200
         content = response.content.decode()
         for profile in profiles:
-            assert profile.user.first_name in content
-            assert profile.user.last_name in content
-            assert "bio" in content
+            assert "status" in content
+            assert "data" in content
+            assert profile.user.username in content
 
     def test_creator_public_view(self, api_client, user_factory):
         """Test the public view of a creator profile."""
