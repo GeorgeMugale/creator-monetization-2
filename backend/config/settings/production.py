@@ -241,28 +241,6 @@ PAWAPAY_BASE_URL = env(
     "PAWAPAY_BASE_URL", default="https://api.sandbox.pawapay.io")
 PAWAPAY_API_KEY = env("PAWAPAY_API_KEY", default="")
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'level': 'INFO',  # Use 'DEBUG' for more verbosity, 'INFO' is standard for production
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'INFO',  # Ensure this is low enough to catch errors
-            'propagate': True,
-        },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
-    },
-}
-
 # Configure Gmail Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -286,7 +264,7 @@ CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60  # 30 minutes
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
-# Configuer Logging to capture errors and important info in production
+# Configure Logging to capture errors and important info in production
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
