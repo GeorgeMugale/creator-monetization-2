@@ -252,7 +252,16 @@ def stats(request):
     pending_payments = Payment.objects.filter(status="pending").count()
     failed_payments = Payment.objects.filter(status="failed").count()
     
-    total_payment_amount = Payment.objects.aggregate(
+    # Only sum completed payments for total amount
+    total_payment_amount = Payment.objects.filter(status="completed").aggregate(
+        Sum("amount")
+    )["amount__sum"] or 0
+
+    total_failed_amount = Payment.objects.filter(status="failed").aggregate(
+        Sum("amount")
+    )["amount__sum"] or 0
+
+    total_pending_amount = Payment.objects.filter(status="pending").aggregate(
         Sum("amount")
     )["amount__sum"] or 0
     
@@ -277,6 +286,8 @@ def stats(request):
         "pending_payments": pending_payments,
         "failed_payments": failed_payments,
         "total_payment_amount": total_payment_amount,
+        "total_pending_amount": total_pending_amount,
+        "total_failed_amount": total_failed_amount,
         "total_fees": total_fees,
     }
     

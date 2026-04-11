@@ -53,8 +53,16 @@
         padding-bottom: 10px;
     }
     
-    .currency {
+    .s-currency {
         color: #079e04;
+        font-weight: bold;
+    }
+    .p-currency {
+        color: #f57c00;
+        font-weight: bold;
+    }
+    .f-currency {
+        color: #d32f2f;
         font-weight: bold;
     }
 </style>
@@ -92,13 +100,13 @@
     
     <div class="stat-card">
         <h3>Total Balance</h3>
-        <div class="stat-value currency">ZMW {{ total_balance|floatformat:2 }}</div>
+        <div class="stat-value s-currency">ZMW {{ total_balance|floatformat:2 }}</div>
         <div class="stat-label">Across all wallets</div>
     </div>
     
     <div class="stat-card">
         <h3>Average Balance</h3>
-        <div class="stat-value currency">ZMW {{ avg_balance|floatformat:2 }}</div>
+        <div class="stat-value s-currency">ZMW {{ avg_balance|floatformat:2 }}</div>
         <div class="stat-label">Per wallet</div>
     </div>
 </div>
@@ -110,7 +118,7 @@
         <h3>Cash In Transactions</h3>
         <div class="stat-value">{{ cash_in_count }}</div>
         <div class="stat-label">Transactions</div>
-        <div class="stat-value currency">ZMW {{ cash_in_total|floatformat:2 }}</div>
+        <div class="stat-value s-currency">ZMW {{ cash_in_total|floatformat:2 }}</div>
         <div class="stat-label">Total amount</div>
     </div>
     
@@ -118,7 +126,7 @@
         <h3>Payout Transactions</h3>
         <div class="stat-value">{{ payout_count }}</div>
         <div class="stat-label">Transactions</div>
-        <div class="stat-value currency">ZMW {{ payout_total|floatformat:2 }}</div>
+        <div class="stat-value s-currency">ZMW {{ payout_total|floatformat:2 }}</div>
         <div class="stat-label">Total amount</div>
     </div>
 </div>
@@ -130,26 +138,30 @@
         <h3>Total Payments</h3>
         <div class="stat-value">{{ total_payments }}</div>
         <div class="stat-label">Received</div>
-        <div class="stat-value currency">ZMW {{ total_payment_amount|floatformat:2 }}</div>
-        <div class="stat-label">Total amount</div>
     </div>
     
     <div class="stat-card">
         <h3>Successful Payments</h3>
         <div class="stat-value" style="color: #079e04;">{{ successful_payments }}</div>
         <div class="stat-label">Completed</div>
+        <div class="stat-value s-currency">ZMW {{ total_payment_amount|floatformat:2 }}</div>
+        <div class="stat-label">Total amount</div>
     </div>
     
     <div class="stat-card">
         <h3>Pending Payments</h3>
         <div class="stat-value" style="color: #f57c00;">{{ pending_payments }}</div>
         <div class="stat-label">Awaiting completion</div>
+        <div class="stat-value p-currency">ZMW {{ total_pending_amount|floatformat:2 }}</div>
+        <div class="stat-label">Total amount</div>
     </div>
     
     <div class="stat-card">
         <h3>Failed Payments</h3>
         <div class="stat-value" style="color: #d32f2f;">{{ failed_payments }}</div>
         <div class="stat-label">Not processed</div>
+        <div class="stat-value f-currency">ZMW {{ total_failed_amount|floatformat:2 }}</div>
+        <div class="stat-label">Total amount</div>
     </div>
 </div>
 
