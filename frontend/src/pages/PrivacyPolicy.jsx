@@ -257,7 +257,7 @@ const PrivacyPolicy = () => {
                   </div>
 
                   <a
-                    href="mailto:support@tipzed.com"
+                    href="mailto:admin@tipzed.space"
                     className="flex items-center gap-3 bg-white text-zed-green px-8 py-4 rounded-2xl font-black hover:scale-105 transition-transform"
                   >
                     <Mail size={20} />
