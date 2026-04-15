@@ -8,12 +8,11 @@
 
 from django.core.mail import send_mail
 from django.conf import settings
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
 from django.utils import timezone
 from datetime import timedelta
 from decimal import Decimal
 import logging
+from django.db.models import QuerySet
 
 logger = logging.getLogger(__name__)
 
@@ -594,7 +593,6 @@ Email: admin@tipzed.space
         logger.error(f"Failed to send welcome email for user {user.id}: {str(e)}")
         return False
 
-from django.db.models import QuerySet
 
 def send_reminder_to_share_creator_link_email(wallets: QuerySet):
     """
@@ -635,3 +633,41 @@ def send_reminder_to_share_creator_link_email(wallets: QuerySet):
             logger.info(f"Successfully sent reminder email to {creator_user.email}")
         except Exception as e:
             logger.error(f"Failed to send reminder email: {str(e)}")
+
+
+def welcome_early_adopter_email(email: str):
+    """
+    Sends a welcome email to ealry adopters and tells them the benefits
+
+    Args: email (str): Unique email address belonging to a creator to send an email to.
+    """
+    try:
+        subject = "Welcome to TipZed! 🎉 Exclusive Benefits for Early Adopters"
+        message = f"""Hello,
+
+        Welcome to TipZed! As one of our early adopters, you're part of an exclusive group of creators who are shaping the future of our platform. We're thrilled to have you on board and want to share some of the special benefits you can enjoy as an early adopter:
+
+        1. Priority Support: Get access to our dedicated support team for any questions or assistance you may need.
+        2. Feature Previews: Be the first to try out new features and provide feedback that will help us improve.
+        3. Community Recognition: Join our early adopter community and connect with other creators who are also part of this exciting journey.
+        4. Exclusive Resources: Access guides, tips, and best practices to help you maximize your success on TipZed.
+
+        We're committed to supporting you every step of the way as you grow your presence on TipZed. If you have any questions or need assistance, please don't hesitate to reach out.
+
+        Best regards,
+        The TipZed Team
+        Email: admin@tipzed.space
+        """
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL or 'noreply@tipzed.space',
+            recipient_list=[email],
+            fail_silently=False,
+        )
+        logger.info(f"Successfully sent welcome email to early adopter {email}")
+    except Exception as e:
+        logger.error(f"Failed to send welcome email to early adopter {email}: {str(e)}")
+
+
+

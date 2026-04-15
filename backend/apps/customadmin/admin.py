@@ -10,6 +10,7 @@ from apps.payments.models import PaymentWebhookLog as WebHook
 from apps.wallets.models import (
     PaymentAttempt, Refund, Wallet,
     WalletTransaction, WalletPayoutAccount)
+from apps.creators.tasks import welcome_early_adopter_task
 
 User = get_user_model()
 
@@ -373,13 +374,23 @@ class CreatorProfileAdmin(admin.ModelAdmin):
         ("Status", {"fields": ("status", "verified", "is_early_adopter")}),
         ("Dates", {"fields": ("created_at", "updated_at")}),
     )
-    actions = ["verify_creator", "mark_as_early_adopter"]
+    actions = ["verify_creator", "mark_as_early_adopter", "welcome_early_adopters"]
 
     def get_creator_name(self, obj):
         """Get creator's full name or username."""
         return obj.user.get_full_name() or obj.user.username
 
     get_creator_name.short_description = "Creator Name"
+
+    @admin.action(description="Send welcome email to selected early adopters")
+    def welcome_early_adopters(self, request, queryset):
+        """Admin action to send welcome email to selected early adopters."""
+        try:
+            for profile in queryset.filter(is_early_adopter=True):
+                welcome_early_adopter_task.delay(profile.slug)
+            self.message_user(request, f"Sent welcome emails to {queryset.filter(is_early_adopter=True).count()} early adopters.")
+        except Exception as e:
+            self.message_user(request, f"Error sending welcome emails: {str(e)}", level="error")
 
     @admin.action(description="Verify selected creators")
     def verify_creator(self, request, queryset):

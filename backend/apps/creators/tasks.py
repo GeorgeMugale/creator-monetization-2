@@ -8,7 +8,8 @@ from django.contrib.auth import get_user_model
 from apps.wallets.models import Wallet
 from utils.send_emails import (
     send_welcome_email, send_daily_weekly_summary_email,
-    send_reminder_to_share_creator_link_email)
+    send_reminder_to_share_creator_link_email,
+    welcome_early_adopter_email)
 from celery.schedules import crontab
 from config.celery import app
 
@@ -134,3 +135,40 @@ def setup_reminder_email_task(sender, **kwargs):
         send_reminder_to_share_creator_link_email_task.s(),
         name='Send reminder to share creator link email every 3 days'
     )
+
+
+@shared_task
+def welcome_early_adopter_task(slug):
+    """
+    Task to send a welcome email to early adopters who signed up before the beta period ended.
+    
+    This task can be triggered for users who signed up during the beta period (before April 13, 2024)
+    to welcome them and provide them with exclusive benefits or information about their early adopter status.
+    
+    Args:
+        slug (str): The unique slug of the creator profile
+        
+    Returns:
+        str: Status message
+    """
+    try:
+        from apps.creators.models import CreatorProfile
+        profile = CreatorProfile.objects.get(slug=slug)
+        user = profile.user
+        
+        # Send welcome email to early adopter
+        success = welcome_early_adopter_email(user.email)
+        
+        if success:
+            logger.info(f"Welcome email sent to early adopter {user.email}")
+            return f"Welcome email sent to early adopter {user.email}"
+        else:
+            logger.warning(f"Failed to send welcome email to early adopter {user.email}")
+            return f"Failed to send welcome email to early adopter {user.email}"
+            
+    except CreatorProfile.DoesNotExist:
+        logger.error(f"CreatorProfile with slug {slug} not found")
+        return f"CreatorProfile with slug {slug} not found"
+    except Exception as e:
+        logger.error(f"Error in welcome_early_adopter_task for slug {slug}: {str(e)}")
+        raise
