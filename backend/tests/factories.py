@@ -140,8 +140,9 @@ class WalletTransactionFactory(factory.django.DjangoModelFactory):
         model = WalletTransaction
 
     wallet = factory.SubFactory(WalletFactory)
-    amount = factory.Faker("pydecimal", left_digits=5, right_digits=2, min_value=1)
-    fee = factory.Faker("pydecimal", left_digits=3, right_digits=2, min_value=0)
+    # set default 0.0 amount
+    amount = factory.LazyFunction(lambda: Decimal("0.00"))
+    fee = factory.LazyFunction(lambda: Decimal("0.00"))
     transaction_type = "CASH_IN"
     status = "PENDING"
     payment = None
