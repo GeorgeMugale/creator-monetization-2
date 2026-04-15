@@ -64,6 +64,7 @@ class CreatorProfile(models.Model):
     youtube_profile = models.URLField(blank=True, validators=[URLValidator()], help_text='YouTube channel URL')
     tikTok_profile = models.URLField(blank=True, validators=[URLValidator()], help_text='TikTok profile URL')
     facebook_profile = models.URLField(blank=True, validators=[URLValidator()], help_text='Facebook profile URL')
+    is_early_adopter = models.BooleanField(default=False, help_text='Flag for early adopters')
    
 
     class Meta:
