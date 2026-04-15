@@ -54,19 +54,53 @@ def send_welcome_email_task(user_id):
         raise
 
 
-# Schedule task to send send_daily_weekly_summary_email to creators every day at 8 AM
+@shared_task
+def send_daily_summary_email_task(wallet_id):
+    """
+    Task wrapper for sending daily summary emails to creators.
+    
+    Args:
+        wallet_id (int): The ID of the wallet
+        
+    Returns:
+        str: Status message
+    """
+    try:
+        wallet = Wallet.objects.get(id=wallet_id)
+        success = send_daily_weekly_summary_email(wallet, period='daily')
+        
+        if success:
+            logger.info(f"Daily summary email sent for wallet {wallet_id}")
+            return f"Daily summary email sent to {wallet.creator.user.email}"
+        else:
+            logger.warning(f"Failed to send daily summary email for wallet {wallet_id}")
+            return f"Failed to send daily summary email for wallet {wallet_id}"
+            
+    except Wallet.DoesNotExist:
+        logger.error(f"Wallet with id {wallet_id} not found")
+        return f"Wallet {wallet_id} not found"
+    except Exception as e:
+        logger.error(f"Error in send_daily_summary_email_task for wallet {wallet_id}: {str(e)}")
+        raise
+
+
+# Schedule task to send daily summary emails to creators every day at 7:30 AM
 from celery.schedules import crontab
 from config.celery import app
 @app.on_after_finalize.connect
 def setup_periodic_tasks(sender, **kwargs):
     """Schedule the daily summary email task to run every day at 7:30 AM for
     every wallet with balance.
-    Fetch all wallets and check if they have balance, then send the email to the associated creator.
+    Fetch all wallets and check if they have balance, then schedule the email task.
     """
-    wallets = Wallet.objects.filter(balance__gt=0)
-    for wallet in wallets:
-        sender.add_periodic_task(
-            crontab(hour=7, minute=30), # Adjust the time as needed
-            send_daily_weekly_summary_email(wallet),
-            name='Send daily summary email to creators with balance'
-        )
+    try:
+        wallets = Wallet.objects.filter(balance__gt=0)
+        for wallet in wallets:
+            # Use task.s() to create a task signature for scheduling
+            sender.add_periodic_task(
+                crontab(hour=7, minute=30),  # Run every day at 7:30 AM
+                send_daily_summary_email_task.s(wallet.id),
+                name=f'Send daily summary email for wallet {wallet.id}'
+            )
+    except Exception as e:
+        logger.error(f"Error setting up periodic tasks: {str(e)}")
