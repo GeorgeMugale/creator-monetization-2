@@ -3,7 +3,7 @@ import { auth } from "../firebase";
 
 // Setup Constants (Fixed for Vite)
 const BASE_URL = import.meta.env.VITE_API_URL || "";
-const TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT) || 15000;
+const TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT) || 30000;
 const API_KEY = import.meta.env.VITE_API_CLIENT_KEY || "";
 
 // Create Axios Instance
