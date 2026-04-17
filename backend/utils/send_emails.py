@@ -8,12 +8,11 @@
 
 from django.core.mail import send_mail
 from django.conf import settings
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
 from django.utils import timezone
 from datetime import timedelta
 from decimal import Decimal
 import logging
+from django.db.models import QuerySet
 
 logger = logging.getLogger(__name__)
 
@@ -455,7 +454,6 @@ Getting Started:
 1. Complete Your Creator Profile
    - Add a profile picture and cover image
    - Write a bio describing what you do
-   - Select your content categories
 
 2. Set Up Your Wallet
    - Link your mobile money account (MTN, Airtel, Zamtel)
@@ -480,6 +478,7 @@ Happy creating!
 
 Best regards,
 The TipZed Team
+Email: admin@tipzed.space
         """
         
         # HTML version
@@ -517,7 +516,6 @@ The TipZed Team
                         <ul style="margin: 8px 0; color: #666;">
                             <li>Add a profile picture and cover image</li>
                             <li>Write a bio describing what you do</li>
-                            <li>Select your content categories</li>
                         </ul>
                     </div>
                     
@@ -569,6 +567,7 @@ The TipZed Team
                 <p style="margin: 0;">
                     Best regards,<br>
                     <strong>The TipZed Team</strong>
+                    <strong> Email: admin@tipzed.space</strong>
                 </p>
                 <p style="margin: 10px 0 0 0; color: #999;">
                     TipZed - Empower Creators, Support Creativity
@@ -593,4 +592,82 @@ The TipZed Team
     except Exception as e:
         logger.error(f"Failed to send welcome email for user {user.id}: {str(e)}")
         return False
+
+
+def send_reminder_to_share_creator_link_email(wallets: QuerySet):
+    """
+    Send a reminder email to a creator who has received any tip yet for period of time.
+    
+    This can be triggered by a Celery beat task that runs daily and checks for creators who
+    have received tips but haven't shared their creator link.
+
+    Args: wallets (QuerySet): QuerySet of Wallet objects that meet the criteria for
+        receiving the reminder email
+
+    """
+    for wallet in wallets:
+        try:
+            creator_user = wallet.creator.user
+
+            subject = "Share Your Creator Link and Get More Tips!"
+            message = f"""Hello {creator_user.first_name or creator_user.username},
+                            We noticed that you've received some tips, but you haven't shared your
+                            creator link yet. Sharing your link is the best way to get more support
+                            from your audience!
+                            Here's how to share your creator link:
+                            1. Log into your creator dashboard
+                            2. Copy your unique creator link
+                            3. Share it on your social media, website, or with your fans
+                            The more you share, the more tips you can receive! If you need any help,
+                            feel free to reach out to our support team.
+                            Best regards,
+                            The TipZed Team
+            """
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=settings.DEFAULT_FROM_EMAIL or 'noreply@tipzed.space',
+                recipient_list=[creator_user.email],
+                fail_silently=False,
+            )
+            logger.info(f"Successfully sent reminder email to {creator_user.email}")
+        except Exception as e:
+            logger.error(f"Failed to send reminder email: {str(e)}")
+
+
+def welcome_early_adopter_email(email: str):
+    """
+    Sends a welcome email to ealry adopters and tells them the benefits
+
+    Args: email (str): Unique email address belonging to a creator to send an email to.
+    """
+    try:
+        subject = "Welcome to TipZed! 🎉 Exclusive Benefits for Early Adopters"
+        message = f"""Hello,
+
+        Welcome to TipZed! As one of our early adopters, you're part of an exclusive group of creators who are shaping the future of our platform. We're thrilled to have you on board and want to share some of the special benefits you can enjoy as an early adopter:
+
+        1. Priority Support: Get access to our dedicated support team for any questions or assistance you may need.
+        2. Feature Previews: Be the first to try out new features and provide feedback that will help us improve.
+        3. Community Recognition: Join our early adopter community and connect with other creators who are also part of this exciting journey.
+        4. Exclusive Resources: Access guides, tips, and best practices to help you maximize your success on TipZed.
+
+        We're committed to supporting you every step of the way as you grow your presence on TipZed. If you have any questions or need assistance, please don't hesitate to reach out.
+
+        Best regards,
+        The TipZed Team
+        Email: admin@tipzed.space
+        """
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL or 'noreply@tipzed.space',
+            recipient_list=[email],
+            fail_silently=False,
+        )
+        logger.info(f"Successfully sent welcome email to early adopter {email}")
+    except Exception as e:
+        logger.error(f"Failed to send welcome email to early adopter {email}: {str(e)}")
+
+
 

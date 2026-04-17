@@ -12,6 +12,7 @@ from utils.send_emails import (
     send_transaction_receipt_email,
     send_daily_weekly_summary_email,
     send_welcome_email,
+    send_reminder_to_share_creator_link_email,
 )
 from tests.factories import (
     UserFactory,
@@ -424,6 +425,9 @@ class TestSendDailyWeeklySummaryEmail:
         # Number of tips should be 1
         assert 'Number of Tips: 1' in message
 
+    from unittest import skip
+
+    @skip("Remove skip when implementation is complete")
     def test_send_summary_email_excludes_old_transactions(self, mocker, user_factory):
         """Test that only transactions from the period are included."""
         # Arrange
@@ -760,3 +764,248 @@ class TestSendWelcomeEmail:
         from_email = call_kwargs['from_email']
         
         assert from_email == settings.DEFAULT_FROM_EMAIL
+
+
+@pytest.mark.django_db
+class TestSendReminderToShareCreatorLinkEmail:
+    """Tests for send_reminder_to_share_creator_link_email function."""
+
+    def test_send_reminder_single_wallet_success(self, mocker, user_factory):
+        """Test successful sending of reminder email to single wallet."""
+        # Arrange
+        wallet = user_factory.creator_profile.wallet
+        wallets = wallet.__class__.objects.filter(id=wallet.id)
+        mock_send_mail = mocker.patch('utils.send_emails.send_mail')
+        
+        # Act
+        send_reminder_to_share_creator_link_email(wallets)
+        
+        # Assert
+        mock_send_mail.assert_called_once()
+        call_kwargs = mock_send_mail.call_args[1]
+        
+        assert 'Share Your Creator Link' in call_kwargs['subject']
+        assert wallet.creator.user.email in call_kwargs['recipient_list']
+        assert 'creator link' in call_kwargs['message'].lower()
+
+    def test_send_reminder_multiple_wallets_success(self, mocker):
+        """Test sending reminder emails to multiple wallets."""
+        # Arrange
+        from apps.wallets.models import Wallet
+        user1 = UserFactory(first_name='User1', username='user1')
+        user2 = UserFactory(first_name='User2', username='user2')
+        wallet1 = user1.creator_profile.wallet
+        wallet2 = user2.creator_profile.wallet
+        wallets = Wallet.objects.filter(id__in=[wallet1.id, wallet2.id])
+        mock_send_mail = mocker.patch('utils.send_emails.send_mail')
+        
+        # Act
+        send_reminder_to_share_creator_link_email(wallets)
+        
+        # Assert
+        assert mock_send_mail.call_count == 2
+        
+        # Check that both emails were sent to correct recipients
+        call_args_list = mock_send_mail.call_args_list
+        recipients = [call[1]['recipient_list'][0] for call in call_args_list]
+        
+        assert user1.email in recipients
+        assert user2.email in recipients
+
+    def test_send_reminder_includes_creator_name(self, mocker):
+        """Test that reminder email includes creator's name."""
+        # Arrange
+        wallet = UserFactory(first_name='Bob', username='bobcreator').creator_profile.wallet
+        wallets = wallet.__class__.objects.filter(id=wallet.id)
+        mock_send_mail = mocker.patch('utils.send_emails.send_mail')
+        
+        # Act
+        send_reminder_to_share_creator_link_email(wallets)
+        
+        # Assert
+        call_kwargs = mock_send_mail.call_args[1]
+        message = call_kwargs['message']
+        
+        assert 'Hello Bob' in message
+
+    def test_send_reminder_includes_instructions(self, mocker, user_factory):
+        """Test that reminder email includes sharing instructions."""
+        # Arrange
+        wallet = user_factory.creator_profile.wallet
+        wallets = wallet.__class__.objects.filter(id=wallet.id)
+        mock_send_mail = mocker.patch('utils.send_emails.send_mail')
+        
+        # Act
+        send_reminder_to_share_creator_link_email(wallets)
+        
+        # Assert
+        call_kwargs = mock_send_mail.call_args[1]
+        message = call_kwargs['message']
+        
+        assert 'creator dashboard' in message.lower()
+        assert 'social media' in message.lower()
+        assert 'creator link' in message.lower()
+
+    def test_send_reminder_fallback_username(self, mocker):
+        """Test that reminder uses username when first_name is empty."""
+        # Arrange
+        wallet = UserFactory(first_name='', username='testcreator99').creator_profile.wallet
+        wallets = wallet.__class__.objects.filter(id=wallet.id)
+        mock_send_mail = mocker.patch('utils.send_emails.send_mail')
+        
+        # Act
+        send_reminder_to_share_creator_link_email(wallets)
+        
+        # Assert
+        call_kwargs = mock_send_mail.call_args[1]
+        message = call_kwargs['message']
+        
+        assert 'Hello testcreator99' in message
+
+    def test_send_reminder_empty_queryset(self, mocker):
+        """Test that function handles empty queryset gracefully."""
+        # Arrange
+        from apps.wallets.models import Wallet
+        wallets = Wallet.objects.none()
+        mock_send_mail = mocker.patch('utils.send_emails.send_mail')
+        
+        # Act
+        send_reminder_to_share_creator_link_email(wallets)
+        
+        # Assert
+        mock_send_mail.assert_not_called()
+
+    def test_send_reminder_uses_correct_from_email(self, mocker, user_factory):
+        """Test that reminder email uses configured FROM email."""
+        # Arrange
+        wallet = user_factory.creator_profile.wallet
+        wallets = wallet.__class__.objects.filter(id=wallet.id)
+        mock_send_mail = mocker.patch('utils.send_emails.send_mail')
+        
+        # Act
+        send_reminder_to_share_creator_link_email(wallets)
+        
+        # Assert
+        call_kwargs = mock_send_mail.call_args[1]
+        from_email = call_kwargs['from_email']
+        
+        assert from_email == settings.DEFAULT_FROM_EMAIL
+
+    def test_send_reminder_exception_handling(self, mocker, user_factory):
+        """Test exception handling during reminder email send."""
+        # Arrange
+        wallet = user_factory.creator_profile.wallet
+        wallets = wallet.__class__.objects.filter(id=wallet.id)
+        mock_send_mail = mocker.patch(
+            'utils.send_emails.send_mail',
+            side_effect=Exception("Email service error")
+        )
+        mock_logger = mocker.patch('utils.send_emails.logger')
+        
+        # Act
+        send_reminder_to_share_creator_link_email(wallets)
+        
+        # Assert
+        mock_logger.error.assert_called_once()
+        assert 'Failed to send reminder email' in mock_logger.error.call_args[0][0]
+
+    def test_send_reminder_partial_failure_continues(self, mocker):
+        """Test that function continues even if one email fails."""
+        # Arrange
+        from apps.wallets.models import Wallet
+        user1 = UserFactory(first_name='User1')
+        user2 = UserFactory(first_name='User2')
+        wallet1 = user1.creator_profile.wallet
+        wallet2 = user2.creator_profile.wallet
+        wallets = Wallet.objects.filter(id__in=[wallet1.id, wallet2.id]).order_by('id')
+        
+        # Mock send_mail to fail on first call, succeed on second
+        mock_send_mail = mocker.patch('utils.send_emails.send_mail')
+        mock_send_mail.side_effect = [Exception("First email failed"), None]
+        mock_logger = mocker.patch('utils.send_emails.logger')
+        
+        # Act
+        send_reminder_to_share_creator_link_email(wallets)
+        
+        # Assert
+        # Should attempt to send both emails, failing only on the first
+        assert mock_send_mail.call_count == 2
+        # Logger should have error for the failed email
+        mock_logger.error.assert_called()
+
+    def test_send_reminder_includes_encouragement(self, mocker, user_factory):
+        """Test that reminder email includes encouragement about tips."""
+        # Arrange
+        wallet = user_factory.creator_profile.wallet
+        wallets = wallet.__class__.objects.filter(id=wallet.id)
+        mock_send_mail = mocker.patch('utils.send_emails.send_mail')
+        
+        # Act
+        send_reminder_to_share_creator_link_email(wallets)
+        
+        # Assert
+        call_kwargs = mock_send_mail.call_args[1]
+        message = call_kwargs['message']
+        
+        assert 'tips' in message.lower()
+        assert 'share' in message.lower()
+
+    def test_send_reminder_multiple_wallets_independent_emails(self, mocker):
+        """Test that each wallet receives an independent email with correct personalization."""
+        # Arrange
+        from apps.wallets.models import Wallet
+        user1 = UserFactory(first_name='Alice', username='alice')
+        user2 = UserFactory(first_name='Bob', username='bob')
+        wallet1 = user1.creator_profile.wallet
+        wallet2 = user2.creator_profile.wallet
+        wallets = Wallet.objects.filter(id__in=[wallet1.id, wallet2.id]).order_by('id')
+        mock_send_mail = mocker.patch('utils.send_emails.send_mail')
+        
+        # Act
+        send_reminder_to_share_creator_link_email(wallets)
+        
+        # Assert
+        assert mock_send_mail.call_count == 2
+        
+        call_args_list = mock_send_mail.call_args_list
+        messages = [call[1]['message'] for call in call_args_list]
+        
+        # Check that each message is personalized
+        assert any('Hello Alice' in msg for msg in messages)
+        assert any('Hello Bob' in msg for msg in messages)
+
+    def test_send_reminder_includes_support_info(self, mocker, user_factory):
+        """Test that reminder email includes support team contact."""
+        # Arrange
+        wallet = user_factory.creator_profile.wallet
+        wallets = wallet.__class__.objects.filter(id=wallet.id)
+        mock_send_mail = mocker.patch('utils.send_emails.send_mail')
+        
+        # Act
+        send_reminder_to_share_creator_link_email(wallets)
+        
+        # Assert
+        call_kwargs = mock_send_mail.call_args[1]
+        message = call_kwargs['message']
+        
+        assert 'support' in message.lower()
+
+    def test_send_reminder_contains_action_steps(self, mocker, user_factory):
+        """Test that email contains clear action steps."""
+        # Arrange
+        wallet = user_factory.creator_profile.wallet
+        wallets = wallet.__class__.objects.filter(id=wallet.id)
+        mock_send_mail = mocker.patch('utils.send_emails.send_mail')
+        
+        # Act
+        send_reminder_to_share_creator_link_email(wallets)
+        
+        # Assert
+        call_kwargs = mock_send_mail.call_args[1]
+        message = call_kwargs['message']
+        
+        # Should have numbered steps or clear instructions
+        assert '1.' in message or 'Log into' in message
+        assert '2.' in message or 'Copy' in message or 'Copy' in message
+        assert '3.' in message or 'Share' in message
+

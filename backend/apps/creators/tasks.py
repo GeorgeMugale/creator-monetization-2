@@ -2,12 +2,16 @@
 Celery tasks for the creators app.
 Handles async operations like sending welcome emails to new creators.
 """
+import logging
 from celery import shared_task
 from django.contrib.auth import get_user_model
 from apps.wallets.models import Wallet
-from utils.send_emails import send_welcome_email, send_daily_weekly_summary_email
-import logging
-
+from utils.send_emails import (
+    send_welcome_email, send_daily_weekly_summary_email,
+    send_reminder_to_share_creator_link_email,
+    welcome_early_adopter_email)
+from celery.schedules import crontab
+from config.celery import app
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -85,8 +89,6 @@ def send_daily_summary_email_task(wallet_id):
 
 
 # Schedule task to send daily summary emails to creators every day at 7:30 AM
-from celery.schedules import crontab
-from config.celery import app
 @app.on_after_finalize.connect
 def setup_periodic_tasks(sender, **kwargs):
     """Schedule the daily summary email task to run every day at 7:30 AM for
@@ -104,3 +106,69 @@ def setup_periodic_tasks(sender, **kwargs):
             )
     except Exception as e:
         logger.error(f"Error setting up periodic tasks: {str(e)}")
+
+
+@shared_task
+def send_reminder_to_share_creator_link_email_task():
+    """
+    Task to send a reminder email to creators who haven't received a tip.
+    
+    This task can be scheduled to run periodically (e.g., every 3 days) to encourage
+    creators to share their unique creator link and attract more supporters.
+    """
+    try:
+        from apps.wallets.models import Wallet
+        wallets = Wallet.objects.filter(balance=0)  # Creators with no tips received
+        send_reminder_to_share_creator_link_email(wallets)
+        logger.info(f"Sent reminder email to {wallets.count()} creators to share their creator link")
+        return f"Sent reminder emails to {wallets.count()} creators"
+    except Exception as e:
+        logger.error(f"Error in send_reminder_to_share_creator_link_email_task: {str(e)}")
+        raise
+
+# Schedule the reminder email task to run every 3 days at 10:00 AM
+@app.on_after_finalize.connect
+def setup_reminder_email_task(sender, **kwargs):
+    """Schedule the reminder email task to run every 3 days at 10:00 AM."""
+    sender.add_periodic_task(
+        crontab(hour=10, minute=0, day_of_month='*/3'),  # Every 3 days at 10:00 AM
+        send_reminder_to_share_creator_link_email_task.s(),
+        name='Send reminder to share creator link email every 3 days'
+    )
+
+
+@shared_task
+def welcome_early_adopter_task(slug):
+    """
+    Task to send a welcome email to early adopters who signed up before the beta period ended.
+    
+    This task can be triggered for users who signed up during the beta period (before April 13, 2024)
+    to welcome them and provide them with exclusive benefits or information about their early adopter status.
+    
+    Args:
+        slug (str): The unique slug of the creator profile
+        
+    Returns:
+        str: Status message
+    """
+    try:
+        from apps.creators.models import CreatorProfile
+        profile = CreatorProfile.objects.get(slug=slug)
+        user = profile.user
+        
+        # Send welcome email to early adopter
+        success = welcome_early_adopter_email(user.email)
+        
+        if success:
+            logger.info(f"Welcome email sent to early adopter {user.email}")
+            return f"Welcome email sent to early adopter {user.email}"
+        else:
+            logger.warning(f"Failed to send welcome email to early adopter {user.email}")
+            return f"Failed to send welcome email to early adopter {user.email}"
+            
+    except CreatorProfile.DoesNotExist:
+        logger.error(f"CreatorProfile with slug {slug} not found")
+        return f"CreatorProfile with slug {slug} not found"
+    except Exception as e:
+        logger.error(f"Error in welcome_early_adopter_task for slug {slug}: {str(e)}")
+        raise

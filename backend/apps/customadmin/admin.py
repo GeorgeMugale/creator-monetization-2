@@ -10,6 +10,7 @@ from apps.payments.models import PaymentWebhookLog as WebHook
 from apps.wallets.models import (
     PaymentAttempt, Refund, Wallet,
     WalletTransaction, WalletPayoutAccount)
+from apps.creators.tasks import welcome_early_adopter_task
 
 User = get_user_model()
 
@@ -347,12 +348,13 @@ class CreatorProfileAdmin(admin.ModelAdmin):
         "get_creator_name",
         "status",
         "verified",
+        "is_early_adopter",
         "followers_count",
         "total_earnings",
         "rating",
         "created_at",
     )
-    list_filter = ("status", "verified", "created_at")
+    list_filter = ("status", "verified", "is_early_adopter", "created_at")
     search_fields = (
         "user__email",
         "user__username",
@@ -369,15 +371,39 @@ class CreatorProfileAdmin(admin.ModelAdmin):
             {"fields": ("bio", "profile_image", "cover_image", "website")},
         ),
         ("Stats", {"fields": ("followers_count", "total_earnings", "rating")}),
-        ("Status", {"fields": ("status", "verified")}),
+        ("Status", {"fields": ("status", "verified", "is_early_adopter")}),
         ("Dates", {"fields": ("created_at", "updated_at")}),
     )
+    actions = ["verify_creator", "mark_as_early_adopter", "welcome_early_adopters"]
 
     def get_creator_name(self, obj):
         """Get creator's full name or username."""
         return obj.user.get_full_name() or obj.user.username
 
     get_creator_name.short_description = "Creator Name"
+
+    @admin.action(description="Send welcome email to selected early adopters")
+    def welcome_early_adopters(self, request, queryset):
+        """Admin action to send welcome email to selected early adopters."""
+        try:
+            for profile in queryset.filter(is_early_adopter=True):
+                welcome_early_adopter_task.delay(profile.slug)
+            self.message_user(request, f"Sent welcome emails to {queryset.filter(is_early_adopter=True).count()} early adopters.")
+        except Exception as e:
+            self.message_user(request, f"Error sending welcome emails: {str(e)}", level="error")
+
+    @admin.action(description="Verify selected creators")
+    def verify_creator(self, request, queryset):
+        """Admin action to verify creators."""
+        count = queryset.update(verified=True)
+        self.message_user(request, f"Verified {count} creators.")
+
+    @admin.action(description="Mark selected creators as early adopters")
+    def mark_as_early_adopter(self, request, queryset):
+        """Admin action to mark creators as early adopters."""
+        count = queryset.update(is_early_adopter=True)
+        self.message_user(request, f"Marked {count} creators as early adopters.")
+
 
 
 admin.site.register(Wallet, WalletAdmin)
