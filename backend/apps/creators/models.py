@@ -71,7 +71,7 @@ class CreatorProfile(models.Model):
         db_table = 'creators_profile'
         verbose_name = 'Creator Profile'
         verbose_name_plural = 'Creator Profiles'
-        ordering = ['-followers_count']
+        ordering = ['-created_at']
 
     def __str__(self):
         return f"{self.user.get_full_name() or self.user.username} - Creator"

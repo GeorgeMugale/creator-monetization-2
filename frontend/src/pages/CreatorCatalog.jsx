@@ -257,10 +257,10 @@ const CreatorCatalog = () => {
 
                       {/* Content Section */}
                       <div className="pt-6 px-2">
-                        <h3 className="font-bold text-xl text-gray-900 mb-1 group-hover:text-zed-green transition-colors">
+                        <h3 className="truncate font-bold text-xl text-gray-900 mb-1 group-hover:text-zed-green transition-colors">
                           {name}
                         </h3>
-                        <p className="text-gray-500 text-sm mb-4 line-clamp-2">
+                        <p className="truncate text-gray-500 text-sm mb-4 line-clamp-2">
                           {creator.bio || "No bio available."}
                         </p>
                         <div className="flex items-center justify-end">

@@ -254,7 +254,7 @@ const CreatorProfile = () => {
 
             <div className="flex-1 pb-2 bg-white/80 backdrop-blur-md p-4 rounded-3xl shadow-sm border border-white/20">
               <div className="flex flex-wrap items-center gap-3 mb-1">
-                <h1 className="text-4xl font-black text-gray-900 tracking-tight">
+                <h1 className="truncate text-4xl font-black text-gray-900 tracking-tight">
                   {getName(creator)}
                 </h1>
                 {creator.verified && (
@@ -264,7 +264,7 @@ const CreatorProfile = () => {
                   />
                 )}
               </div>
-              <p className="text-lg text-gray-500 font-medium mb-2">
+              <p className="truncate text-lg text-gray-500 font-medium mb-2">
                 @{creator.user?.slug}
               </p>
 
@@ -410,7 +410,7 @@ const CreatorProfile = () => {
                   <span className="w-8 h-[2px] bg-zed-green" />
                   About Creator
                 </h2>
-                <p className="text-gray-600 text-base sm:text-lg leading-relaxed whitespace-pre-wrap">
+                <p className="truncate text-gray-600 text-base sm:text-lg leading-relaxed whitespace-pre-wrap">
                   {creator.bio || `${getName(creator)} hasn't added a bio yet.`}
                 </p>
               </section>
@@ -459,7 +459,7 @@ const CreatorProfile = () => {
                         <Globe size={18} className="text-gray-400" />
                         <div>
                           <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400">Website</p>
-                          <a href={creator.website} target="_blank" rel="noopener noreferrer" className="font-medium text-zed-green hover:underline break-all">
+                          <a href={creator.website} target="_blank" rel="noopener noreferrer" className="truncate font-medium text-zed-green hover:underline break-all">
                             {creator.website.replace(/^https?:\/\//, '')}
                           </a>
                         </div>
@@ -528,7 +528,7 @@ const CreatorProfile = () => {
           <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-xl border-t border-gray-100 z-[90] flex items-center gap-3 shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.1)] animate-in slide-in-from-bottom duration-500">
             <button
               onClick={() => setIsSupportOpen(true)}
-              className="flex-1 bg-zed-green text-white py-4 rounded-2xl font-black text-lg shadow-lg shadow-green-100 active:scale-95 transition-all"
+              className="truncate flex-1 bg-zed-green text-white py-4 rounded-2xl font-black text-lg shadow-lg shadow-green-100 active:scale-95 transition-all"
             >
               Support {getName(creator).split(" ")[0]}
             </button>

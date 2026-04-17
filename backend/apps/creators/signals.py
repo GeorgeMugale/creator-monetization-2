@@ -1,3 +1,5 @@
+from datetime import datetime, timezone as dt_timezone
+from django.utils import timezone
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth import get_user_model
@@ -31,10 +33,9 @@ def creator_profile_post_save(sender, instance, created, **kwargs):
     after a profile is created or updated."""
     if created:
         # if in beta period before 13th April auto verify and set is_early_adopter to True
-        from django.utils import timezone
-        if timezone.now() < timezone.datetime(2024, 4, 13, tzinfo=timezone.utc):
+        if timezone.now() < datetime(2024, 4, 13, tzinfo=dt_timezone.utc):
             instance.verified = True
             instance.is_early_adopter = True
             instance.save()
             # Send welcome email to early adopter asynchronously
-            welcome_early_adopter_task.delay(instance.slug)
+            welcome_early_adopter_task.delay(instance.user.slug)
